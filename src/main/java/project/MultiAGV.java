@@ -1,20 +1,51 @@
 package project;
 
+import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
+import com.github.rinde.rinsim.core.model.time.TimeLapse;
+import com.google.common.base.Optional;
 import org.apache.commons.math3.random.RandomGenerator;
+import project.antsystems.AntAgent;
+import project.antsystems.ExplorationAnt;
+import project.antsystems.IntentionAnt;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MultiAGV extends AGVAgent {
+
+    static final float RECONSIDERATION_TRESHOLD = 1.3f;
+
     private int strenght;
     private MultiParcel carriedParcel;
+    private List<AntAgent> antAgentList = new ArrayList<>();
+    private IntentionAnt currentIntention;
+    private Simulator sim;
+    private boolean isWaiting = false;
 
-
-    public MultiAGV(RandomGenerator r) {
+    public MultiAGV(RandomGenerator r, Simulator sim) {
         super(r);
+        this.sim = sim;
     }
 
     public int getStrenght() {
         return strenght;
+    }
+
+    public void tick(TimeLapse timeLapse) {
+
+        //If we got to the destination, take action to start moving to next target
+        if (((CollisionGraphRoadModelImpl)this.roadModel.get()).getPosition(this).equals(currentIntention.peekNextGoalNode())) {
+
+            //pickUp();
+            this.setNextDestination();
+        }
+    }
+
+    public void reportBack(ExplorationAnt ant){
+        if(ant.getHeuristicValue() >= currentIntention.getHeuristicValue()*RECONSIDERATION_TRESHOLD){
+            currentIntention = new IntentionAnt(ant);
+        }
     }
 
     public void pickUp(MultiParcel parcel){
@@ -31,6 +62,14 @@ public class MultiAGV extends AGVAgent {
             //Wait, since not enough agv's are helping
        }
         //Todo
+    }
+
+    public void sendExplorationAnts(){
+
+    }
+
+    public void setNextDestination(){
+        path = currentIntention.getPath();
     }
 
 }

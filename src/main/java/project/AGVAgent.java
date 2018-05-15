@@ -17,11 +17,11 @@ import org.apache.commons.math3.random.RandomGenerator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-class AGVAgent implements TickListener, MovingRoadUser {
-    private final RandomGenerator rng;
-    private Optional<CollisionGraphRoadModelImpl> roadModel;
-    private Optional<Point> destination;
-    private Queue<Point> path;
+abstract class AGVAgent implements TickListener, MovingRoadUser, RealworldAgent {
+    protected final RandomGenerator rng;
+    protected Optional<CollisionGraphRoadModelImpl> roadModel;
+    protected Optional<Point> destination;
+    protected Queue<Point> path;
 
     AGVAgent(RandomGenerator r) {
         this.rng = r;
@@ -45,22 +45,7 @@ class AGVAgent implements TickListener, MovingRoadUser {
         return 1.0D;
     }
 
-    void nextDestination() {
-        this.destination = Optional.of(((CollisionGraphRoadModelImpl)this.roadModel.get()).getRandomPosition(this.rng));
-        this.path = new LinkedList(((CollisionGraphRoadModelImpl)this.roadModel.get()).getShortestPathTo(this, (Point)this.destination.get()));
-    }
-
-    public void tick(TimeLapse timeLapse) {
-        if (!this.destination.isPresent()) {
-            this.nextDestination();
-        }
-
-        ((CollisionGraphRoadModelImpl)this.roadModel.get()).followPath(this, this.path, timeLapse);
-        if (((CollisionGraphRoadModelImpl)this.roadModel.get()).getPosition(this).equals(this.destination.get())) {
-            this.nextDestination();
-        }
-
-    }
+    public abstract void tick(TimeLapse timeLapse) ;
 
     public void afterTick(TimeLapse timeLapse) {
     }

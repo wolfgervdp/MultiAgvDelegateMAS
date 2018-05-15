@@ -34,6 +34,8 @@ import java.util.Random;
 import javax.measure.unit.SI;
 
 public final class Warehouse {
+
+
     private static final double VEHICLE_LENGTH = 2.0D;
     private static final int NUM_AGVS = 1;
     private static final long TEST_END_TIME = 600000L;
@@ -63,7 +65,7 @@ public final class Warehouse {
                 .addModel(viewBuilder).build();
 
         for(int i = 0; i < NUM_AGVS; ++i) {
-            RoadUser user = new MultiAGV(sim.getRandomGenerator());
+            RoadUser user = new MultiAGV(sim.getRandomGenerator(), sim);
             sim.register(user);
         }
 
