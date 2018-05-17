@@ -5,18 +5,27 @@ import com.github.rinde.rinsim.geom.Point;
 import com.google.common.base.Optional;
 import project.antsystems.ExplorationAnt;
 
-public class InfrastructureAgent implements ConnectionData, RealworldAgent {
+public class InfrastructureAgent implements ConnectionData {
 
-    float reservationPheromone;
+    static final double signCoefficient = 0.5f;
+    static final double reservationCoefficient = 0.5f;
+
+    double reservationPheromone = 0;
+    double signPheromone = 0;
+
     private double length;
 
     @Override
     public Optional<Double> getLength() {
         return Optional.of(length);
     }
-
-    @Override
-    public void reportBack(ExplorationAnt ant) {
-
+    public void updateSignPheromone(double value) {
+        signPheromone += value;
+    }
+    public void updateReservationPheromone(double value) {
+        reservationPheromone += value;
+    }
+    public double getHeuristicValue(){
+        return signCoefficient*(signPheromone)+reservationCoefficient/reservationPheromone;
     }
 }
