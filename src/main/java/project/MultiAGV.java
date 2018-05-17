@@ -34,10 +34,8 @@ public class MultiAGV extends AGVAgent {
 
     public void tick(TimeLapse timeLapse) {
 
-        //If we got to the destination, take action to start moving to next target
-        if (((CollisionGraphRoadModelImpl)this.roadModel.get()).getPosition(this).equals(currentIntention.peekNextGoalNode())) {
-
-            //pickUp();
+        if ((currentIntention != null) && ((CollisionGraphRoadModelImpl)this.roadModel.get()).getPosition(this).equals(currentIntention.peekNextGoalNode())) {
+            //If we got to the destination, take action to start moving to next target
             this.setNextDestination();
         }
     }
@@ -51,7 +49,7 @@ public class MultiAGV extends AGVAgent {
     public void pickUp(MultiParcel parcel){
         if(carriedParcel != null){
             carriedParcel = parcel;
-        }else {
+        }else{
             //What to do when we try to pick up parcel when we already have one?
             //(should probably never happen, so maybe exception?)
         }

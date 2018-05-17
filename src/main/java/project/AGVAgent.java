@@ -47,6 +47,5 @@ abstract class AGVAgent implements TickListener, MovingRoadUser, RealworldAgent 
 
     public abstract void tick(TimeLapse timeLapse) ;
 
-    public void afterTick(TimeLapse timeLapse) {
-    }
+    public void afterTick(TimeLapse timeLapse) {}
 }

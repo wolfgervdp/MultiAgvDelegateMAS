@@ -45,7 +45,7 @@ public final class Warehouse {
     }
 
     public static void main(String[] args) {
-        run(false);
+        run(true);
     }
 
     public static void run(boolean testing) {
