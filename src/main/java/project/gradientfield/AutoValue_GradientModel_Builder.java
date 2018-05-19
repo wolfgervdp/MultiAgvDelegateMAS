@@ -1,13 +1,7 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
+package project.gradientfield;
 
-import com.github.rinde.rinsim.examples.pdptw.gradientfield;
 
-import com.github.rinde.rinsim.examples.pdptw.gradientfield.GradientModel.Builder;
-
-final class AutoValue_GradientModel_Builder extends Builder {
+final class AutoValue_GradientModel_Builder extends GradientModel.Builder {
     private static final long serialVersionUID = 4464819196521333718L;
 
     AutoValue_GradientModel_Builder() {
@@ -17,7 +11,7 @@ final class AutoValue_GradientModel_Builder extends Builder {
         if (o == this) {
             return true;
         } else {
-            return o instanceof Builder;
+            return o instanceof GradientModel.Builder;
         }
     }
 

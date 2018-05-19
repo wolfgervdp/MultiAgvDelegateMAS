@@ -28,7 +28,7 @@ import com.github.rinde.rinsim.core.model.ModelBuilder.AbstractModelBuilder;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.ui.renderers.CanvasRenderer.AbstractCanvasRenderer;
 import com.github.rinde.rinsim.ui.renderers.ViewPort;
-import com.github.rinde.rinsim.examples.pdptw.gradientfield.*;
+//import com.google.auto.value.AutoValue;
 
 class GradientFieldRenderer extends AbstractCanvasRenderer {
 
@@ -47,10 +47,10 @@ class GradientFieldRenderer extends AbstractCanvasRenderer {
 
   @Override
   public void renderDynamic(GC gc, ViewPort vp, long time) {
-    final List<MultiAGVGradientField> MultiAGVGradientFields = gradientModel.getMultiAGVGradientFieldEmitters();
+    final List<MultiAGVGradientField> trucks = gradientModel.getMultiAGVGradientFieldEmitters();
 
-    synchronized (MultiAGVGradientFields) {
-      for (final MultiAGVGradientField t : MultiAGVGradientFields) {
+    synchronized (trucks) {
+      for (final MultiAGVGradientField t : trucks) {
         final Point tp = t.getPosition();
 
         final Map<Point, Float> fields = t.getFields();
@@ -84,7 +84,22 @@ class GradientFieldRenderer extends AbstractCanvasRenderer {
     }
   }
 
+  static Builder builder() {
+    return new AutoValue_GradientFieldRenderer_Builder();
+  }
 
+  @AutoValue
+  abstract static class Builder extends
+      AbstractModelBuilder<GradientFieldRenderer, Void> {
 
+    Builder() {
+      setDependencies(GradientModel.class);
+    }
 
+    @Override
+    public GradientFieldRenderer build(DependencyProvider dependencyProvider) {
+      final GradientModel gm = dependencyProvider.get(GradientModel.class);
+      return new GradientFieldRenderer(gm);
+    }
+  }
 }

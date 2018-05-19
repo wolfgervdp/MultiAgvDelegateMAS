@@ -174,7 +174,7 @@ public class GradientModel
     return clazz.cast(this);
   }
 
-  static Object builder() {
+  static Builder builder() {
     return new AutoValue_GradientModel_Builder();
   }
 

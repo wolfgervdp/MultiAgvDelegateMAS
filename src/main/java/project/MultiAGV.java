@@ -1,10 +1,12 @@
 package project;
 
 import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.Vehicle;
 import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
+import com.github.rinde.rinsim.geom.Point;
 import com.google.common.base.Optional;
 import org.apache.commons.math3.random.RandomGenerator;
 import project.antsystems.AntAgent;
@@ -25,10 +27,19 @@ public class MultiAGV extends Vehicle {
     private IntentionAnt currentIntention;
     private Simulator sim;
     private boolean isWaiting = false;
+    private static final double SPEED = 1000d;
+    private Optional<Parcel> curr;
 
-    public MultiAGV(VehicleDTO dto, Simulator sim) {
-        super(dto);
-        this.sim = sim;
+
+
+    
+    public MultiAGV(Point startPosition,  int capacity) {
+        super(VehicleDTO.builder()
+                .capacity(capacity)
+                .startPosition(startPosition)
+                .speed(SPEED)
+                .build());
+              curr = Optional.absent();
     }
 
     public int getStrenght() {
@@ -78,7 +89,7 @@ public class MultiAGV extends Vehicle {
     }
 
     public void setNextDestination(){
-        //path = currentIntention.getPath();
+       // path = currentIntention.getPath();
 
     }
 
