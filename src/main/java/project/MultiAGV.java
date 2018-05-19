@@ -1,6 +1,8 @@
 package project;
 
 import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.model.pdp.Vehicle;
+import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.google.common.base.Optional;
@@ -12,7 +14,7 @@ import project.antsystems.IntentionAnt;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MultiAGV extends AGVAgent {
+public class MultiAGV extends Vehicle {
 
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
 
@@ -23,18 +25,26 @@ public class MultiAGV extends AGVAgent {
     private Simulator sim;
     private boolean isWaiting = false;
 
-    public MultiAGV(RandomGenerator r, Simulator sim) {
-        super(r);
+    public MultiAGV(VehicleDTO dto, Simulator sim) {
+        super(dto);
         this.sim = sim;
     }
 
     public int getStrenght() {
         return strenght;
     }
+//
+//    public void tick(TimeLapse timeLapse) {
+//
+//        if ((currentIntention != null) && ((CollisionGraphRoadModelImpl)this.roadModel.get()).getPosition(this).equals(currentIntention.peekNextGoalNode())) {
+//            //If we got to the destination, take action to start moving to next target
+//            this.setNextDestination();
+//        }
+//    }
 
-    public void tick(TimeLapse timeLapse) {
-
-        if ((currentIntention != null) && ((CollisionGraphRoadModelImpl)this.roadModel.get()).getPosition(this).equals(currentIntention.peekNextGoalNode())) {
+    @Override
+    protected void tickImpl(TimeLapse timeLapse) {
+      if ((currentIntention != null) && (getRoadModel()).getPosition(this).equals(currentIntention.peekNextGoalNode())) {
             //If we got to the destination, take action to start moving to next target
             this.setNextDestination();
         }
@@ -67,7 +77,7 @@ public class MultiAGV extends AGVAgent {
     }
 
     public void setNextDestination(){
-        path = currentIntention.getPath();
+        //path = currentIntention.getPath();
     }
 
 }

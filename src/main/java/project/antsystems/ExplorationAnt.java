@@ -6,13 +6,19 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import project.InfrastructureAgent;
 import project.MultiAGV;
+import project.MultiParcel;
 import project.RealworldAgent;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 
+/*
+    Explores the map for a possible path going through Parcels. Adds new points at the back of the queue.
+ */
 public class ExplorationAnt extends AntAgent{
 
+    static final int PATH_PARCEL_NUMBER = 5;
+    double heuristicValue;
 
     public ExplorationAnt(RealworldAgent masterAgent, Point position) {
         super(masterAgent, position);
@@ -23,40 +29,60 @@ public class ExplorationAnt extends AntAgent{
         this.path = new ArrayDeque<>(explorationAnt.path);
     }
 
-
-    //Todo: Implement when the agent has reached a goal
-    protected boolean hasFoundGoal(){
-        throw new NotImplementedException();
+    public double getHeuristicValue() {
+        return heuristicValue;
     }
 
-    public void pushPoint(Point p){
 
-        //Todo
-        throw new NotImplementedException();
-    }
 
     @Override
     public void tick(TimeLapse timeLapse) {
-
         //If goal found, report back to masterAgent
-        if(hasFoundGoal()){
+        if(hasFinishedPath()){
             masterAgent.reportBack(this);
             return;
         }
 
-        Collection<Point> points = ((CollisionGraphRoadModelImpl)this.roadModel.get()).getGraph().getOutgoingConnections(((CollisionGraphRoadModelImpl)this.roadModel.get()).getPosition(this));
+        Collection<Point> points = ((CollisionGraphRoadModelImpl)this.roadModel.get())
+                                            .getGraph()
+                                            .getOutgoingConnections(((CollisionGraphRoadModelImpl)this.roadModel.get())
+                                            .getPosition(this));
+
         List<Point> chosenPoints = chosePoints(points);
 
+        //Create new ants for k-1 new paths (the kth path is for the ant itself, see next block)
         for (int i = 0; i < chosenPoints.size()-1; i++){
             ExplorationAnt ant = new ExplorationAnt(this);
             ant.pushPoint(chosenPoints.get(i));
             ant.moveStep(timeLapse);
+            if(atParcelLocation()){
+                pushQueue();
+            }
         }
-
+        //Last chosen point always goes to the current ant
         if(!chosenPoints.isEmpty()){
             pushPoint(chosenPoints.get(chosenPoints.size()));
             moveStep(timeLapse);
         }
+    }
+
+    private void pushPoint(Point p){
+        heuristicValue += calcHeuristicValue(p);
+        path.peekLast().push(p);
+    }
+
+    private void pushQueue(){
+        ArrayDeque<Point> arrayDeque = new ArrayDeque<>();
+        path.push(arrayDeque);
+    }
+
+    //Todo: Maybe get rid of the fixed path number size
+    private boolean hasFinishedPath(){
+        return path.size() >= PATH_PARCEL_NUMBER;
+    }
+
+    private boolean atParcelLocation(){
+        return ! ((CollisionGraphRoadModelImpl)this.roadModel.get()).getObjectsAt(this, MultiParcel.class).isEmpty();
     }
 
     private void moveStep(TimeLapse tl){
@@ -86,10 +112,5 @@ public class ExplorationAnt extends AntAgent{
             }
         }
         return chosenPoints;
-    }
-
-    private double calcHeuristicValue(Point p) {
-        //Todo
-        throw new NotImplementedException();
     }
 }

@@ -6,6 +6,7 @@
 package project;
 
 import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 //import com.github.rinde.rinsim.core.model.road.NewRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders;
@@ -22,6 +23,7 @@ import com.github.rinde.rinsim.ui.View;
 import com.github.rinde.rinsim.ui.View.Builder;
 import com.github.rinde.rinsim.ui.renderers.AGVRenderer;
 import com.github.rinde.rinsim.ui.renderers.WarehouseRenderer;
+import com.github.rinde.rinsim.util.TimeWindow;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -65,7 +67,28 @@ public final class Warehouse {
                 .addModel(viewBuilder).build();
 
         for(int i = 0; i < NUM_AGVS; ++i) {
-            RoadUser user = new MultiAGV(sim.getRandomGenerator(), sim);
+            VehicleDTO vehicleDTO = new VehicleDTO() {
+                @Override
+                public Point getStartPosition() {
+                    return null;
+                }
+
+                @Override
+                public double getSpeed() {
+                    return 0;
+                }
+
+                @Override
+                public int getCapacity() {
+                    return 0;
+                }
+
+                @Override
+                public TimeWindow getAvailabilityTimeWindow() {
+                    return null;
+                }
+            }
+            RoadUser user = new MultiAGV(, sim);
             sim.register(user);
         }
 
