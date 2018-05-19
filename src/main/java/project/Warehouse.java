@@ -6,6 +6,7 @@
 package project;
 
 import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.ModelBuilder;
 import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Depot;
@@ -33,6 +34,7 @@ import com.github.rinde.rinsim.ui.renderers.PDPModelRenderer;
 import com.github.rinde.rinsim.ui.renderers.Renderer;
 import com.github.rinde.rinsim.ui.renderers.RoadUserRenderer;
 import com.github.rinde.rinsim.ui.renderers.WarehouseRenderer;
+import com.github.rinde.rinsim.util.TimeWindow;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -133,7 +135,8 @@ public final class Warehouse {
 				RoadModel.class);
 
 		for(int i = 0; i < NUM_AGVS; ++i) {
-			RoadUser user = new MultiAGV(sim.getRandomGenerator(), sim);
+			//RoadUser user = new MultiAGV(sim.getRandomGenerator(), sim);
+			//Todo: find out how VehicleDto works (for updated MultiAGV constructor)
 			sim.register(user);
 		}
 		for (int i = 0; i < PARCEL; i++) {
@@ -244,5 +247,4 @@ public final class Warehouse {
 			return graph;
 		}
 	}
-
 }

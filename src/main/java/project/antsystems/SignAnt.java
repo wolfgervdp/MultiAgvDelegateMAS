@@ -16,17 +16,12 @@ public class SignAnt extends AntAgent {
 
     public SignAnt(RealworldAgent masterAgent, Point position) {
         super(masterAgent, position);
-
     }
 
     @Override
     public void tick(TimeLapse timeLapse) {
-
         Collection<Point> points = ((CollisionGraphRoadModelImpl)this.roadModel.get()).getGraph().getOutgoingConnections(((CollisionGraphRoadModelImpl)this.roadModel.get()).getPosition(this));
-
         ((CollisionGraphRoadModelImpl)this.roadModel.get()).moveTo(this, pickNextPoint(points), timeLapse);
-
-
     }
 
     //Current implementation is using a random node.This should probably be changed
@@ -35,7 +30,6 @@ public class SignAnt extends AntAgent {
         int randomNumber  = r.nextInt(points.size());
         for(int i = 0 ; i < randomNumber - 1; i++)
             points.iterator().next();
-
         return points.iterator().next();
     }
 }

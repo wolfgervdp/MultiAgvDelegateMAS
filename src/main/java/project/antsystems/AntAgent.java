@@ -18,6 +18,8 @@ import java.util.ArrayList;
 
 /*
     AntAgent is a superclass of all ant based agents
+     The inner queue indicates the path between parcels. The outer queue connects these paths to construct a
+    complete path through different parcels.
  */
 public abstract class AntAgent implements TickListener, MovingRoadUser {
 
@@ -27,6 +29,7 @@ public abstract class AntAgent implements TickListener, MovingRoadUser {
     protected InfrastructureAgent lastInfrastructureAgent;
     protected Point position;
     protected Optional<CollisionGraphRoadModelImpl> roadModel;
+
 
     //Copy constructor for AntAgent
     public AntAgent(AntAgent agent) {
@@ -44,7 +47,7 @@ public abstract class AntAgent implements TickListener, MovingRoadUser {
     }
 
     //Calculation for heuristic value
-    public double getHeuristicValue(){
+    public double calcHeuristicValue(Point p){
         throw new NotImplementedException();
     }
 
