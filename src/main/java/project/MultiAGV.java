@@ -10,6 +10,7 @@ import project.antsystems.ExplorationAnt;
 import project.antsystems.IntentionAnt;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class MultiAGV extends AGVAgent {
@@ -68,6 +69,7 @@ public class MultiAGV extends AGVAgent {
 
     public void setNextDestination(){
         path = currentIntention.getPath();
+
     }
 
 }
