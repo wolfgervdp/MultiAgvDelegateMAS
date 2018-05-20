@@ -16,34 +16,37 @@ public class IntentionAnt extends AntAgent {
 
     //Create intention ant from exploration ant, with same path
     public IntentionAnt(ExplorationAnt ant) {
-        super(ant.masterAgent, ant.position);
+        super(ant.masterAgent, ant.currentPosition, ant.roadModel, ant.sim);
         this.path = new ArrayDeque<>(ant.path);
         currentQueue = path.peekLast();
     }
 
     @Override
     public void tick(TimeLapse timeLapse) {
-        Point p = currentQueue.element();
-        moveStep(timeLapse);
+        //Todo: update inention values
     }
 
-    private void moveStep(TimeLapse tl){
-        ((CollisionGraphRoadModelImpl)this.roadModel.get()).moveTo(this,path.peekLast().peekLast(), tl);
-    }
 
     public double getHeuristicValue() {
         return heuristicValue;
     }
 
-    public Point peekNextGoalNode(){
+    public Point peekNextGoalLocation(){
         return path.peekFirst().peekFirst();
     }
 
-    public Point peekNextParcelNode(){
+    public Point peekNextParcelLocation(){
         return path.peekFirst().peekLast();
     }
 
     public Queue<Point> getPath(){
         return path.peekFirst();
+    }
+
+    public void popGoalLocation() {
+        path.getFirst().getFirst();
+    }
+    public void popPath(){
+        path.getFirst();
     }
 }

@@ -6,35 +6,25 @@
 package project;
 
 import com.github.rinde.rinsim.core.Simulator;
-import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
-import com.github.rinde.rinsim.core.model.ModelBuilder;
 import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
-import com.github.rinde.rinsim.core.model.pdp.Vehicle;
-import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 //import com.github.rinde.rinsim.core.model.road.NewRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders;
-import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.event.Event;
 import com.github.rinde.rinsim.event.Listener;
-import com.github.rinde.rinsim.examples.core.taxi.TaxiRenderer;
 import com.github.rinde.rinsim.geom.Graph;
 import com.github.rinde.rinsim.geom.Graphs;
-import com.github.rinde.rinsim.geom.LengthData;
 import com.github.rinde.rinsim.geom.ListenableGraph;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.geom.TableGraph;
 import com.github.rinde.rinsim.ui.View;
 import com.github.rinde.rinsim.ui.View.Builder;
 import com.github.rinde.rinsim.ui.renderers.AGVRenderer;
-import com.github.rinde.rinsim.ui.renderers.GraphRoadModelRenderer;
 import com.github.rinde.rinsim.ui.renderers.PDPModelRenderer;
-import com.github.rinde.rinsim.ui.renderers.Renderer;
 import com.github.rinde.rinsim.ui.renderers.RoadUserRenderer;
 import com.github.rinde.rinsim.ui.renderers.WarehouseRenderer;
-import com.github.rinde.rinsim.util.TimeWindow;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -55,10 +45,10 @@ public final class Warehouse {
 
 
 	private static final double VEHICLE_LENGTH = 2.0D;
-	private static final int NUM_AGVS = 5;
+	private static final int NUM_AGVS = 1;
 	private static final long TEST_END_TIME = 600000L;
 	private static final int TEST_SPEED_UP = 16;
-	private static final int PARCEL = 10;
+	private static final int NUM_PARCEL = 10;
 	private static final long SERVICE_DURATION = 60000;
 	private static final int MAX_CAPACITY = 3;
 	private static final int DEPOT_CAPACITY = 100;
@@ -109,7 +99,11 @@ public final class Warehouse {
 		return view;
 	}
 	public static void run(boolean testing) {
-		Builder viewBuilder = View.builder().with(PDPModelRenderer.builder()).with(AGVRenderer.builder().withDifferentColorsForVehicles());
+		Builder viewBuilder = View.builder()
+				.with(PDPModelRenderer.builder())
+				.with(AGVRenderer.builder()
+						.withDifferentColorsForVehicles());
+
 		if (testing) {
 			viewBuilder = viewBuilder.withAutoPlay().withAutoClose().withSimulatorEndTime(TEST_END_TIME).withTitleAppendix("TESTING").withSpeedUp(TEST_SPEED_UP);
 		} else {
@@ -122,11 +116,10 @@ public final class Warehouse {
 				.addModel(
 				RoadModelBuilders.dynamicGraph(
 				       Warehouse.GraphCreator.createSimpleGraph())
-				      .withCollisionAvoidance()
-				     .withDistanceUnit(SI.METER)
-				   .withVehicleLength(VEHICLE_LENGTH)
+				      	.withCollisionAvoidance()
+						.withDistanceUnit(SI.METER)
+				   		.withVehicleLength(VEHICLE_LENGTH)
 				 )
-
 				//.addModel(viewBuilder)
 				.addModel(DefaultPDPModel.builder())
 				.addModel(view)
@@ -138,15 +131,11 @@ public final class Warehouse {
 				RoadModel.class);
 
 		for(int i = 0; i < NUM_AGVS; ++i) {
-			
 			//RoadUser user = new MultiAGV(sim.getRandomGenerator(), sim);
-			//Todo: find out how VehicleDto works (for updated MultiAGV constructor)
 			sim.register(new MultiAGV(roadModel.getRandomPosition(rng),
-					MULTIAGV_CAPACITY));
-		      
-			
+					MULTIAGV_CAPACITY, sim));
 		}
-		for (int i = 0; i < PARCEL; i++) {
+		for (int i = 0; i < NUM_PARCEL; i++) {
 			sim.register(new MultiParcel(
 					Parcel.builder(roadModel.getRandomPosition(rng),
 							roadModel.getRandomPosition(rng))
@@ -156,7 +145,7 @@ public final class Warehouse {
 		}
 	    for (int i = 0; i < NUM_DEPOTS; i++) {
 	        sim.register(new Depot(roadModel.getRandomPosition(rng)));
-	      }
+		}
 		//sim.register(new WarehouseUpdater(sim.getModelProvider().getModel(NewRoadModel.class)));
 
 		sim.start();
@@ -185,8 +174,9 @@ public final class Warehouse {
 			return builder.build();
 		}
 
-		static ListenableGraph<LengthData> createSimpleGraph() {
-			Graph<LengthData> g = new TableGraph();
+		static ListenableGraph<InfrastructureAgent> createSimpleGraph() {
+			Graph<InfrastructureAgent> g = new TableGraph();
+
 			Table<Integer, Integer, Point> matrix = createMatrix(8, 6, new Point(0.0D, 0.0D));
 
 			for(int i = 0; i < matrix.columnMap().size(); ++i) {
@@ -197,16 +187,19 @@ public final class Warehouse {
 					path = matrix.column(i).values();
 				}
 
-				Graphs.addPath(g, (Iterable)path);
+				//Graphs.addPath(g, (Iterable) path);
+				GraphHelper.addPath(g, (Iterable) path, new InfrastructureAgent());
 			}
 
-			Graphs.addPath(g, matrix.row(0).values());
-			Graphs.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())));
+//			Graphs.addPath(g, matrix.row(0).values());
+//			Graphs.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())));
+			GraphHelper.addPath(g, matrix.row(0).values(), new InfrastructureAgent());
+			GraphHelper.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())), new InfrastructureAgent());
 			return new ListenableGraph(g);
 		}
 
-		static ListenableGraph<LengthData> createGraph() {
-			Graph<LengthData> g = new TableGraph();
+		static ListenableGraph<InfrastructureAgent> createGraph() {
+			Graph<InfrastructureAgent> g = new TableGraph();
 			Table<Integer, Integer, Point> leftMatrix = createMatrix(5, 10, new Point(0.0D, 0.0D));
 			Iterator var2 = leftMatrix.columnMap().values().iterator();
 

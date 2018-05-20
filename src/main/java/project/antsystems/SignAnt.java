@@ -1,6 +1,8 @@
 package project.antsystems;
 
+import com.github.rinde.rinsim.core.Simulator;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
+import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
@@ -14,14 +16,15 @@ public class SignAnt extends AntAgent {
     int numberOfWaitingAGVs = 0;
     long timeSinceParcelSpawn = 0;
 
-    public SignAnt(RealworldAgent masterAgent, Point position) {
-        super(masterAgent, position);
+    public SignAnt(RealworldAgent masterAgent, Point position, GraphRoadModel roadModel, Simulator sim) {
+        super(masterAgent, position, roadModel, sim);
     }
 
     @Override
     public void tick(TimeLapse timeLapse) {
-        Collection<Point> points = ((CollisionGraphRoadModelImpl)this.roadModel.get()).getGraph().getOutgoingConnections(((CollisionGraphRoadModelImpl)this.roadModel.get()).getPosition(this));
-        ((CollisionGraphRoadModelImpl)this.roadModel.get()).moveTo(this, pickNextPoint(points), timeLapse);
+        Collection<Point> points = ((CollisionGraphRoadModelImpl)this.roadModel).getGraph().getOutgoingConnections(currentPosition);
+        //((CollisionGraphRoadModelImpl)this.roadModel.get()).moveTo(this, pickNextPoint(points), timeLapse);
+        currentPosition = pickNextPoint(points);
     }
 
     //Current implementation is using a random node.This should probably be changed
