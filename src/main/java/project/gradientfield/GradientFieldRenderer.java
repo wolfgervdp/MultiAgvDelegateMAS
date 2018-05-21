@@ -28,7 +28,7 @@ import com.github.rinde.rinsim.core.model.ModelBuilder.AbstractModelBuilder;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.ui.renderers.CanvasRenderer.AbstractCanvasRenderer;
 import com.github.rinde.rinsim.ui.renderers.ViewPort;
-//import com.google.auto.value.AutoValue;
+import com.google.auto.value.AutoValue;
 
 class GradientFieldRenderer extends AbstractCanvasRenderer {
 

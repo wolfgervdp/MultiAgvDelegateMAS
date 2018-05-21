@@ -19,9 +19,12 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.google.common.base.Predicate;
 
-public class MultiAGVGradientField extends Vehicle implements FieldEmitter {
-	protected MultiAGVGradientField(VehicleDTO vehicleDto) {
-		super(vehicleDto);
+import project.MultiAGV;
+
+public class MultiAGVGradientField extends MultiAGV implements FieldEmitter {
+
+	public MultiAGVGradientField(Point startPosition, int capacity) {
+		super(startPosition, capacity);
 		// TODO Auto-generated constructor stub
 	}
 

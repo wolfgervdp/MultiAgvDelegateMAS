@@ -38,6 +38,8 @@ import com.github.rinde.rinsim.core.model.road.RoadModel;
 
 import com.github.rinde.rinsim.examples.pdptw.gradientfield.*;
 import com.github.rinde.rinsim.geom.Point;
+import com.google.auto.value.AutoValue;
+
 
 import com.google.common.collect.ImmutableList;
 
@@ -54,7 +56,9 @@ public class GradientModel
    */
   private static final int[] X = {-1, 0, 1, 1, 1, 0, -1, -1};
   private static final int[] Y = {1, 1, 1, 0, -1, -1, -1, 0};
-
+	private static final Point MIN = new Point(0.0, 0.0);
+	private static final Point MAX = new Point(28.0, 28.0);
+  
   private final List<FieldEmitter> emitters;
   private double minX;
   private double maxX;
@@ -160,13 +164,15 @@ public class GradientModel
   @Override
   public void registerModelProvider(ModelProvider mp) {
     pdpModel = mp.tryGetModel(PDPModel.class);
-    final ImmutableList<Point> bs = mp.getModel(RoadModel.class)
-      .getBounds();
+//    final ImmutableList<Point> bs = mp.getModel(RoadModel.class)
+//      .getBounds();
 
-    minX = bs.get(0).x;
-    maxX = bs.get(1).x;
-    minY = bs.get(0).y;
-    maxY = bs.get(1).y;
+   
+
+    minX = MIN.x;
+    maxX = MAX.x;
+    minY = MIN.y;
+    maxY = MAX.y;
   }
 
   @Override

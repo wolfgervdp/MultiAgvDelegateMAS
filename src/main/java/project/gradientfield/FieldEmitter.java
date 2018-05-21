@@ -10,4 +10,5 @@ interface FieldEmitter {
   Point getPosition();
 
   float getStrength();
+
 }
