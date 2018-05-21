@@ -27,7 +27,12 @@ public class MultiParcel extends Parcel {
 
 	public boolean tryPickUp(MultiAGV multiAGV) {
 		carryers.add(multiAGV);
-		return pickUp();
+		if(pickUp()){
+			for(MultiAGV carryer : carryers){
+				multiAGV.startCarrying();
+			}
+		}
+		return false;
 	}
 
 	@Override

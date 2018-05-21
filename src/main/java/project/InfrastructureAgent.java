@@ -10,10 +10,10 @@ public class InfrastructureAgent implements ConnectionData {
     static final double signCoefficient = 0.5f;
     static final double reservationCoefficient = 0.5f;
 
-    double reservationPheromone = 0;
+    double reservationPheromone = 1;
     double signPheromone = 0;
 
-    private double length;
+    private double length = 2.0;
 
     @Override
     public Optional<Double> getLength() {
