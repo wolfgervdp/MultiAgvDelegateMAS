@@ -9,6 +9,7 @@ import com.github.rinde.rinsim.core.Simulator;
 import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
+import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 //import com.github.rinde.rinsim.core.model.road.NewRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders;
@@ -45,15 +46,15 @@ public final class Warehouse {
 
 
 	private static final double VEHICLE_LENGTH = 2.0D;
-	private static final int NUM_AGVS = 1;
+	private static final int NUM_AGVS = 3;
 	private static final long TEST_END_TIME = 600000L;
 	private static final int TEST_SPEED_UP = 16;
-	private static final int NUM_PARCEL = 10;
-	private static final long SERVICE_DURATION = 60000;
+	private static final int NUM_PARCEL = 12;
+	private static final long SERVICE_DURATION = 0;
 	private static final int MAX_CAPACITY = 3;
 	private static final int DEPOT_CAPACITY = 100;
-	  private static final int NUM_DEPOTS = 4;
-	  private static final int MULTIAGV_CAPACITY = 4;
+	private static final int NUM_DEPOTS = 4;
+	private static final int MULTIAGV_CAPACITY = 400;
 
 	  
 
@@ -72,8 +73,8 @@ public final class Warehouse {
 			@Nullable Listener list) {
 
 		View.Builder view = View.builder()
-				.with(WarehouseRenderer.builder())
-				.with(RoadUserRenderer.builder()
+				.with(WarehouseRenderer.builder().withOneWayStreetArrows().withNodeOccupancy())
+				.with(RoadUserRenderer.builder().withToStringLabel()
 						.withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
 						.withColorAssociation(Depot.class, new RGB(255, 0, 0))
 						.withImageAssociation(
@@ -92,7 +93,7 @@ public final class Warehouse {
 					.withResolution(m.getClientArea().width, m.getClientArea().height)
 					.withDisplay(display)
 					.withCallback(list)
-					.withAsync()
+					//.withAsync()
 					.withAutoPlay()
 					.withAutoClose();
 		}
@@ -100,9 +101,9 @@ public final class Warehouse {
 	}
 	public static void run(boolean testing) {
 		Builder viewBuilder = View.builder()
-				.with(PDPModelRenderer.builder())
+				.with(PDPModelRenderer.builder().withDestinationLines())
 				.with(AGVRenderer.builder()
-						.withDifferentColorsForVehicles());
+						.withDifferentColorsForVehicles().withVehicleCoordinates());
 
 		if (testing) {
 			viewBuilder = viewBuilder.withAutoPlay().withAutoClose().withSimulatorEndTime(TEST_END_TIME).withTitleAppendix("TESTING").withSpeedUp(TEST_SPEED_UP);
@@ -134,6 +135,8 @@ public final class Warehouse {
 			//RoadUser user = new MultiAGV(sim.getRandomGenerator(), sim);
 			sim.register(new MultiAGV(roadModel.getRandomPosition(rng),
 					MULTIAGV_CAPACITY, sim));
+//			sim.register(new MultiAGV(new Point(8,8),
+//					MULTIAGV_CAPACITY, sim));
 		}
 		for (int i = 0; i < NUM_PARCEL; i++) {
 			sim.register(new MultiParcel(
@@ -143,8 +146,9 @@ public final class Warehouse {
 					.neededCapacity(1 + rng.nextInt(MAX_CAPACITY))
 					.buildDTO()));
 		}
+		sim.register(new EvaporationAgent((Graph<InfrastructureAgent>) ((GraphRoadModel) roadModel).getGraph()));
 	    for (int i = 0; i < NUM_DEPOTS; i++) {
-	        sim.register(new Depot(roadModel.getRandomPosition(rng)));
+	        sim.register(new DepotBase(roadModel.getRandomPosition(rng), 2));
 		}
 		//sim.register(new WarehouseUpdater(sim.getModelProvider().getModel(NewRoadModel.class)));
 
@@ -188,13 +192,14 @@ public final class Warehouse {
 				}
 
 				//Graphs.addPath(g, (Iterable) path);
-				GraphHelper.addPath(g, (Iterable) path, new InfrastructureAgent());
+				//GraphHelper.addPath(g, (Iterable) path, new InfrastructureAgent());
+				GraphHelper.addPath(g,(Iterable)path, InfrastructureAgent.class);
 			}
 
 //			Graphs.addPath(g, matrix.row(0).values());
 //			Graphs.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())));
-			GraphHelper.addPath(g, matrix.row(0).values(), new InfrastructureAgent());
-			GraphHelper.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())), new InfrastructureAgent());
+			GraphHelper.addPath(g, matrix.row(0).values(), InfrastructureAgent.class);
+			GraphHelper.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())), InfrastructureAgent.class);
 			return new ListenableGraph(g);
 		}
 

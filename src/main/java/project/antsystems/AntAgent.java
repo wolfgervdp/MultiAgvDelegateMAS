@@ -10,10 +10,10 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 
 import com.github.rinde.rinsim.geom.ConnectionData;
 import com.github.rinde.rinsim.geom.Point;
+import com.github.rinde.rinsim.util.TimeWindow;
 import com.google.common.base.Optional;
-import project.HeuristicConData;
 import project.InfrastructureAgent;
-import project.RealworldAgent;
+import project.MultiAGV;
 import project.helperclasses.DeepCopy;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -27,26 +27,40 @@ import java.util.ArrayList;
  */
 public abstract class AntAgent implements TickListener {
 
-    protected RealworldAgent masterAgent;
+    static final double URGENCY_COEFFICIENT = 0.5;
+    static final double RESERVATION_COEFFICIENT = 0.5;
+
+    protected MultiAGV masterAgent;
     protected Simulator sim;
     protected ArrayDeque<ArrayDeque<Point>> path;       //Inner queue is the queue until the first next goalnode, the outer queue is all the paths for the different parcels
     protected InfrastructureAgent lastInfrastructureAgent;
     protected GraphRoadModel roadModel;
     protected Point currentPosition;
+    private double heuristicValue = 0;
 
     //Copy constructor for AntAgent
     public AntAgent(AntAgent agent) {
         this.masterAgent = agent.masterAgent;
         this.sim = agent.sim;
         this.currentPosition = agent.currentPosition;
-        //this.path = new ArrayDeque<>(agent.path); //Todo: check deepcopy
         this.path = (ArrayDeque<ArrayDeque<Point>>) DeepCopy.copy(agent.path);
         this.roadModel = agent.roadModel;
+        this.heuristicValue = agent.heuristicValue;
+    }
 
+    public double getTotalHeuristicValue(){
+        return heuristicValue;
+    }
+
+    protected void addUrgencyHeuristic(double value){
+        heuristicValue += value*URGENCY_COEFFICIENT;
+    }
+    protected void addReservationHeuristic(double value){
+        heuristicValue += value*RESERVATION_COEFFICIENT;
     }
 
     //Normal constructor
-    public AntAgent(RealworldAgent masterAgent, Point position, GraphRoadModel roadModel, Simulator sim) {
+    public AntAgent(MultiAGV masterAgent, Point position, GraphRoadModel roadModel, Simulator sim) {
         this.masterAgent = masterAgent;
         this.currentPosition = position;
         this.roadModel = roadModel;
@@ -57,14 +71,30 @@ public abstract class AntAgent implements TickListener {
     }
 
     //Calculation for heuristic value from current location to Point p
-    protected double calcHeuristicValue(Point p){
+    protected double queryHeuristicValue(Point p){
         InfrastructureAgent data = (InfrastructureAgent) roadModel.getGraph().getConnection(currentPosition, p).data().get();
-        return data.getHeuristicValue();
+        return data.getLocalHeuristicValue();
+    }
+
+    protected double queryGlobalHeuristicValue(Point p, TimeWindow tw) {
+        InfrastructureAgent data = (InfrastructureAgent) roadModel.getGraph().getConnection(currentPosition, p).data().get();
+        return data.getHeuristicValue(tw);
     }
 
     protected void pushQueue(){
         ArrayDeque<Point> arrayDeque = new ArrayDeque<>();
-        path.push(arrayDeque);
+        //path.push(arrayDeque);
+        path.addLast(arrayDeque);
+        //System.out.println("Pushed queue: " + path);
+    }
+
+    protected ArrayDeque<Point> makeFlat(ArrayDeque<ArrayDeque<Point>> queue){
+        ArrayDeque<Point>  retQ = new ArrayDeque<>();
+        for (ArrayDeque<Point> q: queue){
+            for(Point p : q)
+                retQ.addLast(p);
+        }
+        return retQ;
     }
 
     @Override
