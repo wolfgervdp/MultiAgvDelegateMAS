@@ -20,6 +20,7 @@ import com.github.rinde.rinsim.geom.Graphs;
 import com.github.rinde.rinsim.geom.ListenableGraph;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.geom.TableGraph;
+import com.github.rinde.rinsim.pdptw.common.RouteRenderer;
 import com.github.rinde.rinsim.ui.View;
 import com.github.rinde.rinsim.ui.View.Builder;
 import com.github.rinde.rinsim.ui.renderers.AGVRenderer;
@@ -29,6 +30,9 @@ import com.github.rinde.rinsim.ui.renderers.WarehouseRenderer;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+
+import project.antsystems.ExplorationAnt;
+
 import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.graphics.RGB;
@@ -78,9 +82,14 @@ public final class Warehouse {
 						.withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
 						.withColorAssociation(Depot.class, new RGB(255, 0, 0))
 						.withImageAssociation(
-								MultiAGV.class, "/graphics/flat/taxi-32.png"))
+								MultiAGV.class, "/graphics/flat/taxi-32.png")
+						.withImageAssociation(
+								ExplorationAnt.class, "/graphics/flat/taxi-32.png"))
 				//.with(TaxiRenderer.builder(Language.ENGLISH))
-				.withTitleAppendix("Warehouse");
+				.withTitleAppendix("Warehouse")
+				.with(RouteRenderer.builder())
+				.with(PDPModelRenderer.builder())
+				.with(AGVRenderer.builder().withDifferentColorsForVehicles());
 
 		if (testing) {
 			view = view.withAutoClose()

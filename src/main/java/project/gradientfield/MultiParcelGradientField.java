@@ -1,34 +1,51 @@
 package project.gradientfield;
 
 
-import com.github.rinde.rinsim.examples.pdptw.gradientfield.*;
 import com.github.rinde.rinsim.core.model.pdp.ParcelDTO;
+import com.github.rinde.rinsim.core.model.pdp.PDPModel.ParcelState;
+import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.geom.Point;
 import project.MultiParcel;
 
 public class MultiParcelGradientField extends MultiParcel implements FieldEmitter{
 
-	public MultiParcelGradientField(ParcelDTO parcelDto) {
-		super(parcelDto);
-		// TODO Auto-generated constructor stub
-	}
+	static final float AVAILABLE_STRENGTH =4.0f;
+	  private final Point pos;
+
+	  MultiParcelGradientField(ParcelDTO pDto) {
+	    super(pDto);
+	    pos = pDto.getPickupLocation();
+	    
+	  }
+
+	  @Override
+	  public void setModel(GradientModel model) {}
+
+	  @Override
+	  public Point getPosition() {
+	    return pos;
+	  }
+
+	  @Override
+	  public float getStrength() {
+	    if (!isInitialized()) {
+	      return 0f;
+	    }
+	    return getPDPModel().getParcelState(this) == ParcelState.AVAILABLE
+	      ? AVAILABLE_STRENGTH
+	      : 0.0f;
+	  }
 
 	@Override
-	public void setModel(GradientModel model) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Point getPosition() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public float getStrength() {
+	public float getStrength(Point vehiclesPosition, Parcel parcel) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+
+
+
+
+
 
 }

@@ -1,10 +1,11 @@
 package project.antsystems;
 
-import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.MovingRoadUser;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
+import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 
@@ -25,13 +26,13 @@ import java.util.ArrayList;
      The inner queue indicates the path between parcels. The outer queue connects these paths to construct a
     complete path through different parcels.
  */
-public abstract class AntAgent implements TickListener {
+public abstract class AntAgent implements TickListener, RoadUser {
 
     static final double URGENCY_COEFFICIENT = 0.5;
     static final double RESERVATION_COEFFICIENT = 0.5;
 
     protected MultiAGV masterAgent;
-    protected Simulator sim;
+    protected SimulatorAPI sim;
     protected ArrayDeque<ArrayDeque<Point>> path;       //Inner queue is the queue until the first next goalnode, the outer queue is all the paths for the different parcels
     protected InfrastructureAgent lastInfrastructureAgent;
     protected GraphRoadModel roadModel;
@@ -60,7 +61,7 @@ public abstract class AntAgent implements TickListener {
     }
 
     //Normal constructor
-    public AntAgent(MultiAGV masterAgent, Point position, GraphRoadModel roadModel, Simulator sim) {
+    public AntAgent(MultiAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
         this.masterAgent = masterAgent;
         this.currentPosition = position;
         this.roadModel = roadModel;
@@ -69,6 +70,13 @@ public abstract class AntAgent implements TickListener {
         pushQueue();
         path.peekFirst().addLast(currentPosition);
     }
+    
+
+	@Override
+	public void initRoadUser(RoadModel model) {
+		// TODO Auto-generated method stub
+		
+	}
 
     //Calculation for heuristic value from current location to Point p
     protected double queryHeuristicValue(Point p){

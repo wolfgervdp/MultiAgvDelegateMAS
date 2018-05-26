@@ -1,7 +1,6 @@
 package project;
 
-import com.github.rinde.rinsim.core.Simulator;
-import com.github.rinde.rinsim.core.model.pdp.PDPModel;
+import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.Vehicle;
 import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
@@ -30,7 +29,7 @@ public class MultiAGV extends Vehicle {
 
     private int strenght = 10;
     private IntentionAnt currentIntention;
-    private Simulator sim;
+    private SimulatorAPI sim;
     private boolean isWaiting = false;
     private static final double SPEED = 0.1d;
     private long timeAtLastExploration = 0;
@@ -42,7 +41,7 @@ public class MultiAGV extends Vehicle {
 
     private Point prevPos;
 
-    public MultiAGV(Point startPosition,  int capacity, Simulator sim) {
+    public MultiAGV(Point startPosition,  int capacity, SimulatorAPI sim) {
         super(VehicleDTO.builder()
                 .capacity(capacity)
                 .startPosition(startPosition)
@@ -52,6 +51,7 @@ public class MultiAGV extends Vehicle {
         id = ++idCounter;
     }
 
+    
     public int getStrenght() {
         return strenght;
     }
