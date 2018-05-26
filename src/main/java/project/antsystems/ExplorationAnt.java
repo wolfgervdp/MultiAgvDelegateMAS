@@ -1,6 +1,7 @@
 package project.antsystems;
 
 import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
@@ -27,7 +28,7 @@ public class ExplorationAnt extends AntAgent{
 
     double heuristicValue = 0;
 
-    public ExplorationAnt(RealworldAgent masterAgent, Point position, GraphRoadModel roadModel, Simulator sim) {
+    public ExplorationAnt(RealworldAgent masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
         super(masterAgent, position, roadModel, sim);
     }
 
@@ -159,4 +160,5 @@ public class ExplorationAnt extends AntAgent{
         //System.out.println("selected " + chosenPoints.size() + " points");
         return chosenPoints;
     }
+
 }

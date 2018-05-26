@@ -1,6 +1,7 @@
 package project.antsystems;
 
 import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
@@ -16,7 +17,7 @@ public class SignAnt extends AntAgent {
     int numberOfWaitingAGVs = 0;
     long timeSinceParcelSpawn = 0;
 
-    public SignAnt(RealworldAgent masterAgent, Point position, GraphRoadModel roadModel, Simulator sim) {
+    public SignAnt(RealworldAgent masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
         super(masterAgent, position, roadModel, sim);
     }
 

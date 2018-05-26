@@ -29,6 +29,9 @@ import com.github.rinde.rinsim.ui.renderers.WarehouseRenderer;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+
+import project.antsystems.ExplorationAnt;
+
 import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.graphics.RGB;
@@ -78,7 +81,9 @@ public final class Warehouse {
 						.withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
 						.withColorAssociation(Depot.class, new RGB(255, 0, 0))
 						.withImageAssociation(
-								MultiAGV.class, "/graphics/flat/taxi-32.png"))
+								MultiAGV.class, "/graphics/flat/taxi-32.png")
+						.withImageAssociation(
+								ExplorationAnt.class, "/graphics/flat/taxi-32.png"))
 				//.with(TaxiRenderer.builder(Language.ENGLISH))
 				.withTitleAppendix("Warehouse")
 				.with(RouteRenderer.builder())

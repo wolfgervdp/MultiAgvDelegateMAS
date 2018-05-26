@@ -1,6 +1,6 @@
 package project;
 
-import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.Vehicle;
 import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
@@ -25,13 +25,13 @@ public class MultiAGV extends Vehicle implements RealworldAgent {
     private int strenght;
     private List<AntAgent> antAgentList = new ArrayList<>();
     private IntentionAnt currentIntention;
-    private Simulator sim;
+    private SimulatorAPI sim;
     private boolean isWaiting = false;
-    private static final double SPEED = 1000d;
+    private static final double SPEED = 1d;
     private Optional<Parcel> currentParcel;
     private long timeAtLastExploration = 0;
     
-    public MultiAGV(Point startPosition,  int capacity, Simulator sim) {
+    public MultiAGV(Point startPosition,  int capacity, SimulatorAPI sim) {
         super(VehicleDTO.builder()
                 .capacity(capacity)
                 .startPosition(startPosition)
@@ -41,6 +41,7 @@ public class MultiAGV extends Vehicle implements RealworldAgent {
         this.sim = sim;
     }
 
+    
     public int getStrenght() {
         return strenght;
     }
@@ -76,7 +77,7 @@ public class MultiAGV extends Vehicle implements RealworldAgent {
         //Move to the direction of next goal
         if(!isWaiting){
             Point p = currentIntention.peekNextGoalLocation();
-            //rm.moveTo(this, p, timeLapse); Todo : solve nullptr
+            //rm.moveTo(this, p, timeLapse); //Todo : solve nullptr
         }
     }
 

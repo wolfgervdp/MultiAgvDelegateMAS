@@ -15,13 +15,17 @@
  */
 package project.gradientfield;
 
+import java.awt.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
 import javax.annotation.Nullable;
 import javax.measure.unit.SI;
+import javax.sound.midi.Soundbank;
 
+import org.apache.commons.lang3.builder.Builder;
 import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.graphics.RGB;
@@ -35,6 +39,7 @@ import com.github.rinde.rinsim.core.model.ModelReceiver;
 import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
+import com.github.rinde.rinsim.core.model.pdp.ParcelDTO;
 import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.pdp.TimeWindowPolicy.TimeWindowPolicies;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
@@ -52,6 +57,7 @@ import com.github.rinde.rinsim.geom.TableGraph;
 import com.github.rinde.rinsim.pdptw.common.AddDepotEvent;
 import com.github.rinde.rinsim.pdptw.common.AddParcelEvent;
 import com.github.rinde.rinsim.pdptw.common.AddVehicleEvent;
+import com.github.rinde.rinsim.pdptw.common.RoutePanel;
 import com.github.rinde.rinsim.pdptw.common.RouteRenderer;
 import com.github.rinde.rinsim.pdptw.common.StatsStopConditions;
 import com.github.rinde.rinsim.scenario.Scenario;
@@ -60,6 +66,8 @@ import com.github.rinde.rinsim.scenario.TimeOutEvent;
 import com.github.rinde.rinsim.scenario.TimedEventHandler;
 import com.github.rinde.rinsim.scenario.gendreau06.Gendreau06Parser;
 import com.github.rinde.rinsim.scenario.gendreau06.Gendreau06Scenario;
+import com.github.rinde.rinsim.scenario.generator.Depots;
+import com.github.rinde.rinsim.scenario.generator.Depots.DepotGenerator;
 import com.github.rinde.rinsim.ui.View;
 import com.github.rinde.rinsim.ui.renderers.AGVRenderer;
 import com.github.rinde.rinsim.ui.renderers.PDPModelRenderer;
@@ -74,8 +82,8 @@ import com.google.common.collect.Table;
 import project.MultiAGV;
 import project.MultiParcel;
 import project.Warehouse;
-import project.gradientfield.testExample.ParcelHandler;
-import project.gradientfield.testExample.VehicleHandler;
+//import project.gradientfield.testExample.ParcelHandler;
+//import project.gradientfield.testExample.VehicleHandler;
 
 /**
  * Example of a gradient field MAS for the Gendreau et al. (2006) dataset.
@@ -88,41 +96,60 @@ import project.gradientfield.testExample.VehicleHandler;
 public final class GradientFieldExample implements ModelReceiver {
 	static final long RANDOM_SEED = 123L;
 
-	static final int TEST_SPEED_UP = 64;
+	static final int TEST_SPEED_UP = 100;
 	static final long TEST_END_TIME = 20 * 60 * 1000;
 
 
 
 	private static final Point RESOLUTION = new Point(800, 800);
-	private static final double VEHICLE_SPEED_KMH = 30d;
-	private static final double MAX_VEHICLE_SPEED_KMH = 50d;
-	private static final Point MIN_POINT = new Point(4.0, 1.0);
-	private static final Point MIN_POINT_1 = new Point(0, 1);
-	private static final Point MIN_POINT_2 = new Point(1, 0);
-
+	private static final double VEHICLE_SPEED_KMH = 100;
+	private static final double MAX_VEHICLE_SPEED_KMH = 100d;
+	private static Point MIN_POINT_1 = new Point(0, 32);
+	private static final Point MIN_POINT_2 = new Point(16, 0);
+	private static final Point MIN_POINT_3 = new Point(0, 28);
+	private static final Point MIN_POINT_4 = new Point(28, 0);
 
 	private static final Point MAX_POINT = new Point(8, 4);
 	private static final Point DEPOT_LOC = new Point(5, 2);
-	private static final Point P1_PICKUP = new Point(1, 2);
-	private static final Point P1_DELIVERY = new Point(4, 2);
-	private static final Point P2_PICKUP = new Point(1, 1);
-	private static final Point P2_DELIVERY = new Point(4, 1);
-	private static final Point P3_PICKUP = new Point(1, 3);
-	private static final Point P3_DELIVERY = new Point(4, 3);
+	private static final Point P1_PICKUP = new Point(8, 12);
+	private static Point P1_DELIVERY = new Point(64, 32);
+	private static final Point P2_PICKUP = new Point(4, 16);
+	private static final Point P2_DELIVERY = new Point(20, 28);
+	private static final Point P3_PICKUP = new Point(12, 12);
+	private static final Point P3_DELIVERY = new Point(24, 28);
+	private static final Point P4_PICKUP = new Point(28, 8);
+	private static final Point P4_DELIVERY = new Point(40, 28);
+	private static final Point P5_PICKUP = new Point(12, 28);
+	private static final Point P5_DELIVERY = new Point(16, 16);
 
-	private static final long M1 = 60 * 1000L;
-	private static final long M4 = 4 * 60 * 1000L;
-	private static final long M5 = 5 * 60 * 1000L;
-	private static final long M7 = 7 * 60 * 1000L;
-	private static final long M10 = 10 * 60 * 1000L;
-	private static final long M12 = 12 * 60 * 1000L;
-	private static final long M13 = 13 * 60 * 1000L;
-	private static final long M18 = 18 * 60 * 1000L;
-	private static final long M20 = 20 * 60 * 1000L;
-	private static final long M25 = 25 * 60 * 1000L;
-	private static final long M30 = 30 * 60 * 1000L;
-	private static final long M40 = 40 * 60 * 1000L;
-	private static final long M60 = 60 * 60 * 1000L;
+	private static final long M1 = 0 * 60 * 1000L;
+	private static final long M2 = 0 * 60 * 1000L;
+	private static final long M3 = 0 * 60 * 1000L;
+	private static final long M4 = 0 * 60 * 1000L;
+	private static final long M5 = 0 * 60 * 1000L;
+	private static final long M1_P1 = 1 * 60 * 1000L;
+	private static final long M1_P2 = 10 * 60 * 1000L;
+	private static final long M1_D1 = 1 * 60 * 1000L;
+	private static final long M1_D2 = 10 * 60 * 1000L;
+	private static final long M2_P1 = 1 * 60 * 1000L;
+	private static final long M2_P2 = 10 * 60 * 1000L;
+	private static final long M2_D1 = 1 * 60 * 1000L;
+	private static final long M2_D2 = 10 * 60 * 1000L;
+	private static final long M3_P1 = 1 * 60 * 1000L;
+	private static final long M3_P2 = 10 * 60 * 1000L;
+	private static final long M3_D1 = 1 * 60 * 1000L;
+	private static final long M3_D2 = 10 * 60 * 1000L;
+	private static final long M4_P1 = 1 * 60 * 1000L;
+	private static final long M4_P2 = 10 * 60 * 1000L;
+	private static final long M4_D1 = 1 * 60 * 1000L;
+	private static final long M4_D2 = 10 * 60 * 1000L;	
+	private static final long M5_P1 = 1 * 60 * 1000L;
+	private static final long M5_P2 = 10 * 60 * 1000L;
+	private static final long M5_D1 = 1 * 60 * 1000L;
+	private static final long M5_D2 = 10 * 60 * 1000L;
+
+
+	private static final long M60 = 1 * 60 * 1000L;
 	private GradientFieldExample() {}
 
 	final static RandomGenerator rng = null;
@@ -143,45 +170,47 @@ public final class GradientFieldExample implements ModelReceiver {
 	 */
 	public static void run(final boolean testing) {
 		View.Builder view = View.builder()
-				.with(WarehouseRenderer.builder())
-				.with(RoadUserRenderer.builder()
-						.withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
-						.withColorAssociation(Depot.class, new RGB(255, 0, 0))
-						.withImageAssociation(
-								MultiAGV.class, "/graphics/flat/taxi-32.png"))
+				.with(WarehouseRenderer.builder().withOneWayStreetArrows().withNodeOccupancy())
+				.with(RoadUserRenderer.builder())
+				//										.withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
+				//										.withColorAssociation(Depots.class, new RGB(255, 0, 0)))
 				.with(GradientFieldRenderer.builder())
 				.with(RouteRenderer.builder())
-				.with(PDPModelRenderer.builder())
-				.with(AGVRenderer.builder().withDifferentColorsForVehicles());
+				.with(PDPModelRenderer.builder().withDestinationLines())
+				.with(AGVRenderer.builder().withDifferentColorsForVehicles().withVehicleCoordinates())
+				.with(RoutePanel.builder());
+		if (testing) {
+			view = view.withAutoClose()
+					.withAutoPlay()
+					.withSpeedUp(TEST_SPEED_UP)
+					.withSimulatorEndTime(TEST_END_TIME);
 
-				if (testing) {
-					view = view.withAutoClose()
-							.withAutoPlay()
-							.withSpeedUp(TEST_SPEED_UP)
-							.withSimulatorEndTime(TEST_END_TIME);
+		} 
 
-				} 
 
-				Experiment.builder()
-				.withRandomSeed(RANDOM_SEED)
-				.withThreads(1)
-				.addConfiguration(MASConfiguration.builder()
-						.setName("GradientFieldConfiguration")
-						.addEventHandler(AddVehicleEvent.class, VehicleHandler.INSTANCE)
-						.addEventHandler(AddParcelEvent.class, ParcelHandler.INSTANCE)
-						.addModel(GradientModel.builder())
-						.addModel(
-								RoadModelBuilders.dynamicGraph(
-										GradientFieldExample.GraphCreator.createSimpleGraph())
-								.withCollisionAvoidance()
-								.withDistanceUnit(SI.METER)
-								.withVehicleLength(2)
-								)
-						.build())
-				.addScenario(createScenario())
-				.showGui(view)
-				.repeat(1)
-				.perform();
+		Experiment.builder()
+		.withRandomSeed(RANDOM_SEED)
+		.addConfiguration(MASConfiguration.builder()
+				.setName("GradientFieldConfiguration")
+				.addEventHandler(AddVehicleEvent.class, VehicleHandler.INSTANCE)
+				.addEventHandler(AddParcelEvent.class, ParcelHandler.INSTANCE)
+				.addEventHandler(AddDepotEvent.class, DepotHandler.INSTANCE)
+				.addModel(GradientModel.builder())
+				.addModel(
+						RoadModelBuilders.dynamicGraph(
+								WarehouseDesign.GraphCreator.createSimpleGraph(3))
+						.withCollisionAvoidance()
+						.withDistanceUnit(SI.METER)
+						.withVehicleLength(2)
+						)
+				.build())
+		.addScenario(createScenario())
+		.withThreads(1)
+		.showGui(view)
+//		.withRandomSeed(RANDOM_SEED)
+		.repeat(1)
+		.perform();
+
 
 
 	}
@@ -190,10 +219,7 @@ public final class GradientFieldExample implements ModelReceiver {
 		INSTANCE {
 			@Override
 			public void handleTimedEvent(AddVehicleEvent event, SimulatorAPI sim) {
-				sim.register(new MultiAGVGradientField(new Point(0, 8),
-						2));
-				sim.register(new MultiAGVGradientField(new Point(8, 8),
-						2));
+				sim.register(new MultiAGVGradientField(event.getVehicleDTO(),sim));
 			}
 		}
 	}
@@ -203,187 +229,103 @@ public final class GradientFieldExample implements ModelReceiver {
 			@Override
 			public void handleTimedEvent(AddParcelEvent event, SimulatorAPI sim) {
 				// all parcels are accepted by default
-				//sim.register(new MultiParcelGradientField(event.getParcelDTO()));
-				sim.register(new MultiParcelGradientField(
-						Parcel.builder(new Point(0, 0),
-								new Point(4, 0))
-						.serviceDuration(1)
-						.buildDTO()));
+				sim.register(new MultiParcelGradientField(event.getParcelDTO()));
 			}
 		}
 	}
+
+	enum DepotHandler implements TimedEventHandler<AddDepotEvent> {
+		INSTANCE {
+			@Override
+			public void handleTimedEvent(AddDepotEvent event, SimulatorAPI sim) {
+				// all parcels are accepted by default
+				sim.register(new MultiDepotGradientField(event.getPosition()) {
+				});
+			}
+		}
+	}
+
 	static Scenario createScenario() {
-		// In essence a scenario is just a list of events. The events must implement
-		// the TimedEvent interface. You are free to construct any object as a
-		// TimedEvent but keep in mind that implementations should be immutable.
-		return Scenario.builder()
+		ArrayList<Point> possibleParcels = new ArrayList<Point>();
+		for( int i=2; i<8; i++)
+		{
+			for( int j=2; j<16; j++)
+			{				
+				possibleParcels.add( new Point(4*j,4*i));
+			}
+		}
+
+		int[] firstAndLastRow= {0,9};
+		ArrayList<Point> possibleVehicles = new ArrayList<Point>();
+		for (int i : firstAndLastRow) {	
+			for( int j=2; j<15; j++)
+			{				
+				possibleVehicles.add( new Point(4*j,4*i));
+			}
+		}
+//		int[] firstAndLastColoumn= {0,17};
+//		for (int j : firstAndLastColoumn) {	
+//			for( int i=1; i<9; i++)
+//			{				
+//				possibleVehicles.add( new Point(4*j,4*i));
+//			}
+//		}
+		ArrayList<Point> possibleDepot = new ArrayList<Point>();		
+		possibleDepot.add(new Point(68, 12) );
+		possibleDepot.add(new Point(0, 24) );
+		possibleDepot.add(new Point(0, 12) );
+		possibleDepot.add(new Point(68,24 ) );
+		Scenario.Builder b = Scenario.builder();
 
 
+		for (int i = 0; i <4 ; i++) {
+			b.addEvent(AddDepotEvent.create(-1,possibleDepot.get(i)));
+		}
+		for (int i = 0; i < 10; i++) {//max84
+			Random rp = new Random();
+			int randomParcel=rp.nextInt(6*14-i-0);
+			MIN_POINT_1=possibleParcels.get(randomParcel);
+			possibleParcels.remove(randomParcel);
+			double distance=Double.MAX_VALUE;
+			//			P1_DELIVERY=possibleDepot.get(randomDepot);		
 
-				// Adds one depot.
-				//.addEvent(AddDepotEvent.create(-1, DEPOT_LOC))
+			for (int iCount = 0; iCount < 4; iCount++) {
+				if (distance <Point.distance(MIN_POINT_1, possibleDepot.get(iCount)))					{
+				}else {
+					distance=Point.distance(MIN_POINT_1, possibleDepot.get(iCount));
+					P1_DELIVERY=possibleDepot.get(iCount);
+				}		
+			}
 
-				// Adds one vehicle.
-				.addEvent(AddVehicleEvent.create(-1, VehicleDTO.builder()
-						.speed(VEHICLE_SPEED_KMH)
-						.startPosition(MIN_POINT_1)
-						.build()))
-				//				.addEvent(AddVehicleEvent.create(-1, VehicleDTO.builder()
-				//						.speed(VEHICLE_SPEED_KMH)
-				//						.startPosition(MIN_POINT_2)
-				//						.build()))
-				// Three add parcel events are added. They are announced at different
-				// times and have different time windows.
-				.addEvent(
-						AddParcelEvent.create(Parcel.builder(P1_PICKUP, P1_DELIVERY)
-								.neededCapacity(0)
-								.orderAnnounceTime(M1)
-								.pickupTimeWindow(TimeWindow.create(M1, M20))
-								.deliveryTimeWindow(TimeWindow.create(M4, M30))
-								.buildDTO()))
-
-				.addEvent(
-						AddParcelEvent.create(Parcel.builder(P2_PICKUP, P2_DELIVERY)
-								.neededCapacity(0)
-								.orderAnnounceTime(M5)
-								.pickupTimeWindow(TimeWindow.create(M10, M25))
-								.deliveryTimeWindow(
-										TimeWindow.create(M20, M40))
-								.buildDTO()))
-
-				.addEvent(
-						AddParcelEvent.create(Parcel.builder(P3_PICKUP, P3_DELIVERY)
-								.neededCapacity(0)
-								.orderAnnounceTime(M7)
-								.pickupTimeWindow(TimeWindow.create(M12, M18))
-								.deliveryTimeWindow(
-										TimeWindow.create(M13, M60))
-								.buildDTO()))
-
-				// Signals the end of the scenario. Note that it is possible to stop the
-				// simulation before or after this event is dispatched, that depends on
-				// the stop condition (see below).
-				//.addEvent(TimeOutEvent.create(M60))
-				.scenarioLength(M60)
-
-				// Adds a plane road model as this is part of the problem
-
-				// Adds the pdp model
+			//			Random rd = new Random();
+			//			int randomDepot=rd.nextInt(4);
+			b.addEvent(AddParcelEvent.create(Parcel.builder(MIN_POINT_1, P1_DELIVERY)
+					.neededCapacity(0)
+					.orderAnnounceTime(M1)
+					.pickupTimeWindow(TimeWindow.create(M1_P1, M1_P2))
+					.deliveryTimeWindow(TimeWindow.create(M1_D1, M1_D2))
+					.buildDTO()));			
+		}
+		for (int i = 0; i < 4; i++) {//max48
+			Random r = new Random();
+			int random=r.nextInt((2*13)-i-0);
+			MIN_POINT_1=possibleVehicles.get(random);
+			possibleVehicles.remove(random);
+			b.addEvent(AddVehicleEvent.create(-1, VehicleDTO.builder()
+					.speed(VEHICLE_SPEED_KMH)
+					.startPosition(MIN_POINT_1)
+					.capacity(1)				
+					.build()));
+		}	
+		return b.scenarioLength(M60)
 				.addModel(
 						DefaultPDPModel.builder()
 						.withTimeWindowPolicy(TimeWindowPolicies.TARDY_ALLOWED))
-				//				.addModel(
-				//						RoadModelBuilders.dynamicGraph(
-				//								GradientFieldExample.GraphCreator.createSimpleGraph())
-				//						.withCollisionAvoidance()
-				//						.withDistanceUnit(SI.METER)
-				//						.withVehicleLength(3)
-				//						)
-				// The stop condition indicates when the simulator should stop the
-				// simulation. Typically this is the moment when all tasks are performed.
-				// Custom stop conditions can be created by implementing the StopCondition
-				// interface.
 				.setStopCondition(StopConditions.or(
 						StatsStopConditions.timeOutEvent(),
 						StatsStopConditions.vehiclesDoneAndBackAtDepot()))
-				.build();
+				.build(); 
 	}
-
-
-	static class GraphCreator {
-		static final int LEFT_CENTER_U_ROW = 4;
-		static final int LEFT_CENTER_L_ROW = 5;
-		static final int LEFT_COL = 4;
-		static final int RIGHT_CENTER_U_ROW = 2;
-		static final int RIGHT_CENTER_L_ROW = 4;
-		static final int RIGHT_COL = 0;
-
-		GraphCreator() {
-		}
-
-		static ImmutableTable<Integer, Integer, Point> createMatrix(int cols, int rows, Point offset) {
-			com.google.common.collect.ImmutableTable.Builder<Integer, Integer, Point> builder = ImmutableTable.builder();
-
-			for(int c = 0; c < cols; ++c) {
-				for(int r = 0; r < rows; ++r) {
-					builder.put(r, c, new Point(offset.x + (double)c * 2.0D * 2.0D, offset.y + (double)r * 2.0D * 2.0D));
-				}
-			}
-
-			return builder.build();
-		}
-
-		static ListenableGraph<LengthData> createSimpleGraph() {
-			Graph<LengthData> g = new TableGraph();
-			Table<Integer, Integer, Point> matrix = createMatrix(8, 8, new Point(0.0D, 0.0D));
-
-			for(int i = 0; i < matrix.columnMap().size(); ++i) {
-				Object path;
-				if (i % 2 == 0) {
-					path = Lists.reverse(Lists.newArrayList(matrix.column(i).values()));
-				} else {
-					path = matrix.column(i).values();
-				}
-
-				Graphs.addPath(g, (Iterable)path);
-			}
-
-			Graphs.addPath(g, matrix.row(0).values());
-			Graphs.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())));
-			return new ListenableGraph<LengthData>(g);
-		}
-
-		static ListenableGraph<LengthData> createGraph() {
-			Graph<LengthData> g = new TableGraph();
-			Table<Integer, Integer, Point> leftMatrix = createMatrix(5, 10, new Point(0.0D, 0.0D));
-			Iterator var2 = leftMatrix.columnMap().values().iterator();
-
-			while(var2.hasNext()) {
-				Map<Integer, Point> column = (Map)var2.next();
-				Graphs.addBiPath(g, column.values());
-			}
-
-			Graphs.addBiPath(g, leftMatrix.row(4).values());
-			Graphs.addBiPath(g, leftMatrix.row(5).values());
-			Table<Integer, Integer, Point> rightMatrix = createMatrix(10, 7, new Point(30.0D, 6.0D));
-			Iterator var6 = rightMatrix.rowMap().values().iterator();
-
-			while(var6.hasNext()) {
-				Map<Integer, Point> row = (Map)var6.next();
-				Graphs.addBiPath(g, row.values());
-			}
-
-			Graphs.addBiPath(g, rightMatrix.column(0).values());
-			Graphs.addBiPath(g, rightMatrix.column(rightMatrix.columnKeySet().size() - 1).values());
-			Graphs.addPath(g, new Point[]{(Point)rightMatrix.get(2, 0), (Point)leftMatrix.get(4, 4)});
-			Graphs.addPath(g, new Point[]{(Point)leftMatrix.get(5, 4), (Point)rightMatrix.get(4, 0)});
-			final ListenableGraph graph = new ListenableGraph(g);
-
-
-			graph.getEventAPI().addListener(new Listener() {
-				@Override
-				public void handleEvent(Event event) {
-					Point[] test = new Point[0];
-					RandomGenerator g = new AbstractRandomGenerator() {
-						@Override
-						public void setSeed(long l) {
-
-						}
-						@Override
-						public double nextDouble() {
-							Random r = new Random();
-							return r.nextDouble();
-						}
-					};
-					System.out.println("Being called");
-					graph.addConnection(graph.getRandomNode(g), graph.getRandomNode(g));
-				}
-			});
-			return graph;
-		}
-	}
-
-
 	@Override
 	public void registerModelProvider(ModelProvider mp) {
 		mp.getModel(RoadModel.class).getRandomPosition(rng);
