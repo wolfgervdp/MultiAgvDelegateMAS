@@ -114,7 +114,7 @@ public final class testExample {
     INSTANCE {
       @Override
       public void handleTimedEvent(AddVehicleEvent event, SimulatorAPI sim) {
-        sim.register(new MultiAGVGradientField(event.getVehicleDTO()));
+        sim.register(new MultiAGVGradientField(event.getVehicleDTO(), sim));
       }
     }
   }

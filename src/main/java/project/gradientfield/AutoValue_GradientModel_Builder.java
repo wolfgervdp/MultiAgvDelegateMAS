@@ -1,6 +1,6 @@
 package project.gradientfield;
 
-
+/*
 final class AutoValue_GradientModel_Builder extends GradientModel.Builder {
     private static final long serialVersionUID = 4464819196521333718L;
 
@@ -20,3 +20,4 @@ final class AutoValue_GradientModel_Builder extends GradientModel.Builder {
         return h;
     }
 }
+*/

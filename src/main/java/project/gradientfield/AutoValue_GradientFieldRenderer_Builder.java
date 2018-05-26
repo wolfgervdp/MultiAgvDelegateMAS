@@ -1,5 +1,5 @@
 package project.gradientfield;
-
+/*
 final class AutoValue_GradientFieldRenderer_Builder extends GradientFieldRenderer.Builder {
 
     AutoValue_GradientFieldRenderer_Builder() {
@@ -18,3 +18,4 @@ final class AutoValue_GradientFieldRenderer_Builder extends GradientFieldRendere
         return h;
     }
 }
+*/
