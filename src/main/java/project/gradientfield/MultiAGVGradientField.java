@@ -51,6 +51,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldEmitter {
 
 	protected void movingWithAvoidCollisionWithGradientField(Parcel delivery,TimeLapse time,RoadModel rm)
 	{
+
 		Point p = verifyNotNull(gradientModel).getTargetFor(this);
 		if (p != null) {
 		storedPoint=p;

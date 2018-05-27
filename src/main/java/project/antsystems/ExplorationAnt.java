@@ -149,7 +149,7 @@ public class ExplorationAnt extends AntAgent {
 
     private void moveStep() {
         //System.out.println("Stepping to " + path.peekLast().peekLast());
-        visualiseAt(currentPosition);
+        visualiseAt(path.peekLast().peekLast(),currentPosition);
         currentPosition = path.peekLast().peekLast();
     }
 

@@ -5,6 +5,7 @@ import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.ContainerImpl;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.pdp.PDPObjectImpl;
+import com.github.rinde.rinsim.core.model.pdp.Vehicle;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
@@ -50,7 +51,7 @@ public abstract class AntAgent  implements TickListener {
 
 
     Queue<AntVisualiser> visualiserQueue = new ArrayDeque<>();
-    int visualiserHistorySize = 3;
+    int visualiserHistorySize = 15;
 
     //Copy constructor for AntAgent
     public AntAgent(AntAgent agent) {
@@ -66,7 +67,7 @@ public abstract class AntAgent  implements TickListener {
 
     protected void initVisualisationQueue(Point p) {
         for (int i = 0; i < visualiserHistorySize; i++) {
-            AntVisualiser v = new AntVisualiser(p);
+            AntVisualiser v = new AntVisualiser(p, roadModel.getPosition(masterAgent));
             sim.register(v);
             visualiserQueue.add(v);
         }
@@ -141,8 +142,8 @@ public abstract class AntAgent  implements TickListener {
         return retQ;
     }
 
-    protected void visualiseAt(Point p){
-        AntVisualiser toAdd = new AntVisualiser(p);
+    protected void visualiseAt(Point actualPoint, Point previousPoint){
+        AntVisualiser toAdd = new AntVisualiser(actualPoint,previousPoint);
         AntVisualiser toRemove = visualiserQueue.remove();
         sim.unregister(toRemove);
         sim.register(toAdd);
