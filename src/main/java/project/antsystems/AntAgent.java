@@ -76,7 +76,7 @@ public abstract class AntAgent  implements TickListener {
         heuristicValue += value*URGENCY_COEFFICIENT;
     }
     protected void addReservationHeuristic(double value){
-        heuristicValue += value*RESERVATION_COEFFICIENT;
+        heuristicValue -= value*RESERVATION_COEFFICIENT;
     }
 
     //Normal constructor

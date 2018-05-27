@@ -8,6 +8,7 @@ import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import javafx.geometry.Pos;
 import project.antsystems.ExplorationAnt;
 import project.visualisers.GoalVisualiser;
 import project.antsystems.IntentionAnt;
@@ -20,6 +21,8 @@ public class MultiAGV extends Vehicle {
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
     static final int EXPLORATION_FREQ = 200000; //In ms
     static final int NUMBER_OF_EXPL_ANTS = 1;
+    static final int WAIT_FOR_EXPL_ANTS = 1;
+
 
     private int id;
     private static int idCounter = 0;
@@ -28,6 +31,9 @@ public class MultiAGV extends Vehicle {
     private IntentionAnt currentIntention;
     private SimulatorAPI sim;
     private boolean isWaiting = false;
+    private boolean isWaitingForExplorationAnts = false;
+    private int numOfExplAntsReportedBack = 0;
+
     private static final double SPEED = 0.1d;
     private long timeAtLastExploration = 0;
 
@@ -100,7 +106,7 @@ public class MultiAGV extends Vehicle {
         }
 
         //Move to the direction of next goal
-        if(!isWaiting){
+        if(!isWaiting && !isWaitingForExplorationAnts){
             Point p = currentIntention.peekNextGoalLocation();
             //If no next goal left, pop path for finding next parcel
             while(p == null){
@@ -134,25 +140,37 @@ public class MultiAGV extends Vehicle {
     }
 
     public void reportBack(ExplorationAnt ant){
+        IntentionAnt tempIntentionAnt = new IntentionAnt(ant);
         //numberOfAntCounter--;
-        if(currentIntention == null
+        if((currentIntention == null
                 || ant.getTotalHeuristicValue() > currentIntention.getTotalHeuristicValue() + Math.abs(currentIntention.getTotalHeuristicValue())*(RECONSIDERATION_TRESHOLD-1)
                 //|| explorationCounter %10 == 0
-            ){
-            //if(explorationCounter %10 ==0) System.out.println("reset intention!!-------------------------------------------");
+            ) && getRoadModel().getShortestPathTo(this,tempIntentionAnt.peekNextGoalLocation()).size() <= 1){
+
             if(currentIntention != null) {
                 sim.unregister(currentIntention);
             }
-            currentIntention = new IntentionAnt(ant);
+            IntentionAnt oldIntention = currentIntention;
+            currentIntention = tempIntentionAnt;
+            Point p = getRoadModel().getPosition(this);
+
+            System.out.println("position : " + p);
+            System.out.println("before trim" + currentIntention);
+            currentIntention.trimPath(p);
+            System.out.println("after trim" + currentIntention);
             sim.register(currentIntention);
             //System.out.println("----------------------------Found better path!!" + (ant.getTotalHeuristicValue()) + ant);
         }else{
             System.out.println("currentCapToExceed" + currentIntention.getTotalHeuristicValue() + Math.abs(currentIntention.getTotalHeuristicValue())*(RECONSIDERATION_TRESHOLD-1));
         }
+        numOfExplAntsReportedBack++;
+        if(numOfExplAntsReportedBack >= WAIT_FOR_EXPL_ANTS){
+            isWaitingForExplorationAnts = false;
+        }
     }
 
     private boolean atNextGoal(){
-        return currentIntention == null ? false : getRoadModel().getPosition(this).equals(currentIntention.peekNextGoalLocation());
+        return currentIntention == null ? false: getRoadModel().getPosition(this).equals(currentIntention.peekNextGoalLocation());
     }
 
     private boolean atParcel() {
@@ -188,6 +206,7 @@ public class MultiAGV extends Vehicle {
     public void sendExplorationAnts(){
         //System.out.println("Sending exploration ants. Starting at position " + getRoadModel().getPosition(this));
         numberOfAntCounter+=NUMBER_OF_EXPL_ANTS;
+       // isWaitingForExplorationAnts = true;
         explorationCounter++;
 
         for(int i = 0; i < NUMBER_OF_EXPL_ANTS; i++){

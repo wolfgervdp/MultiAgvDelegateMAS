@@ -45,7 +45,7 @@ public class InfrastructureAgent implements RoadUser, TickListener {
 
     @Override
     public String toString() {
-        return "" +  + (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5), -1);
+        return "" /*+  (int) position.x + "," + (int) position.y + " " */+ (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5), -1);
     }
 
     public void updateReservationPheromone(TimeWindow tw, double value, int owner) {
