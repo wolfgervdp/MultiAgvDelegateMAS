@@ -62,7 +62,7 @@ public abstract class AntAgent  implements TickListener {
 
     protected void initVisualisationQueue(Point p) {
         for (int i = 0; i < visualiserHistorySize; i++) {
-            ExplorationAntVisualiser v = new ExplorationAntVisualiser(p);
+            ExplorationAntVisualiser v = new ExplorationAntVisualiser(p, roadModel.getPosition(masterAgent));
             sim.register(v);
             visualiserQueue.add(v);
         }
@@ -137,8 +137,8 @@ public abstract class AntAgent  implements TickListener {
         return retQ;
     }
 
-    protected void visualiseAt(Point p){
-        ExplorationAntVisualiser toAdd = new ExplorationAntVisualiser(p);
+    protected void visualiseAt(Point actualPoint, Point previousPoint){
+        ExplorationAntVisualiser toAdd = new ExplorationAntVisualiser(actualPoint,previousPoint);
         ExplorationAntVisualiser toRemove = visualiserQueue.remove();
         sim.unregister(toRemove);
         sim.register(toAdd);

@@ -4,7 +4,8 @@ import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.geom.Point;
 
-public class Visualiser implements RoadUser {
+public abstract class Visualiser implements RoadUser {
+
     Point position;
 
     public Visualiser(Point position) {

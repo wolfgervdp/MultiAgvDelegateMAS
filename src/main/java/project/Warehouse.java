@@ -24,10 +24,9 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
-
+import project.visualisers.AntAgentRenderer;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.graphics.RGB;
-import project.antsystems.ExplorationAnt;
 import project.visualisers.ExplorationAntVisualiser;
 import project.visualisers.GoalVisualiser;
 import project.visualisers.IntentionAntVisualiser;
@@ -61,6 +60,7 @@ public final class Warehouse {
 
 		View.Builder view = View.builder()
 				.with(WarehouseRenderer.builder().withOneWayStreetArrows().withNodeOccupancy())
+                .with(AntAgentRenderer.builder())
 				.with(RoadUserRenderer.builder().withToStringLabel()
 						.withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
 						.withColorAssociation(Depot.class, new RGB(255, 0, 0))
@@ -74,8 +74,8 @@ public final class Warehouse {
 				.with(PDPModelRenderer.builder())
 				.with(AGVRenderer.builder().withDifferentColorsForVehicles());
 
-			view = view.withAutoClose()
-					.withAutoPlay()
+			view = view
+					//.withAutoPlay()
 					.withSimulatorEndTime(1000*60*100)
 					.withSpeedUp(TEST_SPEED_UP);
 		return view;
