@@ -1,6 +1,9 @@
 package project.antsystems;
 
+import com.github.rinde.rinsim.core.model.pdp.PDPModel;
+import com.github.rinde.rinsim.core.model.pdp.PDPObject;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
+import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
@@ -96,5 +99,13 @@ public class IntentionAnt extends AntAgent {
     public void popPath(){
         //path.getFirst();
         path.pop();
+    }
+
+    @Override
+    public  final void initRoadUser(RoadModel model) {
+        roadModel = (GraphRoadModel)model ;
+
+        model.addObjectAt(this, super.currentPosition);
+
     }
 }

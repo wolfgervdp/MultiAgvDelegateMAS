@@ -25,8 +25,10 @@ import javax.annotation.Nullable;
 import javax.measure.unit.SI;
 import javax.sound.midi.Soundbank;
 
+import com.github.rinde.rinsim.experiment.ExperimentResults;
 import org.apache.commons.lang3.builder.Builder;
 import org.apache.commons.math3.random.AbstractRandomGenerator;
+import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -187,7 +189,6 @@ public final class GradientFieldExample implements ModelReceiver {
 
 		} 
 
-
 		Experiment.builder()
 		.withRandomSeed(RANDOM_SEED)
 		.addConfiguration(MASConfiguration.builder()
@@ -198,7 +199,7 @@ public final class GradientFieldExample implements ModelReceiver {
 				.addModel(GradientModel.builder())
 				.addModel(
 						RoadModelBuilders.dynamicGraph(
-								WarehouseDesign.GraphCreator.createSimpleGraph(3))
+								WarehouseDesign.GraphCreator.createSimpleGraph(2))
 						.withCollisionAvoidance()
 						.withDistanceUnit(SI.METER)
 						.withVehicleLength(2)
@@ -283,6 +284,7 @@ public final class GradientFieldExample implements ModelReceiver {
 		}
 		for (int i = 0; i < 10; i++) {//max84
 			Random rp = new Random();
+			rp.setSeed(RANDOM_SEED);
 			int randomParcel=rp.nextInt(6*14-i-0);
 			MIN_POINT_1=possibleParcels.get(randomParcel);
 			possibleParcels.remove(randomParcel);
@@ -306,9 +308,10 @@ public final class GradientFieldExample implements ModelReceiver {
 					.deliveryTimeWindow(TimeWindow.create(M1_D1, M1_D2))
 					.buildDTO()));			
 		}
-		for (int i = 0; i < 4; i++) {//max48
+		for (int i = 0; i < 5; i++) {//max48
 			Random r = new Random();
-			int random=r.nextInt((2*13)-i-0);
+            r.setSeed(RANDOM_SEED);
+            int random=r.nextInt((2*13)-i-0);
 			MIN_POINT_1=possibleVehicles.get(random);
 			possibleVehicles.remove(random);
 			b.addEvent(AddVehicleEvent.create(-1, VehicleDTO.builder()

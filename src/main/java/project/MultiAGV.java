@@ -23,7 +23,7 @@ public class MultiAGV extends Vehicle {
 
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
     static final int EXPLORATION_FREQ = 20000; //In ms
-    static final int NUMBER_OF_EXPL_ANTS = 1;
+    static final int NUMBER_OF_EXPL_ANTS = 2;
 
     private int id;
     private static int idCounter = 0;
@@ -59,6 +59,7 @@ public class MultiAGV extends Vehicle {
 
     @Override
     public String toString() {
+
         if(currentIntention != null)
         return "MultiAGV " + id + ", h=" + currentIntention.getTotalHeuristicValue();
         else return "MultiAGV " + id;

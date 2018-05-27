@@ -50,7 +50,7 @@ public final class Warehouse {
 
 
 	private static final double VEHICLE_LENGTH = 2.0D;
-	private static final int NUM_AGVS = 3;
+	private static final int NUM_AGVS = 1;
 	private static final long TEST_END_TIME = 600000L;
 	private static final int TEST_SPEED_UP = 16;
 	private static final int NUM_PARCEL = 12;
@@ -70,42 +70,23 @@ public final class Warehouse {
 		run(false);
 	}
 
-	static View.Builder createGui(
-			boolean testing,
-			@Nullable Display display,
-			@Nullable Monitor m,
-			@Nullable Listener list) {
+	static View.Builder createGui(	boolean testing) {
 
 		View.Builder view = View.builder()
 				.with(WarehouseRenderer.builder().withOneWayStreetArrows().withNodeOccupancy())
 				.with(RoadUserRenderer.builder().withToStringLabel()
 						.withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
 						.withColorAssociation(Depot.class, new RGB(255, 0, 0))
-						.withImageAssociation(
-								MultiAGV.class, "/graphics/flat/taxi-32.png")
-						.withImageAssociation(
-								ExplorationAnt.class, "/graphics/flat/taxi-32.png"))
+						.withColorAssociation(ExplorationAnt.class, new RGB(0, 0, 255)))
 				//.with(TaxiRenderer.builder(Language.ENGLISH))
-				.withTitleAppendix("Warehouse")
 				.with(RouteRenderer.builder())
 				.with(PDPModelRenderer.builder())
 				.with(AGVRenderer.builder().withDifferentColorsForVehicles());
 
-		if (testing) {
 			view = view.withAutoClose()
 					.withAutoPlay()
-					.withSimulatorEndTime(10)
+					.withSimulatorEndTime(1000*60*100)
 					.withSpeedUp(TEST_SPEED_UP);
-		} else if (m != null && list != null && display != null) {
-			view = view.withMonitor(m)
-					.withSpeedUp(1)
-					.withResolution(m.getClientArea().width, m.getClientArea().height)
-					.withDisplay(display)
-					.withCallback(list)
-					//.withAsync()
-					.withAutoPlay()
-					.withAutoClose();
-		}
 		return view;
 	}
 	public static void run(boolean testing) {
@@ -119,18 +100,16 @@ public final class Warehouse {
 		} else {
 			viewBuilder = viewBuilder.withTitleAppendix("Warehouse Example");
 		}
-		//final View.Builder view = createGui(testing, display, m, list);
-		final View.Builder view = createGui(testing, null, null, null);
+		final View.Builder view = createGui(testing);
 
 		Simulator sim = Simulator.builder()
 				.addModel(
 				RoadModelBuilders.dynamicGraph(
-				       Warehouse.GraphCreator.createSimpleGraph())
+						WarehouseDesignWithAnts.GraphCreator.createSimpleGraph(1))
 				      	.withCollisionAvoidance()
 						.withDistanceUnit(SI.METER)
 				   		.withVehicleLength(VEHICLE_LENGTH)
 				 )
-				//.addModel(viewBuilder)
 				.addModel(DefaultPDPModel.builder())
 				.addModel(view)
 				.build();
@@ -212,53 +191,6 @@ public final class Warehouse {
 			return new ListenableGraph(g);
 		}
 
-		static ListenableGraph<InfrastructureAgent> createGraph() {
-			Graph<InfrastructureAgent> g = new TableGraph();
-			Table<Integer, Integer, Point> leftMatrix = createMatrix(5, 10, new Point(0.0D, 0.0D));
-			Iterator var2 = leftMatrix.columnMap().values().iterator();
 
-			while(var2.hasNext()) {
-				Map<Integer, Point> column = (Map)var2.next();
-				Graphs.addBiPath(g, column.values());
-			}
-
-			Graphs.addBiPath(g, leftMatrix.row(4).values());
-			Graphs.addBiPath(g, leftMatrix.row(5).values());
-			Table<Integer, Integer, Point> rightMatrix = createMatrix(10, 7, new Point(30.0D, 6.0D));
-			Iterator var6 = rightMatrix.rowMap().values().iterator();
-
-			while(var6.hasNext()) {
-				Map<Integer, Point> row = (Map)var6.next();
-				Graphs.addBiPath(g, row.values());
-			}
-
-			Graphs.addBiPath(g, rightMatrix.column(0).values());
-			Graphs.addBiPath(g, rightMatrix.column(rightMatrix.columnKeySet().size() - 1).values());
-			Graphs.addPath(g, new Point[]{(Point)rightMatrix.get(2, 0), (Point)leftMatrix.get(4, 4)});
-			Graphs.addPath(g, new Point[]{(Point)leftMatrix.get(5, 4), (Point)rightMatrix.get(4, 0)});
-			final ListenableGraph graph = new ListenableGraph(g);
-
-
-			graph.getEventAPI().addListener(new Listener() {
-				@Override
-				public void handleEvent(Event event) {
-					Point[] test = new Point[0];
-					RandomGenerator g = new AbstractRandomGenerator() {
-						@Override
-						public void setSeed(long l) {
-
-						}
-						@Override
-						public double nextDouble() {
-							Random r = new Random();
-							return r.nextDouble();
-						}
-					};
-					System.out.println("Being called");
-					graph.addConnection(graph.getRandomNode(g), graph.getRandomNode(g));
-				}
-			});
-			return graph;
-		}
 	}
 }

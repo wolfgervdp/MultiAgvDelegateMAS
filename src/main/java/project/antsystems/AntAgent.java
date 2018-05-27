@@ -1,6 +1,9 @@
 package project.antsystems;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
+import com.github.rinde.rinsim.core.model.pdp.ContainerImpl;
+import com.github.rinde.rinsim.core.model.pdp.PDPModel;
+import com.github.rinde.rinsim.core.model.pdp.PDPObjectImpl;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.MovingRoadUser;
@@ -21,12 +24,21 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
+import static com.google.common.base.Preconditions.checkState;
+
 /*
     AntAgent is a superclass of all ant based agents
      The inner queue indicates the path between parcels. The outer queue connects these paths to construct a
     complete path through different parcels.
  */
-public abstract class AntAgent implements TickListener, RoadUser {
+public abstract class AntAgent  implements TickListener, RoadUser {
+
+    //by mate
+    Optional<PDPModel> pdpModel;
+    private Point startPosition;
+    private RoadModel roadModel_test;
+    private boolean isRegistered;
+    //
 
     static final double URGENCY_COEFFICIENT = 0.5;
     static final double RESERVATION_COEFFICIENT = 0.5;
@@ -47,6 +59,10 @@ public abstract class AntAgent implements TickListener, RoadUser {
         this.path = (ArrayDeque<ArrayDeque<Point>>) DeepCopy.copy(agent.path);
         this.roadModel = agent.roadModel;
         this.heuristicValue = agent.heuristicValue;
+
+        //by Mate
+        pdpModel = Optional.absent();
+        //
     }
 
     public double getTotalHeuristicValue(){
@@ -65,6 +81,10 @@ public abstract class AntAgent implements TickListener, RoadUser {
         this.masterAgent = masterAgent;
         this.currentPosition = position;
         this.roadModel = roadModel;
+        //by Mate
+        pdpModel = Optional.absent();
+        startPosition = this.currentPosition;
+        //
         this.sim = sim;
         path = new ArrayDeque<ArrayDeque<Point>>();
         pushQueue();
@@ -72,11 +92,7 @@ public abstract class AntAgent implements TickListener, RoadUser {
     }
     
 
-	@Override
-	public void initRoadUser(RoadModel model) {
-		// TODO Auto-generated method stub
-		
-	}
+
 
     //Calculation for heuristic value from current location to Point p
     protected double queryHeuristicValue(Point p){

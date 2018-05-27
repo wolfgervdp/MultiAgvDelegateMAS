@@ -2,24 +2,32 @@ package project.antsystems;
 
 import com.github.rinde.rinsim.core.Simulator;
 import com.github.rinde.rinsim.core.SimulatorAPI;
+import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
+import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
+import com.google.common.base.Optional;
 import org.jetbrains.annotations.Nullable;
 import project.InfrastructureAgent;
 import project.MultiAGV;
 import project.MultiParcel;
+import static com.google.common.base.Preconditions.checkState;
+
+
 
 import java.util.*;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /*
     Explores the map for a possible path going through Parcels. Adds new points at the back of the queue.
  */
 public class ExplorationAnt extends AntAgent{
 
-    static final int MAX_NR_ANT_SPLIT = 0;   //Number of ants this ant will create >extra<. High values for this parameter can result in really big performance drop
+    static final int MAX_NR_ANT_SPLIT = 1;   //Number of ants this ant will create >extra<. High values for this parameter can result in really big performance drop
     static final int PATH_PARCEL_NUMBER = 3;    //Number of parcels to include in path
     static final int MAX_PATH_LENGTH  = 30;
 
@@ -190,5 +198,15 @@ public class ExplorationAnt extends AntAgent{
         //System.out.println("selected " + chosenPoints.size() + " points");
         return chosenPoints;
     }
+
+
+    @Override
+    public  final void initRoadUser(RoadModel model) {
+            roadModel = (GraphRoadModel)model ;
+                model.addObjectAt(this, currentPosition);
+
+}
+
+
 
 }

@@ -113,18 +113,25 @@ public class MultiAGVGradientField extends MultiAGV implements FieldEmitter {
 				//System.out.println("field value without ownfield "+ ((strenght/4)-ownFieldValue));
 		}
 
-		if(fieldValue<(strenght/2))
-		{
-			if (storedPoint != null) {
-				rm.moveTo(this, storedPoint, time);
-			}
-			//System.out.println("Too negative gradient value (cloesests)");
-		}else{
-			rm.moveTo(this, rm.getPosition(closest), time);
+
+			if(fieldValue<(strenght/2))
+			{
+				if (fieldValue<(strenght/4)) {
+
+
+
+					if (storedPoint != null) {
+						rm.moveTo(this, storedPoint, time);
+					}
+				}
+				//System.out.println("Too negative gradient value (cloesests)");
+			}else{
+				rm.moveTo(this, rm.getPosition(closest), time);
 //			System.out.println("Moving to closests");
 
-		}
-		
+			}
+
+
 
 	}
 

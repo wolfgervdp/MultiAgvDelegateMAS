@@ -9,7 +9,7 @@ import project.MultiParcel;
 
 public class MultiParcelGradientField extends MultiParcel implements FieldEmitter{
 
-	static final float AVAILABLE_STRENGTH =4.0f;
+	static final float AVAILABLE_STRENGTH =20.0f;
 	  private final Point pos;
 
 	  MultiParcelGradientField(ParcelDTO pDto) {

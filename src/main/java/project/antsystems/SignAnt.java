@@ -1,6 +1,7 @@
 package project.antsystems;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
+import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
@@ -33,5 +34,14 @@ public class SignAnt extends AntAgent {
         for(int i = 0 ; i < randomNumber - 1; i++)
             points.iterator().next();
         return points.iterator().next();
+    }
+
+
+    @Override
+    public  final void initRoadUser(RoadModel model) {
+        roadModel = (GraphRoadModel)model ;
+
+        model.addObjectAt(this, super.currentPosition);
+
     }
 }
