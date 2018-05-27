@@ -2,15 +2,14 @@ package project;
 
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadUser;
-import com.github.rinde.rinsim.geom.ConnectionData;
+import com.github.rinde.rinsim.core.model.time.TickListener;
+import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
-import com.google.common.base.Optional;
-import project.antsystems.ExplorationAnt;
 
 import java.util.*;
 
-public class InfrastructureAgent implements ConnectionData, RoadUser {
+public class InfrastructureAgent implements RoadUser, TickListener {
 
     static final double EVAPORATION_RATE = 0.707106;
     static final double signCoefficient = 0.5f;
@@ -21,12 +20,23 @@ public class InfrastructureAgent implements ConnectionData, RoadUser {
     double reservationPheromone = 1;
     double signPheromone = 0;
 
-    private double length = 2.0;
+    Point position;
 
-    @Override
-    public Optional<Double> getLength() {
-        return Optional.of(length);
+    private double length = 4.0;
+    private long currentTime = 0;
+
+    public InfrastructureAgent(Point position) {
+        this.position = position;
     }
+
+    public double getLength() {
+        return length;
+    }
+
+    public Point getPosition(){
+        return position;
+    }
+
     public void updateSignPheromone(double value) {
         signPheromone += value;
     }
@@ -38,6 +48,10 @@ public class InfrastructureAgent implements ConnectionData, RoadUser {
         return reservations.get(timestamp);
     }
 
+    @Override
+    public String toString() {
+        return "" + (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5));
+    }
 
     public void updateReservationPheromone(TimeWindow tw, double value) {
 
@@ -65,7 +79,7 @@ public class InfrastructureAgent implements ConnectionData, RoadUser {
         getOrCreate(tw.end());                  //End value
     }
 
-    public double getHeuristicValue(TimeWindow tw){
+    public double getReservationValue(TimeWindow tw){
 
         Iterator<Long> reservationTimes = reservations.navigableKeySet().iterator();
         long currReservationTime = 0;
@@ -105,6 +119,14 @@ public class InfrastructureAgent implements ConnectionData, RoadUser {
 
     @Override
     public void initRoadUser(RoadModel model) {
-
+        model.addObjectAt(this, position);
     }
+
+    @Override
+    public void tick(TimeLapse timeLapse) {
+        currentTime = timeLapse.getTime();
+    }
+
+    @Override
+    public void afterTick(TimeLapse timeLapse) {}
 }

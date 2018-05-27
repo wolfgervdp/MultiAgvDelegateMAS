@@ -26,9 +26,7 @@ public class WarehouseDesign {
 					builder.put(r, c, new Point(offset.x + (double)c * 2.0D * 2.0D, offset.y + (double)r * 2.0D * 2.0D));
 
 				}
-
 			}
-
 			return builder.build();
 		}
 

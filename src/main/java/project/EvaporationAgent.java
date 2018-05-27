@@ -5,15 +5,17 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Connection;
 import com.github.rinde.rinsim.geom.Graph;
 
+import java.util.List;
+
 public class EvaporationAgent implements TickListener {
 
-    private static final long EVAPORATION_FREQ = 5500;
+    private static final long EVAPORATION_FREQ = 100000;
 
-    Graph<InfrastructureAgent> graph;
+    List<InfrastructureAgent> infrastructureAgentList;
     private long timeAtLastExploration;
 
-    public EvaporationAgent(Graph<InfrastructureAgent> graph) {
-        this.graph = graph;
+    public EvaporationAgent(List<InfrastructureAgent> infrastructureAgentList) {
+        this.infrastructureAgentList = infrastructureAgentList;
     }
 
 
@@ -27,8 +29,8 @@ public class EvaporationAgent implements TickListener {
     }
 
     private void doEvaporation(){
-        for(Connection<InfrastructureAgent> con : graph.getConnections()){
-            con.data().get().evaporate();
+        for(InfrastructureAgent agent : infrastructureAgentList){
+            agent.evaporate();
         }
     }
 

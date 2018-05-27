@@ -14,7 +14,7 @@ import java.util.Queue;
 
 public class IntentionAnt extends AntAgent {
 
-    private static final long INTENTION_FREQ = 8000;
+    private static final long INTENTION_FREQ = 100000;
     Queue<Point> currentQueue;
     private long timeAtLastExploration;
 
@@ -43,21 +43,16 @@ public class IntentionAnt extends AntAgent {
         Point point1;
 
         int increasingPheromone = 5;
-
+        long timeOfArrivalBegin = 0;
         ArrayDeque<Point> allPoints = makeFlat(queue);
         while(!allPoints.isEmpty()){
+            Point p = allPoints.removeFirst();
+            InfrastructureAgent a = getInfrastructureAgentAt(p);
 
-            long timeOfArrivalEnd = currentTime + Math.round(roadModel.getDistanceOfPath(allPoints).intValue(roadModel.getDistanceUnit())/masterAgent.getSpeed());
-            point1 = allPoints.removeLast();
-            if(allPoints.isEmpty()){
-                break;
-            }
-            long timeOfArrivalBegin = currentTime + Math.round(roadModel.getDistanceOfPath(allPoints).intValue(roadModel.getDistanceUnit())/masterAgent.getSpeed());
-            point0 = allPoints.getLast();
-            InfrastructureAgent a = (InfrastructureAgent) (roadModel.getGraph().getConnection(point0,point1).data().get());
-            TimeWindow tw = TimeWindow.create(timeOfArrivalBegin, timeOfArrivalEnd);
-
+            long deltaT = Math.round(a.getLength()/masterAgent.getSpeed());
+            TimeWindow tw = TimeWindow.create(timeOfArrivalBegin, timeOfArrivalBegin + deltaT);
             a.updateReservationPheromone(tw,increasingPheromone);
+            timeOfArrivalBegin += deltaT;
             increasingPheromone *= 1.5;
         }
     }

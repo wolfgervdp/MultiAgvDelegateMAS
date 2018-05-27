@@ -22,7 +22,7 @@ import java.util.Set;
 public class MultiAGV extends Vehicle {
 
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
-    static final int EXPLORATION_FREQ = 20000; //In ms
+    static final int EXPLORATION_FREQ = 200000; //In ms
     static final int NUMBER_OF_EXPL_ANTS = 1;
 
     private int id;

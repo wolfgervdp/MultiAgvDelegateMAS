@@ -1,25 +1,20 @@
 package project.antsystems;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
-import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
-import com.github.rinde.rinsim.core.model.road.MovingRoadUser;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 
-import com.github.rinde.rinsim.geom.ConnectionData;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
-import com.google.common.base.Optional;
+import org.jetbrains.annotations.Nullable;
 import project.InfrastructureAgent;
 import project.MultiAGV;
 import project.helperclasses.DeepCopy;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 
 /*
     AntAgent is a superclass of all ant based agents
@@ -66,7 +61,7 @@ public abstract class AntAgent implements TickListener, RoadUser {
         this.currentPosition = position;
         this.roadModel = roadModel;
         this.sim = sim;
-        path = new ArrayDeque<ArrayDeque<Point>>();
+        path = new ArrayDeque<>();
         pushQueue();
         path.peekFirst().addLast(currentPosition);
     }
@@ -78,15 +73,26 @@ public abstract class AntAgent implements TickListener, RoadUser {
 		
 	}
 
+    @Nullable
+    protected InfrastructureAgent getInfrastructureAgentAt(Point position){
+        for(InfrastructureAgent infrastructureAgent: this.roadModel.getObjectsOfType(InfrastructureAgent.class)){
+            if(infrastructureAgent.getPosition().equals(position)){
+                return infrastructureAgent;
+            }
+        }
+        return null;
+    }
+
     //Calculation for heuristic value from current location to Point p
-    protected double queryHeuristicValue(Point p){
-        InfrastructureAgent data = (InfrastructureAgent) roadModel.getGraph().getConnection(currentPosition, p).data().get();
-        return data.getLocalHeuristicValue();
+    protected double queryLocalHeuristicValue(Point p){
+
+        //InfrastructureAgent data = (InfrastructureAgent) roadModel.getGraph().getConnection(currentPosition, p).data().get();
+        return getInfrastructureAgentAt(p).getLocalHeuristicValue();
     }
 
     protected double queryGlobalHeuristicValue(Point p, TimeWindow tw) {
-        InfrastructureAgent data = (InfrastructureAgent) roadModel.getGraph().getConnection(currentPosition, p).data().get();
-        return data.getHeuristicValue(tw);
+        //InfrastructureAgent data = (InfrastructureAgent) roadModel.getGraph().getConnection(currentPosition, p).data().get();
+        return 1000/getInfrastructureAgentAt(p).getReservationValue(tw);
     }
 
     protected void pushQueue(){

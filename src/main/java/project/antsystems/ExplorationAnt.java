@@ -1,6 +1,5 @@
 package project.antsystems;
 
-import com.github.rinde.rinsim.core.Simulator;
 import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
@@ -114,10 +113,10 @@ public class ExplorationAnt extends AntAgent{
 
         //If there is no last element yet, then we're not yet using a connection, so no reservation needed. Otherwise, do add a reservation
         if(!path.isEmpty() && !path.getLast().isEmpty()){
-            InfrastructureAgent agent = (InfrastructureAgent) roadModel.getGraph().getConnection(path.getLast().getLast(),p).data().get();
-            double dist = roadModel.getDistanceOfPath(makeFlat(path)).getValue();
-            long timeOfArrival = currentTime + Math.round(roadModel.getDistanceOfPath(makeFlat(path)).getValue() - 2*agent.getLength().get()/masterAgent.getSpeed());
-            long timeOfCompletion = timeOfArrival + Math.round(agent.getLength().get()*8/masterAgent.getSpeed());
+            //InfrastructureAgent agent = (InfrastructureAgent) roadModel.getGraph().getConnection(path.getLast().getLast(),p).data().get();
+            InfrastructureAgent agent = getInfrastructureAgentAt(p);
+            long timeOfArrival = currentTime + Math.round(roadModel.getDistanceOfPath(makeFlat(path)).getValue() - agent.getLength()/masterAgent.getSpeed());
+            long timeOfCompletion = timeOfArrival + Math.round(agent.getLength()*4/masterAgent.getSpeed());
 
             addReservationHeuristic(queryGlobalHeuristicValue(p, TimeWindow.create(timeOfArrival,timeOfCompletion)));
         }
@@ -132,23 +131,13 @@ public class ExplorationAnt extends AntAgent{
 
     @Nullable
     private MultiParcel getParcelAtCurrentLocation(){
-        //return ! ((CollisionGraphRoadModelImpl)this.roadModel.get()).getObjectsAt(this, MultiParcel.class).isEmpty();
         for(MultiParcel parcel: this.roadModel.getObjectsOfType(MultiParcel.class)){
-            //System.out.println("Parcel location: " + parcel.getPickupLocation());
-            //System.out.println("current location: " + currentPosition);
             if(parcel.getPickupLocation().equals(currentPosition)){
-                //System.out.println("Found parcel!");
+                //System.out.println("Found parcel!")
                 return parcel;
             }
         }
-
         return null;
-//
-//        for(Map.Entry<RoadUser, Point> entry: this.roadModel.getObjectsAndPositions().entrySet()){
-//            if(entry.getValue().equals(currentPosition) && entry.getKey() instanceof MultiParcel){
-//                return true;
-//            }
-//        }return false;
     }
 
     private void moveStep(){
@@ -169,7 +158,7 @@ public class ExplorationAnt extends AntAgent{
         for(Point p : points){
             //Calculate heuristic value
 
-            maxCumulObjV += queryHeuristicValue(p);
+            maxCumulObjV += queryLocalHeuristicValue(p);
             //System.out.println(maxCumulObjV);
             objValues.add(maxCumulObjV);
         }

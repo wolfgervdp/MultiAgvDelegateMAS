@@ -6,6 +6,7 @@
 package project;
 
 import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
@@ -15,11 +16,7 @@ import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders;
 import com.github.rinde.rinsim.event.Event;
 import com.github.rinde.rinsim.event.Listener;
-import com.github.rinde.rinsim.geom.Graph;
-import com.github.rinde.rinsim.geom.Graphs;
-import com.github.rinde.rinsim.geom.ListenableGraph;
-import com.github.rinde.rinsim.geom.Point;
-import com.github.rinde.rinsim.geom.TableGraph;
+import com.github.rinde.rinsim.geom.*;
 import com.github.rinde.rinsim.pdptw.common.RouteRenderer;
 import com.github.rinde.rinsim.ui.View;
 import com.github.rinde.rinsim.ui.View.Builder;
@@ -39,9 +36,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import javax.annotation.Nullable;
 import javax.measure.unit.SI;
@@ -84,7 +79,7 @@ public final class Warehouse {
 						.withImageAssociation(
 								MultiAGV.class, "/graphics/flat/taxi-32.png")
 						.withImageAssociation(
-								ExplorationAnt.class, "/graphics/flat/taxi-32.png"))
+								InfrastructureAgent.class, "/graphics/flat/order-new.png"))
 				//.with(TaxiRenderer.builder(Language.ENGLISH))
 				.withTitleAppendix("Warehouse")
 				.with(RouteRenderer.builder())
@@ -112,7 +107,7 @@ public final class Warehouse {
 		Builder viewBuilder = View.builder()
 				.with(PDPModelRenderer.builder().withDestinationLines())
 				.with(AGVRenderer.builder()
-						.withDifferentColorsForVehicles().withVehicleCoordinates());
+						.withDifferentColorsForVehicles());
 
 		if (testing) {
 			viewBuilder = viewBuilder.withAutoPlay().withAutoClose().withSimulatorEndTime(TEST_END_TIME).withTitleAppendix("TESTING").withSpeedUp(TEST_SPEED_UP);
@@ -122,10 +117,12 @@ public final class Warehouse {
 		//final View.Builder view = createGui(testing, display, m, list);
 		final View.Builder view = createGui(testing, null, null, null);
 
+		List<InfrastructureAgent> infrastructureAgents = new ArrayList<>();
+
 		Simulator sim = Simulator.builder()
 				.addModel(
 				RoadModelBuilders.dynamicGraph(
-				       Warehouse.GraphCreator.createSimpleGraph())
+				       Warehouse.GraphCreator.createSimpleGraph(infrastructureAgents))
 				      	.withCollisionAvoidance()
 						.withDistanceUnit(SI.METER)
 				   		.withVehicleLength(VEHICLE_LENGTH)
@@ -140,6 +137,10 @@ public final class Warehouse {
 		final RoadModel roadModel = sim.getModelProvider().getModel(
 				RoadModel.class);
 
+		for(InfrastructureAgent agent : infrastructureAgents){
+			sim.register(agent);
+		}
+
 		for(int i = 0; i < NUM_AGVS; ++i) {
 			//RoadUser user = new MultiAGV(sim.getRandomGenerator(), sim);
 			sim.register(new MultiAGV(roadModel.getRandomPosition(rng),
@@ -148,6 +149,7 @@ public final class Warehouse {
 //					MULTIAGV_CAPACITY, sim));
 		}
 		for (int i = 0; i < NUM_PARCEL; i++) {
+
 			sim.register(new MultiParcel(
 					Parcel.builder(roadModel.getRandomPosition(rng),
 							roadModel.getRandomPosition(rng))
@@ -155,7 +157,7 @@ public final class Warehouse {
 					.neededCapacity(1 + rng.nextInt(MAX_CAPACITY))
 					.buildDTO()));
 		}
-		sim.register(new EvaporationAgent((Graph<InfrastructureAgent>) ((GraphRoadModel) roadModel).getGraph()));
+		sim.register(new EvaporationAgent(infrastructureAgents));
 	    for (int i = 0; i < NUM_DEPOTS; i++) {
 	        sim.register(new DepotBase(roadModel.getRandomPosition(rng), 2));
 		}
@@ -187,8 +189,8 @@ public final class Warehouse {
 			return builder.build();
 		}
 
-		static ListenableGraph<InfrastructureAgent> createSimpleGraph() {
-			Graph<InfrastructureAgent> g = new TableGraph();
+		static ListenableGraph<LengthData> createSimpleGraph(List<InfrastructureAgent> list) {
+			Graph<LengthData> g = new TableGraph();
 
 			Table<Integer, Integer, Point> matrix = createMatrix(8, 6, new Point(0.0D, 0.0D));
 
@@ -202,18 +204,26 @@ public final class Warehouse {
 
 				//Graphs.addPath(g, (Iterable) path);
 				//GraphHelper.addPath(g, (Iterable) path, new InfrastructureAgent());
-				GraphHelper.addPath(g,(Iterable)path, InfrastructureAgent.class);
+				//GraphHelper.addPath(g,(Iterable)path, InfrastructureAgent.class);
+				Graphs.addPath(g,(Iterable) path);
 			}
 
 //			Graphs.addPath(g, matrix.row(0).values());
 //			Graphs.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())));
-			GraphHelper.addPath(g, matrix.row(0).values(), InfrastructureAgent.class);
-			GraphHelper.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())), InfrastructureAgent.class);
+			//GraphHelper.addPath(g, matrix.row(0).values(), InfrastructureAgent.class);
+			//GraphHelper.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())), InfrastructureAgent.class);
+			Graphs.addPath(g, matrix.row(0).values());
+			Graphs.addPath(g, Lists.reverse(Lists.newArrayList(matrix.row(matrix.rowKeySet().size() - 1).values())));
+
+			for(Point p : g.getNodes()){
+				list.add(new InfrastructureAgent(p));
+			}
+
 			return new ListenableGraph(g);
 		}
 
-		static ListenableGraph<InfrastructureAgent> createGraph() {
-			Graph<InfrastructureAgent> g = new TableGraph();
+		static ListenableGraph<LengthData> createGraph() {
+			Graph<LengthData> g = new TableGraph();
 			Table<Integer, Integer, Point> leftMatrix = createMatrix(5, 10, new Point(0.0D, 0.0D));
 			Iterator var2 = leftMatrix.columnMap().values().iterator();
 
@@ -236,6 +246,7 @@ public final class Warehouse {
 			Graphs.addBiPath(g, rightMatrix.column(rightMatrix.columnKeySet().size() - 1).values());
 			Graphs.addPath(g, new Point[]{(Point)rightMatrix.get(2, 0), (Point)leftMatrix.get(4, 4)});
 			Graphs.addPath(g, new Point[]{(Point)leftMatrix.get(5, 4), (Point)rightMatrix.get(4, 0)});
+
 			final ListenableGraph graph = new ListenableGraph(g);
 
 
