@@ -57,13 +57,15 @@ implements ModelReceiver {
 	/**
 	 * Possibilities (-1,1) (0,1) (1,1) (-1,0) (1,0 (-1,-1) (0,-1) (1,-1).
 	 */
-	private static final int[] X = {0, 4, 0, -4};
-	private static final int[] Y = {4, 0, -4, 0};
+	//private static final int[] X = {0, 4, 0, -4};
+	//private static final int[] Y = {4, 0, -4, 0};
 
 	//private static final int[] X = {0, 1, 0, -1};
 	//private static final int[] Y = {1, 0, -1, 0};
 	//private static final int[] X = {-4, 0, 4, 4, 4, 0, -4, -4};
 	//private static final int[] Y = {4, 4, 4, 0, -4, -4, -4, 0};
+	private static final int[] X = {0, 0, 4, 8, 0, 0, -4, -8};
+	private static final int[] Y = {4, 8, 0, 0, -4, -8, 0, 0};
 	//private static final int[] X = {-8, 0, 8, 8, 8, 0, -8, -8};
 	//private static final int[] Y = {8, 8, 8, 0, -8, -8, -8, 0};
 	private static final Point MIN = new Point(0.0, 4.0);

@@ -59,6 +59,7 @@ public class MultiAGV extends Vehicle {
 
     @Override
     public String toString() {
+
         if(currentIntention != null)
         return "MultiAGV " + id + ", h=" + currentIntention.getTotalHeuristicValue();
         else return "MultiAGV " + id;

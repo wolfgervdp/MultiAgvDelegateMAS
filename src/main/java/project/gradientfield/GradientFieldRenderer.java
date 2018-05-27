@@ -82,6 +82,7 @@ class GradientFieldRenderer extends AbstractCanvasRenderer {
 					}
 					gc.setBackground(new Color(gc.getDevice(), color));
 					gc.fillOval(x, y, dia, dia);
+
 				}
 			}
 		}
