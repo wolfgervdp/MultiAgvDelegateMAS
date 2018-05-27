@@ -11,6 +11,7 @@ import project.InfrastructureAgent;
 import project.MultiAGV;
 import project.MultiParcel;
 
+import javax.measure.unit.SI;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -23,6 +24,10 @@ public class ExplorationAnt extends AntAgent {
     static final int MAX_NR_ANT_SPLIT = 1;   //Number of ants this ant will create >extra<. High values for this parameter can result in really big performance drop
     static final int PATH_PARCEL_NUMBER = 1;    //Number of parcels to include in path
     static final int MAX_PATH_LENGTH = 35;
+    static final int ANT_SLOWDOWN = 1;
+
+    int tickCounter = 0;
+
 
     static int counter = 0;
     int antId = 0;
@@ -41,8 +46,6 @@ public class ExplorationAnt extends AntAgent {
         initVisualisationQueue(explorationAnt.currentPosition);
     }
 
-
-
     @Override
     public String toString() {
 
@@ -53,39 +56,40 @@ public class ExplorationAnt extends AntAgent {
 
     @Override
     public void tick(TimeLapse timeLapse) {
+        if(tickCounter % ANT_SLOWDOWN == 0) {
 
-        //System.out.println("Antid: " + antId);
-        //System.out.println("Ticking in ExplorationAnt. Current path: " + this);
+            //System.out.println("Antid: " + antId);
+            //System.out.println("Ticking in ExplorationAnt. Current path: " + this);
 
-        MultiParcel parcel = getParcelAtCurrentLocation();
-        if (parcel != null) {
-            //System.out.println("At parcel location!!!--------------");
-            pushQueue();
-            addUrgencyHeuristic(parcel.getUrgencyHeuristic(timeLapse.getTime()));
-        }
+            MultiParcel parcel = getParcelAtCurrentLocation();
+            if (parcel != null) {
+                //System.out.println("At parcel location!!!--------------");
+                pushQueue();
+                addUrgencyHeuristic(parcel.getUrgencyHeuristic(timeLapse.getTime()));
+            }
 
-        //If goal found, report back to masterAgent
-        if (hasFinishedPath()) {
-            //System.out.println("Ant finished path, reporting back");
-            masterAgent.reportBack(this);
-            destroySelf();
-            return;
-        }
-        if (isMaxPathLength()) {
-            //System.out.println("Unregistered ant with id=" + antId);
-            destroySelf();
-            return;
-        }
+            //If goal found, report back to masterAgent
+            if (hasFinishedPath()) {
+                //System.out.println("Ant finished path, reporting back");
+                masterAgent.reportBack(this);
+                destroySelf();
+                return;
+            }
+            if (isMaxPathLength()) {
+                //System.out.println("Unregistered ant with id=" + antId);
+                destroySelf();
+                return;
+            }
 
-        //System.out.println("Getting the outgoing connections starting from " + currentPosition);
-        Collection<Point> points = ((CollisionGraphRoadModelImpl) this.roadModel)
-                .getGraph()
-                .getOutgoingConnections(currentPosition);
+            //System.out.println("Getting the outgoing connections starting from " + currentPosition);
+            Collection<Point> points = ((CollisionGraphRoadModelImpl) this.roadModel)
+                    .getGraph()
+                    .getOutgoingConnections(currentPosition);
 
-        points.remove(currentPosition);
-        List<Point> chosenPoints = chosePoints(points);
+            points.remove(currentPosition);
+            List<Point> chosenPoints = chosePoints(points);
 
-        //System.out.println("Chosen points (" + chosenPoints.size() + "): ");
+            //System.out.println("Chosen points (" + chosenPoints.size() + "): ");
         /*for(Point p : points)
             System.out.println("\t" + p);*/
 /*
@@ -99,11 +103,13 @@ public class ExplorationAnt extends AntAgent {
             System.out.println("Creating new ExplorationAnt at position " + ant.currentPosition);
         }
 */
-        //Last chosen point always goes to the current ant
-        if (!chosenPoints.isEmpty()) {
-            //System.out.println("\t" + chosenPoints.get(chosenPoints.size()-1));
-            pushPoint(chosenPoints.get(chosenPoints.size() - 1), timeLapse.getTime());
-            moveStep();
+            //Last chosen point always goes to the current ant
+            if (!chosenPoints.isEmpty()) {
+                //System.out.println("\t" + chosenPoints.get(chosenPoints.size()-1));
+                pushPoint(chosenPoints.get(chosenPoints.size() - 1), timeLapse.getTime());
+                moveStep();
+            }
+            tickCounter++;
         }
     }
 
@@ -122,8 +128,8 @@ public class ExplorationAnt extends AntAgent {
         if (!path.isEmpty() && !path.getLast().isEmpty()) {
             //InfrastructureAgent agent = (InfrastructureAgent) roadModel.getGraph().getConnection(path.getLast().getLast(),p).data().get();
             InfrastructureAgent agent = getInfrastructureAgentAt(p);
-            long timeOfArrival = currentTime + Math.round(roadModel.getDistanceOfPath(makeFlat(path)).getValue() - agent.getLength() / masterAgent.getSpeed());
-            long timeOfCompletion = timeOfArrival + Math.round(agent.getLength() * 4 / masterAgent.getSpeed());
+            long timeOfArrival = currentTime + Math.round(roadModel.getDistanceOfPath(makeFlat(path)).intValue(SI.METER) / masterAgent.getSpeed());
+            long timeOfCompletion = timeOfArrival + Math.round(agent.getLength() / masterAgent.getSpeed());
 
             addReservationHeuristic(queryGlobalHeuristicValue(p, TimeWindow.create(timeOfArrival, timeOfCompletion)));
         }

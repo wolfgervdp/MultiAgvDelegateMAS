@@ -2,20 +2,16 @@ package project;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
-import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.Vehicle;
 import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
-import com.google.common.base.Optional;
-import project.antsystems.AntAgent;
 import project.antsystems.ExplorationAnt;
+import project.visualisers.GoalVisualiser;
 import project.antsystems.IntentionAnt;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -96,9 +92,11 @@ public class MultiAGV extends Vehicle {
         //If we got to the parcel, pick up and set next goal
         }else if(atNextGoal()) {
             sendExplorationAnts();
-            System.out.println("called");
+            System.out.println("at next goal");
             prevPos = currentIntention.peekNextGoalLocation();
             currentIntention.popGoalLocation();
+            Point p = currentIntention.peekNextGoalLocation();
+            sim.register(new GoalVisualiser(p, sim, timeLapse.getStartTime(), 100000));
         }
 
         //Move to the direction of next goal
@@ -109,6 +107,7 @@ public class MultiAGV extends Vehicle {
                 try {
                     currentIntention.popPath();
                     p = currentIntention.peekNextGoalLocation();
+
                 }catch(NoSuchElementException e){
                     // If there is nothing left in this intention, then do nothing,
                     // set currentIntention to null to send exploration ants more quickly and return
@@ -117,7 +116,6 @@ public class MultiAGV extends Vehicle {
                 }
             }
 
-
 //            if(prevPos != null && !prevPos.equals(currentIntention.peekNextGoalLocation())) {
 //                System.out.println("prevpos : " + prevPos + " - currentgoal " + currentIntention.peekNextGoalLocation());
 //                //System.out.println(prevPos.equals(currentIntention.peekNextGoalLocation()));
@@ -125,20 +123,29 @@ public class MultiAGV extends Vehicle {
 //                InfrastructureAgent data = (InfrastructureAgent) ((GraphRoadModel) getRoadModel()).getGraph().getConnection(prevPos, currentIntention.peekNextGoalLocation()).data().get();
 //                System.out.println(data.reservations);
 //            }
+
             rm.moveTo(this, p, timeLapse);
             //System.out.println(currentIntention);
         }
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void reportBack(ExplorationAnt ant){
         //numberOfAntCounter--;
         if(currentIntention == null
                 || ant.getTotalHeuristicValue() > currentIntention.getTotalHeuristicValue() + Math.abs(currentIntention.getTotalHeuristicValue())*(RECONSIDERATION_TRESHOLD-1)
-                || explorationCounter %10 == 0){
-            if(explorationCounter %10 ==0) System.out.println("reset intention!!-------------------------------------------");
+                //|| explorationCounter %10 == 0
+            ){
+            //if(explorationCounter %10 ==0) System.out.println("reset intention!!-------------------------------------------");
+            if(currentIntention != null) {
+                sim.unregister(currentIntention);
+            }
             currentIntention = new IntentionAnt(ant);
             sim.register(currentIntention);
-            System.out.println("----------------------------Found better path!!" + (ant.getTotalHeuristicValue()) + ant);
+            //System.out.println("----------------------------Found better path!!" + (ant.getTotalHeuristicValue()) + ant);
         }else{
             System.out.println("currentCapToExceed" + currentIntention.getTotalHeuristicValue() + Math.abs(currentIntention.getTotalHeuristicValue())*(RECONSIDERATION_TRESHOLD-1));
         }
@@ -147,6 +154,7 @@ public class MultiAGV extends Vehicle {
     private boolean atNextGoal(){
         return currentIntention == null ? false : getRoadModel().getPosition(this).equals(currentIntention.peekNextGoalLocation());
     }
+
     private boolean atParcel() {
         //System.out.println("peekNextParcelLocation: " + currentIntention.peekNextParcelLocation());
         boolean b = currentIntention == null ? false : getRoadModel().getPosition(this).equals(currentIntention.peekNextParcelLocation());
@@ -178,7 +186,7 @@ public class MultiAGV extends Vehicle {
     }
 
     public void sendExplorationAnts(){
-        System.out.println("Sending exploration ants. Starting at position " + getRoadModel().getPosition(this));
+        //System.out.println("Sending exploration ants. Starting at position " + getRoadModel().getPosition(this));
         numberOfAntCounter+=NUMBER_OF_EXPL_ANTS;
         explorationCounter++;
 

@@ -2,13 +2,8 @@ package project.antsystems;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
 
-import com.github.rinde.rinsim.core.model.pdp.ContainerImpl;
-import com.github.rinde.rinsim.core.model.pdp.PDPModel;
-import com.github.rinde.rinsim.core.model.pdp.PDPObjectImpl;
-import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
-import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 
@@ -18,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import project.InfrastructureAgent;
 import project.MultiAGV;
 import project.helperclasses.DeepCopy;
+import project.visualisers.ExplorationAntVisualiser;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -49,8 +45,8 @@ public abstract class AntAgent  implements TickListener {
     private double heuristicValue = 0;
 
 
-    Queue<AntVisualiser> visualiserQueue = new ArrayDeque<>();
-    int visualiserHistorySize = 3;
+    Queue<ExplorationAntVisualiser> visualiserQueue = new ArrayDeque<>();
+    int visualiserHistorySize = 50;
 
     //Copy constructor for AntAgent
     public AntAgent(AntAgent agent) {
@@ -66,7 +62,7 @@ public abstract class AntAgent  implements TickListener {
 
     protected void initVisualisationQueue(Point p) {
         for (int i = 0; i < visualiserHistorySize; i++) {
-            AntVisualiser v = new AntVisualiser(p);
+            ExplorationAntVisualiser v = new ExplorationAntVisualiser(p);
             sim.register(v);
             visualiserQueue.add(v);
         }
@@ -115,11 +111,11 @@ public abstract class AntAgent  implements TickListener {
 
     protected double queryGlobalHeuristicValue(Point p, TimeWindow tw) {
         //InfrastructureAgent data = (InfrastructureAgent) roadModel.getGraph().getConnection(currentPosition, p).data().get();
-        return 1000/getInfrastructureAgentAt(p).getReservationValue(tw);
+        return 1000/getInfrastructureAgentAt(p).getReservationValue(tw, masterAgent.getId());
     }
 
     protected void destroySelf(){
-        for(AntVisualiser v : visualiserQueue){
+        for(ExplorationAntVisualiser v : visualiserQueue){
             sim.unregister(v);
         }
         sim.unregister(this);
@@ -142,8 +138,8 @@ public abstract class AntAgent  implements TickListener {
     }
 
     protected void visualiseAt(Point p){
-        AntVisualiser toAdd = new AntVisualiser(p);
-        AntVisualiser toRemove = visualiserQueue.remove();
+        ExplorationAntVisualiser toAdd = new ExplorationAntVisualiser(p);
+        ExplorationAntVisualiser toRemove = visualiserQueue.remove();
         sim.unregister(toRemove);
         sim.register(toAdd);
         visualiserQueue.add(toAdd);

@@ -9,7 +9,7 @@ import java.util.List;
 
 public class EvaporationAgent implements TickListener {
 
-    private static final long EVAPORATION_FREQ = 100000;
+    private static final long EVAPORATION_FREQ = 80000;
 
     List<InfrastructureAgent> infrastructureAgentList;
     private long timeAtLastExploration;
@@ -23,7 +23,7 @@ public class EvaporationAgent implements TickListener {
     public void tick(TimeLapse timeLapse) {
         if(timeAtLastExploration + EVAPORATION_FREQ <= timeLapse.getTime()){
             doEvaporation();
-            System.out.println("Done evaporation");
+            //System.out.println("Done evaporation");
             timeAtLastExploration = timeLapse.getTime();
         }
     }

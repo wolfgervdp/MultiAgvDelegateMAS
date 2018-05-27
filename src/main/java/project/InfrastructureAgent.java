@@ -15,7 +15,9 @@ public class InfrastructureAgent implements RoadUser, TickListener {
     static final double signCoefficient = 0.5f;
     static final double reservationCoefficient = 0.5f;
 
-    TreeMap<Long,Double> reservations = new TreeMap<>();
+    //ArrayList<TreeMap<Long,Double>> reservations = new ArrayList<>();
+
+    HashMap<Integer, OrderBook> orders = new HashMap<>();
 
     double reservationPheromone = 1;
     double signPheromone = 0;
@@ -41,65 +43,26 @@ public class InfrastructureAgent implements RoadUser, TickListener {
         signPheromone += value;
     }
 
-    private double getOrCreate(long timestamp){
-        if(!reservations.containsKey(timestamp)){
-            reservations.put(timestamp,0d);
-        }
-        return reservations.get(timestamp);
-    }
-
     @Override
     public String toString() {
-        return "" +  + (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5));
+        return "" +  + (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5), -1);
     }
 
-    public void updateReservationPheromone(TimeWindow tw, double value) {
-
-        Iterator<Long> reservationTimes = reservations.navigableKeySet().iterator();
-        long currReservationTime = 0;
-        List<Long> reservationTimesToUpdate = new ArrayList<>();
-
-        //Add to tw.begin() timestamp, or create it if it doesn't already exist
-
-        //Find first intermediate timestamp
-        while(reservationTimes.hasNext() && currReservationTime <= tw.begin()){
-            currReservationTime = reservationTimes.next();
+    public void updateReservationPheromone(TimeWindow tw, double value, int owner) {
+        if(!orders.containsKey(owner)){
+            orders.put(owner, new OrderBook());
         }
-
-        //Loop through all intermediate timestamps and add pheromone to every timestamp
-        while(reservationTimes.hasNext() && currReservationTime < tw.end()){
-            reservations.put(currReservationTime, reservations.get(currReservationTime) + value);
-            currReservationTime = reservationTimes.next();
-        }
-
-
-        reservations.put(tw.begin(), getOrCreate(tw.begin()) + value);  //Beginning value
-        getOrCreate(tw.end());                  //End value
+        orders.get(owner).updateReservationPheromone(tw,value);
     }
 
-    public double getReservationValue(TimeWindow tw){
-
-        Iterator<Long> reservationTimes = reservations.navigableKeySet().iterator();
-        long currReservationTime = 0;
-        long previousReservationTime = 0;
+    public double getReservationValue(TimeWindow tw, int askerId){
         double totalReservationValue = 0;
-
-        //Loop until we find the reservation times which are intersecting with the timewindow
-        while(reservationTimes.hasNext() && currReservationTime < tw.begin()-1000){
-            previousReservationTime = currReservationTime;
-            currReservationTime = reservationTimes.next();
+        for(Map.Entry<Integer,OrderBook> orderBook : orders.entrySet()){
+            if(orderBook.getKey() != askerId){
+                totalReservationValue += orderBook.getValue().getReservationValue(tw);
+            }
         }
-
-        //Don't forget to add the reservation of the first one
-
-        totalReservationValue += reservations.get(previousReservationTime) != null ? reservations.get(previousReservationTime) : 0;
-
-        //Loop through all intersecting timestamps and add to total reservationValue
-        while(reservationTimes.hasNext() && currReservationTime < tw.end()+1000) {
-            totalReservationValue += reservations.get(currReservationTime);
-            currReservationTime = reservationTimes.next();
-        }
-        return totalReservationValue;
+        return totalReservationValue+1;
     }
 
     public double getLocalHeuristicValue(){
@@ -107,11 +70,8 @@ public class InfrastructureAgent implements RoadUser, TickListener {
     }
 
     public void evaporate() {
-        Iterator<Map.Entry<Long,Double>> reservationTimes = reservations.entrySet().iterator();
-
-        while(reservationTimes.hasNext()){
-            Map.Entry<Long,Double> entry = reservationTimes.next();
-            reservations.put(entry.getKey(),entry.getValue()*EVAPORATION_RATE);
+        for(Map.Entry<Integer,OrderBook> orderBook : orders.entrySet()){
+            orderBook.getValue().evaporate();
         }
     }
 

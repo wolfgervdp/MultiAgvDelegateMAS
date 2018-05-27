@@ -6,16 +6,12 @@
 package project;
 
 import com.github.rinde.rinsim.core.Simulator;
-import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
-import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 //import com.github.rinde.rinsim.core.model.road.NewRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders;
-import com.github.rinde.rinsim.event.Event;
-import com.github.rinde.rinsim.event.Listener;
 import com.github.rinde.rinsim.geom.*;
 import com.github.rinde.rinsim.pdptw.common.RouteRenderer;
 import com.github.rinde.rinsim.ui.View;
@@ -28,18 +24,16 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
-import project.antsystems.AntVisualiser;
-import project.antsystems.ExplorationAnt;
 
-import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Monitor;
+import project.antsystems.ExplorationAnt;
+import project.visualisers.ExplorationAntVisualiser;
+import project.visualisers.GoalVisualiser;
+import project.visualisers.IntentionAntVisualiser;
 
 import java.util.*;
 
-import javax.annotation.Nullable;
 import javax.measure.unit.SI;
 
 public final class Warehouse {
@@ -72,7 +66,9 @@ public final class Warehouse {
 						.withColorAssociation(Depot.class, new RGB(255, 0, 0))
 						.withColorAssociation(
 								InfrastructureAgent.class, new RGB(255, 255, 0))
-						.withColorAssociation(AntVisualiser.class, new RGB(0, 0, 255)))
+						.withColorAssociation(ExplorationAntVisualiser.class, new RGB(0, 0, 255))
+						.withColorAssociation(IntentionAntVisualiser.class, new RGB(0, 255, 255))
+						.withColorAssociation(GoalVisualiser.class, new RGB(12, 55, 255)))
 				//.with(TaxiRenderer.builder(Language.ENGLISH))
 				.with(RouteRenderer.builder())
 				.with(PDPModelRenderer.builder())

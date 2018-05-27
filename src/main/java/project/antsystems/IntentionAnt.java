@@ -1,15 +1,11 @@
 package project.antsystems;
 
-import com.github.rinde.rinsim.core.model.pdp.PDPModel;
-import com.github.rinde.rinsim.core.model.pdp.PDPObject;
-import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
-import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
-import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 import project.InfrastructureAgent;
 import project.helperclasses.DeepCopy;
+import project.visualisers.IntentionAntVisualiser;
 
 import java.util.ArrayDeque;
 
@@ -17,7 +13,7 @@ import java.util.Queue;
 
 public class IntentionAnt extends AntAgent {
 
-    private static final long INTENTION_FREQ = 100000;
+    private static final long INTENTION_FREQ = 1000;
     Queue<Point> currentQueue;
     private long timeAtLastExploration;
 
@@ -38,23 +34,20 @@ public class IntentionAnt extends AntAgent {
         }
     }
 
-
     private void reservePath(long currentTime){
         //Todo: update intention values
         ArrayDeque<ArrayDeque<Point>> queue = ( ArrayDeque<ArrayDeque<Point>>) DeepCopy.copy(path);
-        Point point0;
-        Point point1;
-
         int increasingPheromone = 5;
         long timeOfArrivalBegin = 0;
         ArrayDeque<Point> allPoints = makeFlat(queue);
         while(!allPoints.isEmpty()){
             Point p = allPoints.removeFirst();
-            //visualiseAt(p);
+            IntentionAntVisualiser iav = new IntentionAntVisualiser(p,sim, currentTime, INTENTION_FREQ);
+            sim.register(iav);
             InfrastructureAgent a = getInfrastructureAgentAt(p);
             long deltaT = Math.round(a.getLength()/masterAgent.getSpeed());
             TimeWindow tw = TimeWindow.create(timeOfArrivalBegin, timeOfArrivalBegin + deltaT);
-            a.updateReservationPheromone(tw,increasingPheromone);
+            a.updateReservationPheromone(tw,increasingPheromone, masterAgent.getId());
             timeOfArrivalBegin += deltaT;
             //increasingPheromone *= 1.5;
         }
