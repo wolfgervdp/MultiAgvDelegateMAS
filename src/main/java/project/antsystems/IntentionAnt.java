@@ -50,13 +50,13 @@ public class IntentionAnt extends AntAgent {
         ArrayDeque<Point> allPoints = makeFlat(queue);
         while(!allPoints.isEmpty()){
             Point p = allPoints.removeFirst();
+            //visualiseAt(p);
             InfrastructureAgent a = getInfrastructureAgentAt(p);
-
             long deltaT = Math.round(a.getLength()/masterAgent.getSpeed());
             TimeWindow tw = TimeWindow.create(timeOfArrivalBegin, timeOfArrivalBegin + deltaT);
             a.updateReservationPheromone(tw,increasingPheromone);
             timeOfArrivalBegin += deltaT;
-            increasingPheromone *= 1.5;
+            //increasingPheromone *= 1.5;
         }
     }
 
@@ -94,13 +94,5 @@ public class IntentionAnt extends AntAgent {
     public void popPath(){
         //path.getFirst();
         path.pop();
-    }
-
-    @Override
-    public  final void initRoadUser(RoadModel model) {
-        roadModel = (GraphRoadModel)model ;
-
-        model.addObjectAt(this, super.currentPosition);
-
     }
 }

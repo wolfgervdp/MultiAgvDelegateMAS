@@ -50,7 +50,7 @@ public class InfrastructureAgent implements RoadUser, TickListener {
 
     @Override
     public String toString() {
-        return "" + (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5));
+        return "" +  + (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5));
     }
 
     public void updateReservationPheromone(TimeWindow tw, double value) {
@@ -60,8 +60,6 @@ public class InfrastructureAgent implements RoadUser, TickListener {
         List<Long> reservationTimesToUpdate = new ArrayList<>();
 
         //Add to tw.begin() timestamp, or create it if it doesn't already exist
-
-
 
         //Find first intermediate timestamp
         while(reservationTimes.hasNext() && currReservationTime <= tw.begin()){
@@ -87,7 +85,7 @@ public class InfrastructureAgent implements RoadUser, TickListener {
         double totalReservationValue = 0;
 
         //Loop until we find the reservation times which are intersecting with the timewindow
-        while(reservationTimes.hasNext() && currReservationTime < tw.begin()-5000){
+        while(reservationTimes.hasNext() && currReservationTime < tw.begin()-1000){
             previousReservationTime = currReservationTime;
             currReservationTime = reservationTimes.next();
         }
@@ -97,7 +95,7 @@ public class InfrastructureAgent implements RoadUser, TickListener {
         totalReservationValue += reservations.get(previousReservationTime) != null ? reservations.get(previousReservationTime) : 0;
 
         //Loop through all intersecting timestamps and add to total reservationValue
-        while(reservationTimes.hasNext() && currReservationTime < tw.end()+5000) {
+        while(reservationTimes.hasNext() && currReservationTime < tw.end()+1000) {
             totalReservationValue += reservations.get(currReservationTime);
             currReservationTime = reservationTimes.next();
         }

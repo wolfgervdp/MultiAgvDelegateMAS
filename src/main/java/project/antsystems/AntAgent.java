@@ -20,6 +20,7 @@ import project.MultiAGV;
 import project.helperclasses.DeepCopy;
 
 import java.util.ArrayDeque;
+import java.util.Queue;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -28,7 +29,7 @@ import static com.google.common.base.Preconditions.checkState;
      The inner queue indicates the path between parcels. The outer queue connects these paths to construct a
     complete path through different parcels.
  */
-public abstract class AntAgent  implements TickListener, RoadUser {
+public abstract class AntAgent  implements TickListener {
 
     //by mate
     private Point startPosition;
@@ -47,6 +48,10 @@ public abstract class AntAgent  implements TickListener, RoadUser {
     protected Point currentPosition;
     private double heuristicValue = 0;
 
+
+    Queue<AntVisualiser> visualiserQueue = new ArrayDeque<>();
+    int visualiserHistorySize = 3;
+
     //Copy constructor for AntAgent
     public AntAgent(AntAgent agent) {
         this.masterAgent = agent.masterAgent;
@@ -55,6 +60,16 @@ public abstract class AntAgent  implements TickListener, RoadUser {
         this.path = (ArrayDeque<ArrayDeque<Point>>) DeepCopy.copy(agent.path);
         this.roadModel = agent.roadModel;
         this.heuristicValue = agent.heuristicValue;
+
+    }
+
+
+    protected void initVisualisationQueue(Point p) {
+        for (int i = 0; i < visualiserHistorySize; i++) {
+            AntVisualiser v = new AntVisualiser(p);
+            sim.register(v);
+            visualiserQueue.add(v);
+        }
     }
 
     public double getTotalHeuristicValue(){
@@ -80,9 +95,6 @@ public abstract class AntAgent  implements TickListener, RoadUser {
         pushQueue();
         path.peekFirst().addLast(currentPosition);
     }
-    
-
-
 
     @Nullable
     protected InfrastructureAgent getInfrastructureAgentAt(Point position){
@@ -106,6 +118,13 @@ public abstract class AntAgent  implements TickListener, RoadUser {
         return 1000/getInfrastructureAgentAt(p).getReservationValue(tw);
     }
 
+    protected void destroySelf(){
+        for(AntVisualiser v : visualiserQueue){
+            sim.unregister(v);
+        }
+        sim.unregister(this);
+    }
+
     protected void pushQueue(){
         ArrayDeque<Point> arrayDeque = new ArrayDeque<>();
         //path.push(arrayDeque);
@@ -120,6 +139,14 @@ public abstract class AntAgent  implements TickListener, RoadUser {
                 retQ.addLast(p);
         }
         return retQ;
+    }
+
+    protected void visualiseAt(Point p){
+        AntVisualiser toAdd = new AntVisualiser(p);
+        AntVisualiser toRemove = visualiserQueue.remove();
+        sim.unregister(toRemove);
+        sim.register(toAdd);
+        visualiserQueue.add(toAdd);
     }
 
     @Override

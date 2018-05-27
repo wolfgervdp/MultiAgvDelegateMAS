@@ -35,13 +35,4 @@ public class SignAnt extends AntAgent {
             points.iterator().next();
         return points.iterator().next();
     }
-
-
-    @Override
-    public  final void initRoadUser(RoadModel model) {
-        roadModel = (GraphRoadModel)model ;
-
-        model.addObjectAt(this, super.currentPosition);
-
-    }
 }
