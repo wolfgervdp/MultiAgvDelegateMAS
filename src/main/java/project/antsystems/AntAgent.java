@@ -1,13 +1,11 @@
 package project.antsystems;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
-<<<<<<< HEAD
-=======
+
 import com.github.rinde.rinsim.core.model.pdp.ContainerImpl;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.pdp.PDPObjectImpl;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
->>>>>>> 5f4a1fa139038006acd0b9928b39ff19778a629d
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadUser;
@@ -33,7 +31,6 @@ import static com.google.common.base.Preconditions.checkState;
 public abstract class AntAgent  implements TickListener, RoadUser {
 
     //by mate
-    Optional<PDPModel> pdpModel;
     private Point startPosition;
     private RoadModel roadModel_test;
     private boolean isRegistered;
@@ -58,10 +55,6 @@ public abstract class AntAgent  implements TickListener, RoadUser {
         this.path = (ArrayDeque<ArrayDeque<Point>>) DeepCopy.copy(agent.path);
         this.roadModel = agent.roadModel;
         this.heuristicValue = agent.heuristicValue;
-
-        //by Mate
-        pdpModel = Optional.absent();
-        //
     }
 
     public double getTotalHeuristicValue(){
@@ -80,10 +73,8 @@ public abstract class AntAgent  implements TickListener, RoadUser {
         this.masterAgent = masterAgent;
         this.currentPosition = position;
         this.roadModel = roadModel;
-        //by Mate
-        pdpModel = Optional.absent();
         startPosition = this.currentPosition;
-        //
+
         this.sim = sim;
         path = new ArrayDeque<>();
         pushQueue();

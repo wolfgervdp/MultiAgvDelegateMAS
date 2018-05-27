@@ -13,6 +13,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.github.rinde.rinsim.geom.Graph;
 
+import java.util.List;
+
 
 public class WarehouseDesignWithAnts {
 
@@ -20,10 +22,8 @@ public class WarehouseDesignWithAnts {
 
         public static class GraphCreator {
 
-
             GraphCreator() {
             }
-
             static ImmutableTable<Integer, Integer, Point> createMatrix(int cols, int rows, Point offset) {
                 com.google.common.collect.ImmutableTable.Builder<Integer, Integer, Point> builder = ImmutableTable.builder();
 
@@ -38,8 +38,8 @@ public class WarehouseDesignWithAnts {
                 return builder.build();
             }
 
-            static ListenableGraph<InfrastructureAgent> createSimpleGraph(int version) {
-                Graph<InfrastructureAgent> g = new TableGraph();
+            static ListenableGraph<LengthData> createSimpleGraph(int version, List<InfrastructureAgent> agents) {
+                Graph<LengthData> g = new TableGraph();
                 Table<Integer, Integer, Point> matrix = createMatrix(18, 10, new Point(0.0D, 0.0D));
 
                 if (version==1)
@@ -51,64 +51,64 @@ public class WarehouseDesignWithAnts {
 
                             if(j == 0 && i == 0){
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == matrix.rowMap().size()-1 &&i == 0) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-1 &&j ==0) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-1 &&j ==matrix.rowMap().size()-1) {
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == 1 &&i == 1) {
                                 path = Lists.reverse(Lists.newArrayList(matrix.get(j-1, i),matrix.get(j-1, i-1)));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == matrix.rowMap().size()-2 &&i == 1) {
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j+1, i-1));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i+1),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-2 &&j ==1) {
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j-1, i+1));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i-1),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-2 &&j ==matrix.rowMap().size()-2) {
                                 path = Lists.reverse(Lists.newArrayList(matrix.get(j+1, i),matrix.get(j+1, i+1)));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-2 && j>1 && j<matrix.rowMap().size()-1) {
 //							path = Lists.newArrayList(matrix.get(j, i),matrix.get(j, i+1));
-//							GraphHelper.addBiPath(g, (Iterable)path);
+//							Graphs.addBiPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == matrix.rowMap().size()-2 && i>1 && i<matrix.columnMap().size()-1) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                                 path = Lists.reverse(Lists.newArrayList(matrix.get(j, i),matrix.get(j, i+1)));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == 1 && i>1 && i<matrix.columnMap().size()-1) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i-1),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == 1 && j>1 && j<matrix.rowMap().size()-1){
 //							path = Lists.newArrayList(matrix.get(j, i),matrix.get(j, i-1));
-//							GraphHelper.addPath(g, (Iterable)path);
+//							Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else
                             {
                             }
@@ -126,7 +126,7 @@ public class WarehouseDesignWithAnts {
                                         matrix.get(7, i),matrix.get(8, i));
                             }
 
-                            GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                            Graphs.addPath(g, (Iterable)path);
                         }
                         if(i<1 || i>matrix.columnMap().size()-2) {
                             if (i % 2 == 0) {
@@ -141,7 +141,7 @@ public class WarehouseDesignWithAnts {
                                         matrix.get(7, i),matrix.get(8, i));
                             }
 
-                            GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                            Graphs.addPath(g, (Iterable)path);
                         }
 
                     }
@@ -154,60 +154,60 @@ public class WarehouseDesignWithAnts {
 
                             if(j == 0 && i == 0){
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == matrix.rowMap().size()-1 &&i == 0) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-1 &&j ==0) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-1 &&j ==matrix.rowMap().size()-1) {
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == 1 &&i == 1) {
                                 path = Lists.reverse(Lists.newArrayList(matrix.get(j-1, i),matrix.get(j-1, i-1)));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == matrix.rowMap().size()-2 &&i == 1) {
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j+1, i-1));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j, i),matrix.get(j, i+1));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-2 &&j ==1) {
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j-1, i+1));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j, i),matrix.get(j, i-1));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-2 &&j ==matrix.rowMap().size()-2) {
                                 path = Lists.reverse(Lists.newArrayList(matrix.get(j+1, i),matrix.get(j+1, i+1)));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-2 && j>1 && j<matrix.rowMap().size()-1) {
 //							path = Lists.newArrayList(matrix.get(j, i),matrix.get(j, i+1));
-//							GraphHelper.addBiPath(g, (Iterable)path);
+//							Graphs.addBiPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else if (j == matrix.rowMap().size()-2 && i>1 && i<matrix.columnMap().size()-1) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                                 path = Lists.reverse(Lists.newArrayList(matrix.get(j, i),matrix.get(j, i+1)));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else if (j == 1 && i>1 && i<matrix.columnMap().size()-1) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j, i-1));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else if (i == 1 && j>1 && j<matrix.rowMap().size()-1){
 //							path = Lists.newArrayList(matrix.get(j, i),matrix.get(j, i-1));
-//							GraphHelper.addPath(g, (Iterable)path);
+//							Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else
                             {
                             }
@@ -225,7 +225,7 @@ public class WarehouseDesignWithAnts {
                                         matrix.get(7, i),matrix.get(8, i));
                             }
 
-                            GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                            Graphs.addPath(g, (Iterable)path);
                         }
                         if(i<1 || i>matrix.columnMap().size()-2) {
                             if (i % 2 == 0) {
@@ -240,7 +240,7 @@ public class WarehouseDesignWithAnts {
                                         matrix.get(7, i),matrix.get(8, i));
                             }
 
-                            GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                            Graphs.addPath(g, (Iterable)path);
                         }
 
                     }
@@ -256,60 +256,60 @@ public class WarehouseDesignWithAnts {
 
                             if(j == 0 && i == 0){
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == matrix.rowMap().size()-1 &&i == 0) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-1 &&j ==0) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-1 &&j ==matrix.rowMap().size()-1) {
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == 1 &&i == 1) {
                                 path = Lists.reverse(Lists.newArrayList(matrix.get(j-1, i),matrix.get(j-1, i-1)));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (j == matrix.rowMap().size()-2 &&i == 1) {
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j+1, i-1));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j, i),matrix.get(j, i+1));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-2 &&j ==1) {
                                 path = Lists.newArrayList(matrix.get(j-1, i),matrix.get(j-1, i+1));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j, i),matrix.get(j, i-1));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-2 &&j ==matrix.rowMap().size()-2) {
                                 path = Lists.reverse(Lists.newArrayList(matrix.get(j+1, i),matrix.get(j+1, i+1)));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j+1, i),matrix.get(j, i));
-                                GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addPath(g, (Iterable)path);
                             }else if (i == matrix.columnMap().size()-2 && j>1 && j<matrix.rowMap().size()-1) {
 //							path = Lists.newArrayList(matrix.get(j, i),matrix.get(j, i+1));
-//							GraphHelper.addBiPath(g, (Iterable)path);
+//							Graphs.addBiPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else if (j == matrix.rowMap().size()-2 && i>1 && i<matrix.columnMap().size()-1) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j+1, i));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                                 path = Lists.reverse(Lists.newArrayList(matrix.get(j, i),matrix.get(j, i+1)));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else if (j == 1 && i>1 && i<matrix.columnMap().size()-1) {
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j, i-1));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else if (i == 1 && j>1 && j<matrix.rowMap().size()-1){
 //							path = Lists.newArrayList(matrix.get(j, i),matrix.get(j, i-1));
-//							GraphHelper.addPath(g, (Iterable)path);
+//							Graphs.addPath(g, (Iterable)path);
                                 path = Lists.newArrayList(matrix.get(j, i),matrix.get(j-1, i));
-                                GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                                Graphs.addBiPath(g, (Iterable)path);
                             }else
                             {
                             }
@@ -327,7 +327,7 @@ public class WarehouseDesignWithAnts {
                                         matrix.get(7, i),matrix.get(8, i));
                             }
 
-                            GraphHelper.addBiPath(g, (Iterable)path, InfrastructureAgent.class);
+                            Graphs.addBiPath(g, (Iterable)path);
                         }
                         if(i<1 || i>matrix.columnMap().size()-2) {
                             if (i % 2 == 0) {
@@ -342,14 +342,16 @@ public class WarehouseDesignWithAnts {
                                         matrix.get(7, i),matrix.get(8, i));
                             }
 
-                            GraphHelper.addPath(g, (Iterable)path, InfrastructureAgent.class);
+                            Graphs.addPath(g, (Iterable)path);
                         }
 
                     }
                 }
+                for(Point p : g.getNodes()){
+                    agents.add(new InfrastructureAgent(p));
+                }
 
-
-                return new ListenableGraph<InfrastructureAgent>(g);
+                return new ListenableGraph<LengthData>(g);
             }
 
 

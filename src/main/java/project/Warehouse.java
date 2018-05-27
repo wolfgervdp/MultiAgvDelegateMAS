@@ -72,8 +72,8 @@ public final class Warehouse {
 				.with(RoadUserRenderer.builder().withToStringLabel()
 						.withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
 						.withColorAssociation(Depot.class, new RGB(255, 0, 0))
-						.withImageAssociation(
-								InfrastructureAgent.class, "/graphics/flat/order-new.png"))
+						.withColorAssociation(
+								InfrastructureAgent.class, new RGB(255, 255, 0))
 						.withColorAssociation(ExplorationAnt.class, new RGB(0, 0, 255)))
 				//.with(TaxiRenderer.builder(Language.ENGLISH))
 				.with(RouteRenderer.builder())
