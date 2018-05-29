@@ -26,6 +26,7 @@ import javax.measure.unit.SI;
 import javax.sound.midi.Soundbank;
 
 import com.github.rinde.rinsim.experiment.ExperimentResults;
+import com.github.rinde.rinsim.pdptw.common.*;
 import org.apache.commons.lang3.builder.Builder;
 import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.JDKRandomGenerator;
@@ -56,12 +57,6 @@ import com.github.rinde.rinsim.geom.LengthData;
 import com.github.rinde.rinsim.geom.ListenableGraph;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.geom.TableGraph;
-import com.github.rinde.rinsim.pdptw.common.AddDepotEvent;
-import com.github.rinde.rinsim.pdptw.common.AddParcelEvent;
-import com.github.rinde.rinsim.pdptw.common.AddVehicleEvent;
-import com.github.rinde.rinsim.pdptw.common.RoutePanel;
-import com.github.rinde.rinsim.pdptw.common.RouteRenderer;
-import com.github.rinde.rinsim.pdptw.common.StatsStopConditions;
 import com.github.rinde.rinsim.scenario.Scenario;
 import com.github.rinde.rinsim.scenario.StopConditions;
 import com.github.rinde.rinsim.scenario.TimeOutEvent;
@@ -179,7 +174,7 @@ public final class GradientFieldExample implements ModelReceiver {
 				.with(GradientFieldRenderer.builder())
 				.with(RouteRenderer.builder())
 				.with(PDPModelRenderer.builder().withDestinationLines())
-				.with(AGVRenderer.builder().withDifferentColorsForVehicles().withVehicleCoordinates())
+				.with(AGVRenderer.builder().withDifferentColorsForVehicles())
 				.with(RoutePanel.builder());
 		if (testing) {
 			view = view.withAutoClose()
@@ -199,7 +194,7 @@ public final class GradientFieldExample implements ModelReceiver {
 				.addModel(GradientModel.builder())
 				.addModel(
 						RoadModelBuilders.dynamicGraph(
-								WarehouseDesign.GraphCreator.createSimpleGraph(2))
+								WarehouseDesign.GraphCreator.createSimpleGraph(3))
 						.withCollisionAvoidance()
 						.withDistanceUnit(SI.METER)
 						.withVehicleLength(2)
@@ -282,7 +277,7 @@ public final class GradientFieldExample implements ModelReceiver {
 		for (int i = 0; i <4 ; i++) {
 			b.addEvent(AddDepotEvent.create(-1,possibleDepot.get(i)));
 		}
-		for (int i = 0; i < 10; i++) {//max84
+		for (int i = 0; i < 1; i++) {//max84
 			Random rp = new Random();
 			rp.setSeed(RANDOM_SEED);
 			int randomParcel=rp.nextInt(6*14-i-0);
@@ -302,13 +297,13 @@ public final class GradientFieldExample implements ModelReceiver {
 			//			Random rd = new Random();
 			//			int randomDepot=rd.nextInt(4);
 			b.addEvent(AddParcelEvent.create(Parcel.builder(MIN_POINT_1, P1_DELIVERY)
-					.neededCapacity(0)
+					.neededCapacity(2)
 					.orderAnnounceTime(M1)
 					.pickupTimeWindow(TimeWindow.create(M1_P1, M1_P2))
 					.deliveryTimeWindow(TimeWindow.create(M1_D1, M1_D2))
 					.buildDTO()));			
 		}
-		for (int i = 0; i < 5; i++) {//max48
+		for (int i = 0; i < 2;i++) {//max48
 			Random r = new Random();
             r.setSeed(RANDOM_SEED);
             int random=r.nextInt((2*13)-i-0);
@@ -321,9 +316,8 @@ public final class GradientFieldExample implements ModelReceiver {
 					.build()));
 		}	
 		return b.scenarioLength(M60)
-				.addModel(
-						DefaultPDPModel.builder()
-						.withTimeWindowPolicy(TimeWindowPolicies.TARDY_ALLOWED))
+				.addModel(DefaultPDPModel.builder().withTimeWindowPolicy(TimeWindowPolicies.TARDY_ALLOWED))
+
 				.setStopCondition(StopConditions.or(
 						StatsStopConditions.timeOutEvent(),
 						StatsStopConditions.vehiclesDoneAndBackAtDepot()))

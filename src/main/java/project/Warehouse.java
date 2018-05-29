@@ -107,7 +107,6 @@ public final class Warehouse {
 				.addModel(DefaultPDPModel.builder())
 				.addModel(view)
 				.build();
-
 		final RandomGenerator rng = sim.getRandomGenerator();
 
 		final RoadModel roadModel = sim.getModelProvider().getModel(

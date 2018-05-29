@@ -54,7 +54,14 @@ public class MultiAGV extends Vehicle {
         this.sim = sim;
         id = ++idCounter;
     }
-
+    public MultiAGV(Point startPosition,  int capacity) {
+        super(VehicleDTO.builder()
+                .capacity(capacity)
+                .startPosition(startPosition)
+                .speed(SPEED)
+                .build());
+        id = ++idCounter;
+    }
     
     public int getStrenght() {
         return strenght;
@@ -208,6 +215,7 @@ public class MultiAGV extends Vehicle {
                     //Wait, since not enough agv's are helping
                     isWaiting = true;
                     System.out.println("Waiting for other agvs....");
+
                 }
             }
         }

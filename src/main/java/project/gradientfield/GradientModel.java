@@ -107,7 +107,8 @@ implements ModelReceiver {
 		//if(element.getPosition().x%4==0 && element.getPosition().y%4==0)
 		//end by me
 		//{
-		for (int i = 0; i < X.length; i=i+1) {
+
+		for (int i = 0; i < X.length; i=i+2) {
 
 			final Point p = new Point(
 					Math.round(element.getPosition().x/4)*4 + X[i],
