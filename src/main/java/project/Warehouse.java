@@ -47,7 +47,7 @@ public final class Warehouse {
 	private static final int MAX_CAPACITY = 3;
 	private static final int DEPOT_CAPACITY = 100;
 	private static final int NUM_DEPOTS = 4;
-	private static final int MULTIAGV_CAPACITY = 400;
+	private static final int MULTIAGV_CAPACITY = 4;
 
 	private Warehouse() {
 	}
@@ -118,7 +118,7 @@ public final class Warehouse {
 
 		for(int i = 0; i < NUM_AGVS; ++i) {
 			//RoadUser user = new MultiAGV(sim.getRandomGenerator(), sim);
-			sim.register(new MultiAGV(roadModel.getRandomPosition(rng),
+			sim.register(new MultiAntAGV(roadModel.getRandomPosition(rng),
 					MULTIAGV_CAPACITY, sim));
 //			sim.register(new MultiAGV(new Point(8,8),
 //					MULTIAGV_CAPACITY, sim));
@@ -137,7 +137,7 @@ public final class Warehouse {
 							roadModel.getRandomPosition(rng))
 							.serviceDuration(SERVICE_DURATION)
 							.neededCapacity(1 + rng.nextInt(MAX_CAPACITY))
-							.buildDTO(), sim));
+							.buildDTO()));
 		}
 
 		//sim.register(new WarehouseUpdater(sim.getModelProvider().getModel(NewRoadModel.class)));

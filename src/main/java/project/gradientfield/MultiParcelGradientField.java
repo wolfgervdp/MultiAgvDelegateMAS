@@ -13,8 +13,8 @@ public class MultiParcelGradientField extends MultiParcel implements FieldEmitte
 	static final float AVAILABLE_STRENGTH =20.0f;
 	  private final Point pos;
 
-	  MultiParcelGradientField(ParcelDTO pDto, SimulatorAPI api) {
-	    super(pDto, api);
+	  MultiParcelGradientField(ParcelDTO pDto) {
+	    super(pDto);
 	    pos = pDto.getPickupLocation();
 	    
 	  }

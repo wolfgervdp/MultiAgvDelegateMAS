@@ -5,47 +5,26 @@ import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.Vehicle;
 import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
-import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
-import project.antsystems.ExplorationAnt;
-import project.visualisers.GoalVisualiser;
-import project.antsystems.IntentionAnt;
 
-import java.util.NoSuchElementException;
-import java.util.Set;
+public abstract class MultiAGV extends Vehicle {
 
-public class MultiAGV extends Vehicle {
-
-    static final float RECONSIDERATION_TRESHOLD = 1.3f;
-    static final int EXPLORATION_FREQ = 20000; //In ms
-    static final int NUMBER_OF_EXPL_ANTS = 3;
-    static final int WAIT_FOR_EXPL_ANTS = 1;
-
-
-    private int id;
+    protected int id;
     private static int idCounter = 0;
 
     private int strenght = 10;
-    private IntentionAnt currentIntention;
-    private SimulatorAPI sim;
-    private boolean isWaiting = false;
-    private boolean isWaitingForExplorationAnts = false;
-    private int numOfExplAntsReportedBack = 0;
 
+    protected SimulatorAPI sim;
+    protected boolean isWaiting = false;
     private static final double SPEED = 0.1d;
-    private long timeAtLastExploration = 0;
 
-    private int numberOfAntCounter = 0;
-    private boolean hasSentOutAnts = false;
+    private boolean shouldUnregister = false;
 
-    private int explorationCounter;
-
-    private Point prevPos;
     long countTime = 0;
 
-    public MultiAGV(Point startPosition,  int capacity, SimulatorAPI sim) {
+    public MultiAGV(Point startPosition, int capacity, SimulatorAPI sim) {
         super(VehicleDTO.builder()
                 .capacity(capacity)
                 .startPosition(startPosition)
@@ -54,6 +33,7 @@ public class MultiAGV extends Vehicle {
         this.sim = sim;
         id = ++idCounter;
     }
+
     public MultiAGV(Point startPosition,  int capacity) {
         super(VehicleDTO.builder()
                 .capacity(capacity)
@@ -62,185 +42,76 @@ public class MultiAGV extends Vehicle {
                 .build());
         id = ++idCounter;
     }
-    
+
+    @Override
+    protected final void tickImpl(TimeLapse time) {
+        if (shouldUnregister) {
+            unregister();
+            return;
+        }
+        update(time);
+    }
+
+    public Point getPosition() {
+        return getRoadModel().getPosition(this);
+    }
+
+    protected abstract void update(TimeLapse timeLapse);
+
     public int getStrenght() {
         return strenght;
     }
 
     @Override
     public String toString() {
-
-        if(currentIntention != null)
-            return "MultiAGV " + id + ", h=" + currentIntention.getTotalHeuristicValue();
-        else return "MultiAGV " + id;
+        return "MultiAGV " + id;
     }
-
-    @Override
-    protected void tickImpl(TimeLapse timeLapse) {
-        //System.out.println(id + "->" + getPDPModel().getVehicleState(this));
-
-        //System.out.println("Number of ants sent out from multiagv: " + numberOfAntCounter);
-
-        //Send exploration ants every EXPLORATION_FREQ ms
-
-
-        //If we don't know what to do (=no intention), certainly send out exploration ants, and don't do anything else
-        if(currentIntention == null){
-            if(timeAtLastExploration + EXPLORATION_FREQ <= timeLapse.getTime()){
-                sendExplorationAnts();
-                timeAtLastExploration = timeLapse.getTime();
-            }
-            return;
-        }
-
-        RoadModel rm = getRoadModel();
-        //If we got to the parcel, pick up and set next goal
-        if (atParcelOrDepot() && getPDPModel().getVehicleState(this) == PDPModel.VehicleState.IDLE) {
-            Set<MultiParcel> parcels = rm.getObjectsAt(this, MultiParcel.class);    //Get Parcels at current locations
-            Set<MultiDepot> depots = rm.getObjectsAt(this, MultiDepot.class);   //Get Depots at current location
-            if(parcels.iterator().hasNext()){
-                System.out.println("There was a parcel");
-                pickUp(parcels.iterator().next(), timeLapse);    //Pick random parcel on that location
-            }
-            if(depots.iterator().hasNext()){
-                System.out.println("There was a depot, ");
-                //deliverParcel(timeLapse);    //Drop off the parcel on that location
-            }
-            currentIntention.popPath();
-
-        //If we got to the parcel, pick up and set next goal
-        }else if(atNextGoal()) {
-            long diffTime = timeLapse.getTime() - countTime;
-            countTime = timeLapse.getTime();
-
-            sendExplorationAnts();
-            System.out.println("at next goal");
-            prevPos = currentIntention.peekNextGoalLocation();
-            currentIntention.popGoalLocation();
-            Point p = currentIntention.peekNextGoalLocation();
-            sim.register(new GoalVisualiser(p, sim, timeLapse.getStartTime(), 100000));
-        }
-
-        //Move to the direction of next goal
-        if(!isWaiting && !isWaitingForExplorationAnts){
-            Point p = currentIntention.peekNextGoalLocation();
-            //If no next goal left, pop path for finding next parcel
-            while(p == null){
-                try {
-                    currentIntention.popPath();
-                    p = currentIntention.peekNextGoalLocation();
-
-                }catch(NoSuchElementException e){
-                    // If there is nothing left in this intention, then do nothing,
-                    // set currentIntention to null to send exploration ants more quickly and return
-                    currentIntention = null;
-                    return;
-                }
-            }
-
-//            if(prevPos != null && !prevPos.equals(currentIntention.peekNextGoalLocation())) {
-//                System.out.println("prevpos : " + prevPos + " - currentgoal " + currentIntention.peekNextGoalLocation());
-//                //System.out.println(prevPos.equals(currentIntention.peekNextGoalLocation()));
-//                System.out.println("prevpos not null");
-//                InfrastructureAgent data = (InfrastructureAgent) ((GraphRoadModel) getRoadModel()).getGraph().getConnection(prevPos, currentIntention.peekNextGoalLocation()).data().get();
-//                System.out.println(data.reservations);
-//            }
-
-            rm.moveTo(this, p, timeLapse);
-            //System.out.println(currentIntention);
-        }
-    }
-
 
     public int getId() {
         return id;
     }
 
-    public void reportBack(ExplorationAnt ant){
-        Point p = getRoadModel().getPosition(this);
-        IntentionAnt tempIntentionAnt = new IntentionAnt(ant);
-        tempIntentionAnt.trimPath(p);
-        //numberOfAntCounter--;
-        if((currentIntention == null
-                || ant.getTotalHeuristicValue() > currentIntention.getTotalHeuristicValue() + Math.abs(currentIntention.getTotalHeuristicValue())*(RECONSIDERATION_TRESHOLD-1)
-                //|| explorationCounter %10 == 0
-            ) && getRoadModel().getShortestPathTo(this,tempIntentionAnt.peekNextGoalLocation()).size() <= 2){
-
-            if(currentIntention != null) {
-                sim.unregister(currentIntention);
-            }
-            IntentionAnt oldIntention = currentIntention;
-            currentIntention = tempIntentionAnt;
-
-
-            System.out.println("position : " + p);
-            System.out.println("before trim" + currentIntention);
-            System.out.println("after trim" + currentIntention);
-            sim.register(currentIntention);
-            //System.out.println("----------------------------Found better path!!" + (ant.getTotalHeuristicValue()) + ant);
-        }else{
-            System.out.println("currentCapToExceed" + currentIntention.getTotalHeuristicValue() + Math.abs(currentIntention.getTotalHeuristicValue())*(RECONSIDERATION_TRESHOLD-1));
-        }
-        numOfExplAntsReportedBack++;
-        if(numOfExplAntsReportedBack >= WAIT_FOR_EXPL_ANTS){
-            isWaitingForExplorationAnts = false;
-        }
-    }
-
-    private boolean atNextGoal(){
-        return currentIntention == null ? false: getRoadModel().getPosition(this).equals(currentIntention.peekNextGoalLocation());
-    }
-
-    private boolean atParcelOrDepot() {
-        //System.out.println("peekNextParcelLocation: " + currentIntention.peekNextParcelLocation());
-        boolean b = currentIntention == null ? false : getRoadModel().getPosition(this).equals(currentIntention.peekNextParcelLocation());
-        if(b) System.out.println("At parcel!!");
-        return b;
-    }
-
     public void pickUp(MultiParcel parcelToPickup, TimeLapse time){
-        RoadModel rm = getRoadModel();
         PDPModel pm = getPDPModel();
 
-        if (parcelToPickup != null ){
-            if (rm.equalPosition(parcelToPickup, this)
-                    && pm.getTimeWindowPolicy().canPickup(parcelToPickup.getPickupTimeWindow(),
-                    time.getTime(), parcelToPickup.getPickupDuration())) {
+        final double newSize = getPDPModel().getContentsSize(this)
+                + parcelToPickup.requiredCapacity();
+        if (newSize <= getCapacity()) {
+            //We are the last one, let's create an aggregate vehicle!
+            if (this.getCapacity() != parcelToPickup.getNeededCapacity()) {
+                shouldUnregister = true;
+                unregister();
+                MultiAggregateAGV newBigVehicle = createVehicle(parcelToPickup.getPickupLocation(), parcelToPickup.getNeededCapacity());//(new MultiAGVGradientField(closest.getPickupLocation(), (int) closest.getNeededCapacity(), this.sim, true));
+                sim.register(newBigVehicle);
+                pm.pickup(newBigVehicle, parcelToPickup, time);
 
-                if(parcelToPickup.tryPickUp(this)){
-                    //Succeeded! Start carrying parcel to its destination
-                    //System.out.println(pm.getVehicleState(this));
-                    pm.pickup(this, parcelToPickup, time);
-                }else{
-                    //Wait, since not enough agv's are helping
-                    isWaiting = true;
-                    System.out.println("Waiting for other agvs....");
-
-                }
+                return;
+            } else {
+                pm.pickup(this, parcelToPickup, time);
             }
+        } else {
+
+            parcelToPickup.incrementWaitingAgvs();
+            shouldUnregister = true;
+            return;
         }
+
     }
 
-    private void deliverParcel(TimeLapse timeLapse) {
-        PDPModel pm = getPDPModel();
-        for(Parcel p : pm.getContents(this)){
-            pm.deliver(this, p, timeLapse);
-        }
-        //Todo: De-unify the AGV's
-    }
+//    public void pickUp(){
+//        getPDPModel().pickup(this,);
+//    }
 
+    /*
+        This method should unregister the AGVs from the whole simulator
+     */
+    protected abstract void unregister();
+    /*
+        This method should unregister the AGV from all the models, but still keep it registerd in the simulator for ticks
+     */
 
-    public void sendExplorationAnts(){
-        //System.out.println("Sending exploration ants. Starting at position " + getRoadModel().getPosition(this));
-        numberOfAntCounter+=NUMBER_OF_EXPL_ANTS;
-       // isWaitingForExplorationAnts = true;
-        explorationCounter++;
-
-        for(int i = 0; i < NUMBER_OF_EXPL_ANTS; i++){
-            ExplorationAnt ant = new ExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim);
-            sim.register(ant);
-        }
-    }
+    protected abstract void semiUnregister();
+    protected abstract MultiAggregateAGV createVehicle(Point location, double capacity);
 
     public void startCarrying() {
         isWaiting = false;

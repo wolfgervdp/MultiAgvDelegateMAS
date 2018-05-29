@@ -124,7 +124,7 @@ public final class testExample {
       @Override
       public void handleTimedEvent(AddParcelEvent event, SimulatorAPI sim) {
         // all parcels are accepted by default
-        sim.register(new MultiParcelGradientField(event.getParcelDTO(), sim));
+        sim.register(new MultiParcelGradientField(event.getParcelDTO()));
       }
     }
   }

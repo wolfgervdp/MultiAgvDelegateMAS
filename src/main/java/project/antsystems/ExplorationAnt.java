@@ -9,9 +9,7 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 import org.jetbrains.annotations.Nullable;
-import project.InfrastructureAgent;
-import project.MultiAGV;
-import project.MultiParcel;
+import project.*;
 
 import javax.measure.unit.SI;
 import java.util.*;
@@ -24,7 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 public class ExplorationAnt extends PathAntAgent {
 
     static final int MAX_NR_ANT_SPLIT = 1;   //Number of ants this ant will create >extra<. High values for this parameter can result in really big performance drop
-    static final int PATH_PARCEL_NUMBER = 3;    //Number of parcels to include in path
+    static final int PATH_PARCEL_NUMBER = 1;    //Number of parcels to include in path
     static final int MAX_PATH_LENGTH = 40;
     static final int MAX_NUMBER_TICKS = 50;
     static final int ANT_SLOWDOWN = 1;
@@ -38,7 +36,7 @@ public class ExplorationAnt extends PathAntAgent {
 
     MultiParcel lastParcel;
 
-    public ExplorationAnt(MultiAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
+    public ExplorationAnt(MultiAntAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
         super(masterAgent, position, roadModel, sim);
         antId = counter;
         counter++;
@@ -67,7 +65,7 @@ public class ExplorationAnt extends PathAntAgent {
         //System.out.println("Ticking in ExplorationAnt. Current path: " + this);
 
         if(lastParcel == null){
-            MultiParcel parcel = getParcelAtCurrentLocation();
+            MultiAntParcel parcel = getParcelAtCurrentLocation();
             if (parcel != null) {
                 //System.out.println("At parcel location!!!--------------");
                 pushQueue();
@@ -147,8 +145,8 @@ public class ExplorationAnt extends PathAntAgent {
     }
 
     @Nullable
-    private MultiParcel getParcelAtCurrentLocation() {
-        for (MultiParcel parcel : this.roadModel.getObjectsOfType(MultiParcel.class)) {
+    private MultiAntParcel getParcelAtCurrentLocation() {
+        for (MultiAntParcel parcel : this.roadModel.getObjectsOfType(MultiAntParcel.class)) {
             if (parcel.getPickupLocation().equals(currentPosition)) {
                 //System.out.println("Found parcel!")
                 return parcel;
