@@ -36,7 +36,7 @@ public class ExplorationAnt extends PathAntAgent {
     static int counter = 0;
     int antId = 0;
 
-    boolean lastWasParcel = false;
+    MultiParcel lastParcel;
 
     public ExplorationAnt(MultiAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
         super(masterAgent, position, roadModel, sim);
@@ -66,21 +66,21 @@ public class ExplorationAnt extends PathAntAgent {
         //System.out.println("Antid: " + antId);
         //System.out.println("Ticking in ExplorationAnt. Current path: " + this);
 
-        if(!lastWasParcel){
+        if(lastParcel == null){
             MultiParcel parcel = getParcelAtCurrentLocation();
             if (parcel != null) {
                 //System.out.println("At parcel location!!!--------------");
                 pushQueue();
                 visitedParcels.add(currentPosition);
-                lastWasParcel = true;
+                lastParcel = parcel;
                 addUrgencyHeuristic(parcel.getUrgencyHeuristic(timeLapse.getTime()));
             }
         }else{
             Depot depot = getDepotAtCurrentLocation();
-            if (depot != null) {
+            if (depot != null && currentPosition.equals(lastParcel.getDeliveryLocation())) {
                 //System.out.println("At parcel location!!!--------------");
                 pushQueue();
-                lastWasParcel = false;
+                lastParcel = null;
             }
 
         }

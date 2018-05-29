@@ -65,7 +65,7 @@ public final class Warehouse {
 						.withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
 						.withColorAssociation(MultiDepot.class, new RGB(255, 0, 0))
 						.withColorAssociation(
-								InfrastructureAgent.class, new RGB(255, 255, 0))
+								InfrastructureAgent.class, new RGB(255, 255, 255))
 						.withColorAssociation(ExplorationAntVisualiser.class, new RGB(0, 0, 255))
 						.withColorAssociation(IntentionAntVisualiser.class, new RGB(0, 255, 255))
 						.withColorAssociation(GoalVisualiser.class, new RGB(12, 55, 255)))
@@ -127,7 +127,7 @@ public final class Warehouse {
 
 		sim.register(new EvaporationAgent(infrastructureAgents));
 
-		
+
 	    for (int i = 0; i < NUM_DEPOTS; i++) {
 	        sim.register(new MultiDepot(roadModel.getRandomPosition(rng), 2, sim));
 		}

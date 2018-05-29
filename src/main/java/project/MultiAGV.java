@@ -97,7 +97,7 @@ public class MultiAGV extends Vehicle {
             }
             if(depots.iterator().hasNext()){
                 System.out.println("There was a depot, ");
-                deliverParcel(timeLapse);    //Drop off the parcel on that location
+                //deliverParcel(timeLapse);    //Drop off the parcel on that location
             }
             currentIntention.popPath();
 
@@ -211,7 +211,6 @@ public class MultiAGV extends Vehicle {
                 }
             }
         }
-        //Todo
     }
 
     private void deliverParcel(TimeLapse timeLapse) {
@@ -219,6 +218,7 @@ public class MultiAGV extends Vehicle {
         for(Parcel p : pm.getContents(this)){
             pm.deliver(this, p, timeLapse);
         }
+        //Todo: De-unify the AGV's
     }
 
 
@@ -237,6 +237,7 @@ public class MultiAGV extends Vehicle {
     public void startCarrying() {
         isWaiting = false;
         //Todo: unify the AGV's
+
     }
 
     @Override
