@@ -19,12 +19,11 @@ public class InfrastructureAgent implements RoadUser, TickListener {
 
     HashMap<Integer, OrderBook> orders = new HashMap<>();
 
-    double reservationPheromone = 1;
     double signPheromone = 0;
 
     Point position;
 
-    private double length = 4.0;
+    private double length = 4000;
     private long currentTime = 0;
 
     public InfrastructureAgent(Point position) {
@@ -45,7 +44,7 @@ public class InfrastructureAgent implements RoadUser, TickListener {
 
     @Override
     public String toString() {
-        return "" +  + (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5), -1);
+        return "" +  /*(int) position.x + "," + (int) position.y + " " + *//*(long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5), -1) +*/ (int) signPheromone ;
     }
 
     public void updateReservationPheromone(TimeWindow tw, double value, int owner) {
@@ -66,10 +65,11 @@ public class InfrastructureAgent implements RoadUser, TickListener {
     }
 
     public double getLocalHeuristicValue(){
-        return signCoefficient*(signPheromone) + reservationCoefficient/reservationPheromone;
+        return signCoefficient*(signPheromone);
     }
 
     public void evaporate() {
+        signPheromone *= EVAPORATION_RATE;
         for(Map.Entry<Integer,OrderBook> orderBook : orders.entrySet()){
             orderBook.getValue().evaporate();
         }

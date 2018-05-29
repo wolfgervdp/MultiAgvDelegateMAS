@@ -3,15 +3,18 @@ package project.antsystems;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 import project.InfrastructureAgent;
 import project.helperclasses.DeepCopy;
 import project.visualisers.IntentionAntVisualiser;
 
 import java.util.ArrayDeque;
 
+import java.util.Iterator;
 import java.util.Queue;
 
-public class IntentionAnt extends AntAgent {
+public class IntentionAnt extends PathAntAgent {
 
     private static final long INTENTION_FREQ = 1000;
     Queue<Point> currentQueue;
@@ -38,7 +41,7 @@ public class IntentionAnt extends AntAgent {
         //Todo: update intention values
         ArrayDeque<ArrayDeque<Point>> queue = ( ArrayDeque<ArrayDeque<Point>>) DeepCopy.copy(path);
         int increasingPheromone = 5;
-        long timeOfArrivalBegin = 0;
+        long timeOfArrivalBegin = currentTime;
         ArrayDeque<Point> allPoints = makeFlat(queue);
         while(!allPoints.isEmpty()){
             Point p = allPoints.removeFirst();
@@ -87,5 +90,29 @@ public class IntentionAnt extends AntAgent {
     public void popPath(){
         //path.getFirst();
         path.pop();
+    }
+
+    public void trimPath(Point p) {
+        final PeekingIterator<Point> pointIterator =
+                Iterators.peekingIterator(path.peekFirst().iterator());
+
+        int numOfNodesToTrim = 0;
+        while(pointIterator.hasNext()){
+            Point firstPoint = pointIterator.next();
+            if(pointIterator.hasNext()){
+                Point secondPoint = pointIterator.peek();
+                if(onLineBetweenPoints(p, firstPoint, secondPoint)) {
+                    numOfNodesToTrim++;
+                }
+            }
+
+        }
+        for(int i = 0 ; i < numOfNodesToTrim; i++){
+            path.getFirst().removeFirst();
+        }
+
+    }
+    private boolean onLineBetweenPoints(Point queryPoint, Point p0, Point p1){
+        return Point.distance(p0,queryPoint)+Point.distance(queryPoint,p1) == Point.distance(p0,p1);
     }
 }

@@ -1,6 +1,7 @@
 package project.gradientfield;
 
 
+import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.ParcelDTO;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel.ParcelState;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
@@ -12,8 +13,8 @@ public class MultiParcelGradientField extends MultiParcel implements FieldEmitte
 	static final float AVAILABLE_STRENGTH =20.0f;
 	  private final Point pos;
 
-	  MultiParcelGradientField(ParcelDTO pDto) {
-	    super(pDto);
+	  MultiParcelGradientField(ParcelDTO pDto, SimulatorAPI api) {
+	    super(pDto, api);
 	    pos = pDto.getPickupLocation();
 	    
 	  }

@@ -39,10 +39,10 @@ public final class Warehouse {
 
 
 	private static final double VEHICLE_LENGTH = 2.0D;
-	private static final int NUM_AGVS = 2;
+	private static final int NUM_AGVS = 3;
 	private static final long TEST_END_TIME = 600000L;
 	private static final int TEST_SPEED_UP = 1;
-	private static final int NUM_PARCEL = 12;
+	private static final int NUM_PARCEL = 20;
 	private static final long SERVICE_DURATION = 0;
 	private static final int MAX_CAPACITY = 3;
 	private static final int DEPOT_CAPACITY = 100;
@@ -63,7 +63,7 @@ public final class Warehouse {
                 .with(AntAgentRenderer.builder())
 				.with(RoadUserRenderer.builder().withToStringLabel()
 						.withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
-						.withColorAssociation(Depot.class, new RGB(255, 0, 0))
+						.withColorAssociation(MultiDepot.class, new RGB(255, 0, 0))
 						.withColorAssociation(
 								InfrastructureAgent.class, new RGB(255, 255, 0))
 						.withColorAssociation(ExplorationAntVisualiser.class, new RGB(0, 0, 255))
@@ -123,19 +123,23 @@ public final class Warehouse {
 //			sim.register(new MultiAGV(new Point(8,8),
 //					MULTIAGV_CAPACITY, sim));
 		}
+
+		sim.register(new EvaporationAgent(infrastructureAgents));
+
+		
+	    for (int i = 0; i < NUM_DEPOTS; i++) {
+	        sim.register(new MultiDepot(roadModel.getRandomPosition(rng), 2, sim));
+		}
 		for (int i = 0; i < NUM_PARCEL; i++) {
 
 			sim.register(new MultiParcel(
 					Parcel.builder(roadModel.getRandomPosition(rng),
 							roadModel.getRandomPosition(rng))
-					.serviceDuration(SERVICE_DURATION)
-					.neededCapacity(1 + rng.nextInt(MAX_CAPACITY))
-					.buildDTO()));
+							.serviceDuration(SERVICE_DURATION)
+							.neededCapacity(1 + rng.nextInt(MAX_CAPACITY))
+							.buildDTO(), sim));
 		}
-		sim.register(new EvaporationAgent(infrastructureAgents));
-	    for (int i = 0; i < NUM_DEPOTS; i++) {
-	        sim.register(new DepotBase(roadModel.getRandomPosition(rng), 2));
-		}
+
 		//sim.register(new WarehouseUpdater(sim.getModelProvider().getModel(NewRoadModel.class)));
 
 		sim.start();
@@ -149,8 +153,7 @@ public final class Warehouse {
 		static final int RIGHT_CENTER_L_ROW = 4;
 		static final int RIGHT_COL = 0;
 
-		GraphCreator() {
-		}
+		GraphCreator() {}
 
 		static ImmutableTable<Integer, Integer, Point> createMatrix(int cols, int rows, Point offset) {
 			com.google.common.collect.ImmutableTable.Builder<Integer, Integer, Point> builder = ImmutableTable.builder();

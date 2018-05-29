@@ -1,10 +1,18 @@
 package project;
 
-import com.github.rinde.rinsim.core.Simulator;
+
+import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.ParcelDTO;
+import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
+import com.github.rinde.rinsim.core.model.time.TickListener;
+import com.github.rinde.rinsim.core.model.time.TimeLapse;
+import project.antsystems.AntAgent;
+import project.antsystems.SignAnt;
+
+
 
 import java.util.ArrayList;
 
@@ -87,5 +95,22 @@ public class MultiParcel extends Parcel {
     @Override
     public void initRoadPDP(RoadModel pRoadModel, PDPModel pPdpModel) {
     }
+		@Override
+	public void tick(TimeLapse timeLapse) {
+		if(getPDPModel().getParcelState(this) == PDPModel.ParcelState.AVAILABLE || getPDPModel().getParcelState(this) == PDPModel.ParcelState.ANNOUNCED) {
+			if (timeAtLastExploration + SETSIGN_FREQ <= timeLapse.getTime()) {
+				sendAnts();
+				timeAtLastExploration = timeLapse.getTime();
+			}
+		}
+	}
+
+	private void sendAnts(){
+		sim.register(new SignAnt(getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim));
+	}
+
+	@Override
+	public void afterTick(TimeLapse timeLapse) { }
+
 }
 
