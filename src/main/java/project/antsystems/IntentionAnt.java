@@ -14,7 +14,7 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Queue;
 
-public class IntentionAnt extends AntAgent {
+public class IntentionAnt extends PathAntAgent {
 
     private static final long INTENTION_FREQ = 1000;
     Queue<Point> currentQueue;
@@ -41,7 +41,7 @@ public class IntentionAnt extends AntAgent {
         //Todo: update intention values
         ArrayDeque<ArrayDeque<Point>> queue = ( ArrayDeque<ArrayDeque<Point>>) DeepCopy.copy(path);
         int increasingPheromone = 5;
-        long timeOfArrivalBegin = 0;
+        long timeOfArrivalBegin = currentTime;
         ArrayDeque<Point> allPoints = makeFlat(queue);
         while(!allPoints.isEmpty()){
             Point p = allPoints.removeFirst();

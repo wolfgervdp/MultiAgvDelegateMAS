@@ -1,8 +1,10 @@
 package project.antsystems;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
+import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
+import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
@@ -19,18 +21,22 @@ import static com.google.common.base.Preconditions.checkState;
 /*
     Explores the map for a possible path going through Parcels. Adds new points at the back of the queue.
  */
-public class ExplorationAnt extends AntAgent {
+public class ExplorationAnt extends PathAntAgent {
 
     static final int MAX_NR_ANT_SPLIT = 1;   //Number of ants this ant will create >extra<. High values for this parameter can result in really big performance drop
-    static final int PATH_PARCEL_NUMBER = 1;    //Number of parcels to include in path
-    static final int MAX_PATH_LENGTH = 35;
+    static final int PATH_PARCEL_NUMBER = 3;    //Number of parcels to include in path
+    static final int MAX_PATH_LENGTH = 40;
+    static final int MAX_NUMBER_TICKS = 50;
     static final int ANT_SLOWDOWN = 1;
 
     int tickCounter = 0;
 
+    HashSet<Point> visitedParcels = new HashSet<>();
 
     static int counter = 0;
     int antId = 0;
+
+    boolean lastWasParcel = false;
 
     public ExplorationAnt(MultiAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
         super(masterAgent, position, roadModel, sim);
@@ -49,68 +55,65 @@ public class ExplorationAnt extends AntAgent {
     @Override
     public String toString() {
 
-        return "ExplorationAnt{" +
-                "path=" + path +
+        return "ExplorationAnt{ l=" + path.size() +
+                ", path=" + path +
                 '}';
     }
 
     @Override
     public void tick(TimeLapse timeLapse) {
-        if(tickCounter % ANT_SLOWDOWN == 0) {
 
-            //System.out.println("Antid: " + antId);
-            //System.out.println("Ticking in ExplorationAnt. Current path: " + this);
+        //System.out.println("Antid: " + antId);
+        //System.out.println("Ticking in ExplorationAnt. Current path: " + this);
 
+        if(!lastWasParcel){
             MultiParcel parcel = getParcelAtCurrentLocation();
             if (parcel != null) {
                 //System.out.println("At parcel location!!!--------------");
                 pushQueue();
+                visitedParcels.add(currentPosition);
+                lastWasParcel = true;
                 addUrgencyHeuristic(parcel.getUrgencyHeuristic(timeLapse.getTime()));
             }
-
-            //If goal found, report back to masterAgent
-            if (hasFinishedPath()) {
-                //System.out.println("Ant finished path, reporting back");
-                masterAgent.reportBack(this);
-                destroySelf();
-                return;
-            }
-            if (isMaxPathLength()) {
-                //System.out.println("Unregistered ant with id=" + antId);
-                destroySelf();
-                return;
+        }else{
+            Depot depot = getDepotAtCurrentLocation();
+            if (depot != null) {
+                //System.out.println("At parcel location!!!--------------");
+                pushQueue();
+                lastWasParcel = false;
             }
 
-            //System.out.println("Getting the outgoing connections starting from " + currentPosition);
-            Collection<Point> points = ((CollisionGraphRoadModelImpl) this.roadModel)
-                    .getGraph()
-                    .getOutgoingConnections(currentPosition);
-
-            points.remove(currentPosition);
-            List<Point> chosenPoints = chosePoints(points);
-
-            //System.out.println("Chosen points (" + chosenPoints.size() + "): ");
-        /*for(Point p : points)
-            System.out.println("\t" + p);*/
-/*
-        //Create new ants for k-1 new paths (the kth path is for the ant itself, see next block)
-        for (int i = 0; i < chosenPoints.size()-1; i++){
-            ExplorationAnt ant = new ExplorationAnt(this);
-            System.out.println("Creating new exploration ant");
-            ant.pushPoint(chosenPoints.get(i));
-            ant.moveStep();
-            sim.register(ant);
-            System.out.println("Creating new ExplorationAnt at position " + ant.currentPosition);
         }
-*/
-            //Last chosen point always goes to the current ant
-            if (!chosenPoints.isEmpty()) {
-                //System.out.println("\t" + chosenPoints.get(chosenPoints.size()-1));
-                pushPoint(chosenPoints.get(chosenPoints.size() - 1), timeLapse.getTime());
-                moveStep();
-            }
-            tickCounter++;
+
+        //If goal found, report back to masterAgent
+        if (hasFinishedPath()) {
+            //System.out.println("Ant finished path, reporting back");
+            masterAgent.reportBack(this);
+            destroySelf();
+            return;
         }
+        if (isMaxPathLength()  || tickCounter >= MAX_NUMBER_TICKS) {
+            //System.out.println("Unregistered ant with id=" + antId);
+            destroySelf();
+            return;
+        }
+
+        //System.out.println("Getting the outgoing connections starting from " + currentPosition);
+        Collection<Point> points = ((CollisionGraphRoadModelImpl) this.roadModel)
+                .getGraph()
+                .getOutgoingConnections(currentPosition);
+
+        points.remove(currentPosition);
+        List<Point> chosenPoints = chosePoints(points);
+
+        //Last chosen point always goes to the current ant
+        if (!chosenPoints.isEmpty() && !visitedParcels.contains(chosenPoints.get(chosenPoints.size() - 1))) {
+            //System.out.println("\t" + chosenPoints.get(chosenPoints.size()-1));
+            pushPoint(chosenPoints.get(chosenPoints.size() - 1), timeLapse.getTime());
+            moveStep();
+        }
+        tickCounter++;
+
     }
 
     private boolean isMaxPathLength() {
@@ -135,6 +138,7 @@ public class ExplorationAnt extends AntAgent {
         }
         //Add it to the path
         path.peekLast().addLast(p);
+
     }
 
     //Todo: Maybe get rid of the fixed path number size
@@ -148,6 +152,17 @@ public class ExplorationAnt extends AntAgent {
             if (parcel.getPickupLocation().equals(currentPosition)) {
                 //System.out.println("Found parcel!")
                 return parcel;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private Depot getDepotAtCurrentLocation() {
+
+        for (Map.Entry<RoadUser, Point> entry : this.roadModel.getObjectsAndPositions().entrySet()) {
+            if (entry.getKey() instanceof Depot && entry.getValue().equals(currentPosition)) {
+                return (Depot) entry.getKey();
             }
         }
         return null;

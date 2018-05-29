@@ -1,10 +1,7 @@
 package project;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
-import com.github.rinde.rinsim.geom.Connection;
-import com.github.rinde.rinsim.geom.ConnectionData;
-import com.github.rinde.rinsim.geom.Graph;
-import com.github.rinde.rinsim.geom.Point;
+import com.github.rinde.rinsim.geom.*;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
@@ -37,5 +34,14 @@ public class GraphHelper {
         addPath(graph, reverse(newArrayList(path)), classToSpawn);
     }
 
+    public static <E extends ConnectionData> Graph<E> getReverseGraph(Graph<E> graph) {
+
+        Graph<E> inverse = new TableGraph<>();
+
+        for(Connection<E> con : graph.getConnections()){
+            inverse.addConnection(con.to(), con.from());
+        }
+        return inverse;
+    }
 }
 

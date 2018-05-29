@@ -230,7 +230,7 @@ public final class GradientFieldExample implements ModelReceiver {
 			@Override
 			public void handleTimedEvent(AddParcelEvent event, SimulatorAPI sim) {
 				// all parcels are accepted by default
-				sim.register(new MultiParcelGradientField(event.getParcelDTO()));
+				sim.register(new MultiParcelGradientField(event.getParcelDTO(), sim));
 			}
 		}
 	}
