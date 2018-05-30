@@ -37,14 +37,11 @@ public abstract class MultiAggregateAGV extends MultiAGV{
 
     private void spawnNewAGV(TimeLapse time) {
         RoadModel rm = getRoadModel();
-        MultiAGVGradientField newAGVRoadUser = (new MultiAGVGradientField(agvSpawnPoint, 1, this.sim));
-        //newAGVRoadUser.setStartPosition();
-        sim.register(newAGVRoadUser);
-        rm.moveTo(newAGVRoadUser, new Point(32, 32), time);
+        MultiAGV newAGV = createVehicle(agvSpawnPoint, null);
+        sim.register(newAGV);
     }
 
     protected void startSpawning(int numberOfAgvs, Point location, long currentTime){
-
         semiUnregister();
         agvsLeftToSpawn = numberOfAgvs;
         agvSpawnPoint = location;

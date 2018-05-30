@@ -82,7 +82,7 @@ public abstract class MultiAGV extends Vehicle {
             shouldUnregister = true;
             unregister();
 
-            MultiAggregateAGV newBigVehicle = createVehicle(parcelToPickup.getPickupLocation(), parcelToPickup);//(new MultiAGVGradientField(closest.getPickupLocation(), (int) closest.getNeededCapacity(), this.sim, true));
+            MultiAGV newBigVehicle = createVehicle(parcelToPickup.getPickupLocation(), parcelToPickup);//(new MultiAGVGradientField(closest.getPickupLocation(), (int) closest.getNeededCapacity(), this.sim, true));
         ///sim.register(newBigVehicle);
             newBigVehicle.register();
             pm.pickup(newBigVehicle, parcelToPickup, time);
@@ -113,7 +113,7 @@ public abstract class MultiAGV extends Vehicle {
      */
 
     protected abstract void semiUnregister();
-    protected abstract MultiAggregateAGV createVehicle(Point location, MultiParcel parcel);
+    protected abstract MultiAGV createVehicle(Point location, MultiParcel parcel);
 
     public void startCarrying() {
         isWaiting = false;

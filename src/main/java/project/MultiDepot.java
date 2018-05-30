@@ -45,7 +45,7 @@ public class MultiDepot extends Depot implements TickListener, Explorable {
     }
 
     private void sendAnts(){
-        sim.register(new SignAnt(getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim));
+        sim.register(new SignAnt(getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, waitingAGVs));
     }
 
     @Override

@@ -66,7 +66,7 @@ public class InfrastructureAgent implements RoadUser, TickListener {
     }
 
     public double getLocalHeuristicValue(){
-        return signCoefficient*(signPheromone);
+        return signCoefficient*(signPheromone)+1;
     }
 
     public void evaporate() {

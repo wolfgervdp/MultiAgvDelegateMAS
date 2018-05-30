@@ -6,6 +6,7 @@ import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import project.MultiAGV;
 import project.MultiAggregateAGV;
 import project.MultiParcel;
 import com.google.common.base.Predicate;
@@ -105,8 +106,8 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
     }
 
     @Override
-    protected MultiAggregateAGV createVehicle(Point location, MultiParcel parcel) {
-        return null;
+    protected MultiAGV createVehicle(Point location, MultiParcel parcel) {
+        return new MultiAntAGV(location, 1, sim);
     }
 
     private boolean atNextGoal(){
@@ -127,8 +128,7 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
         for(int i = 0; i < NUMBER_OF_EXPL_ANTS; i++){
             GenericExplorationAnt ant = new GenericExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, MultiDepot.class);
             ant.setCondition(explorable -> {
-                getRoadModel().getPosition(explorable).equals(deliveryLocation);
-                return true;
+                return getRoadModel().getPosition(explorable).equals(deliveryLocation);
             });
             sim.register(ant);
         }

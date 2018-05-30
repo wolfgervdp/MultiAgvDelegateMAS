@@ -91,7 +91,7 @@ public class GenericExplorationAnt extends PathAntAgent{
             destroySelf();
             return;
         }
-        if (isMaxPathLength()  || tickCounter >= MAX_NUMBER_TICKS) {
+        if (isMaxPathLength() || tickCounter >= MAX_NUMBER_TICKS) {
             //System.out.println("Unregistered ant with id=" + antId);
             destroySelf();
             return;
@@ -145,16 +145,6 @@ public class GenericExplorationAnt extends PathAntAgent{
         return path != null && path.size() > PATH_PARCEL_NUMBER;
     }
 
-    @Nullable
-    private MultiAntParcel getParcelAtCurrentLocation() {
-        for (MultiAntParcel parcel : this.roadModel.getObjectsOfType(MultiAntParcel.class)) {
-            if (parcel.getPickupLocation().equals(currentPosition)) {
-                //System.out.println("Found parcel!")
-                return parcel;
-            }
-        }
-        return null;
-    }
 
     @Nullable
     private Explorable getExplorableAtLocation() {

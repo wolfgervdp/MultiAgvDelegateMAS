@@ -32,8 +32,7 @@ public class MultiParcelGradientField extends MultiParcel implements FieldEmitte
     }
 
     @Override
-    public void setModel(GradientModel model) {
-    }
+    public void setModel(GradientModel model) { }
 
     @Override
     public Point getPosition() {

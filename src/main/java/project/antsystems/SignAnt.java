@@ -1,16 +1,12 @@
 package project.antsystems;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
-import com.github.rinde.rinsim.core.model.pdp.PDPModel;
-import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
-import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Graph;
 import com.github.rinde.rinsim.geom.LengthData;
 import com.github.rinde.rinsim.geom.Point;
 import project.GraphHelper;
-import project.MultiAGV;
 
 import java.util.Collection;
 import java.util.Random;
@@ -27,8 +23,9 @@ public class SignAnt extends AntAgent {
 
     Graph<LengthData> inverseGraph;
 
-    public SignAnt(Point startPosition, GraphRoadModel roadModel, SimulatorAPI sim) {
+    public SignAnt(Point startPosition, GraphRoadModel roadModel, SimulatorAPI sim, int waitingAGVs) {
         super( startPosition, roadModel, sim);
+        this.numberOfWaitingAGVs = waitingAGVs;
         inverseGraph = (Graph<LengthData>) GraphHelper.getReverseGraph(roadModel.getGraph());
     }
 
@@ -37,9 +34,7 @@ public class SignAnt extends AntAgent {
         Collection<Point> points = inverseGraph.getOutgoingConnections(currentPosition);//((CollisionGraphRoadModelImpl)this.roadModel).getGraph().getOutgoingConnections(currentPosition);
         currentPosition = pickNextPoint(points);
 
-
         getInfrastructureAgentAt(currentPosition).updateSignPheromone(SIGN_PHEROMONE_DOSE*Math.pow(SIGN_PHEROMONE_DROPOFF,numberOfPheromonesLeft));
-
 
         numberOfPheromonesLeft++;
         if(numberOfPheromonesLeft>= NUM_PHEROMONES_TO_LEAVE){

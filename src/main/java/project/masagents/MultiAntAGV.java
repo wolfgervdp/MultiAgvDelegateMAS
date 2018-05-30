@@ -20,7 +20,7 @@ import java.util.Set;
 public class MultiAntAGV extends MultiAGV implements AntAGV {
 
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
-    static final int EXPLORATION_FREQ = 20000; //In ms
+    static final int EXPLORATION_FREQ = 2000; //In ms
     static final int NUMBER_OF_EXPL_ANTS = 3;
     static final int WAIT_FOR_EXPL_ANTS = 1;
 
@@ -81,11 +81,14 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
 
         //If we got to the parcel or depot, pick up/deliver and set next goal
         if (atParcelOrDepot() && getPDPModel().getVehicleState(this) == PDPModel.VehicleState.IDLE) {
-            Set<MultiParcel> parcels = rm.getObjectsAt(this, MultiParcel.class);    //Get Parcels at current locations
+            Set<MultiAntParcel> parcels = rm.getObjectsAt(this, MultiAntParcel.class);    //Get Parcels at current locations
             Set<MultiDepot> depots = rm.getObjectsAt(this, MultiDepot.class);   //Get Depots at current location
             if(parcels.iterator().hasNext()){
                 System.out.println("There was a parcel");
-                pickUp(parcels.iterator().next(), timeLapse);    //Pick random parcel on that location
+                MultiAntParcel parcel = parcels.iterator().next();
+                parcel.increaseWaitingAGVs();
+                pickUp(parcel, timeLapse);    //Pick random parcel on that location
+
             }
             if(depots.iterator().hasNext()){
                 System.out.println("There was a depot, ");
@@ -140,7 +143,7 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
 
         // isWaitingForExplorationAnts = true;
         for(int i = 0; i < NUMBER_OF_EXPL_ANTS; i++){
-            ExplorationAnt ant = new ExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim);
+            GenericExplorationAnt ant = new GenericExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, MultiAntParcel.class);
             sim.register(ant);
         }
     }
