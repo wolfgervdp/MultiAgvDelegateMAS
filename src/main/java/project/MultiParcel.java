@@ -61,6 +61,9 @@ public class MultiParcel extends Parcel {
     public void setUnregisteredAGVStartLocation(Point garageLocation) {
         this.unregisteredAGVStartLocation.add(garageLocation);
     }
+    public void removeUnregisteredAGVStartLocation(int index) {
+        this.unregisteredAGVStartLocation.remove(index);
+    }
 
 //    private boolean pickUp() {
 //        int totalStrengh = 0;

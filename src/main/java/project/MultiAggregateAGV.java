@@ -19,6 +19,7 @@ public abstract class MultiAggregateAGV extends MultiAGV {
     private Point agvSpawnPoint;
     private long timeOfLastSpawn = Integer.MAX_VALUE;
     private int agvsLeftToSpawn = 0;
+    private MultiParcel deliveryParcel;
     private ArrayList<Point> unregisteredAGVStartLocation=new ArrayList<Point>();
     private ArrayList<Point> garageLocation=new ArrayList<Point>();
 
@@ -66,17 +67,15 @@ public abstract class MultiAggregateAGV extends MultiAGV {
 
     private void spawnNewAGV(TimeLapse time) {
         RoadModel rm = getRoadModel();
-        MultiAGV newAGV = createVehicle(agvSpawnPoint, null);
-		newAGVRoadUser.setGarageLocation((unregisteredAGVStartLocation.get(0)));
-        unregisteredAGVStartLocation.remove(0);
+        MultiAGV newAGV = createVehicle(agvSpawnPoint, deliveryParcel);
+
         sim.register(newAGV);
     }
 
-    protected void startSpawning(int numberOfAgvs, Point location, long currentTime){
+    protected void startSpawning(int numberOfAgvs, Point location, long currentTime, MultiParcel p){
         semiUnregister();
         agvsLeftToSpawn = numberOfAgvs;
         agvSpawnPoint = location;
-        unregisteredAGVStartLocation=p.getUnregisteredAGVStartLocation();
         this.timeOfLastSpawn = currentTime;
     }
 
@@ -84,6 +83,7 @@ public abstract class MultiAggregateAGV extends MultiAGV {
         getPDPModel().deliver(this, p, timeLapse);
         semiUnregister();
         semiUnregister();
+        deliveryParcel=p;
         startSpawning((int) p.getNeededCapacity(), p.getDeliveryLocation(), timeLapse.getTime(),p);
     }
 

@@ -53,7 +53,7 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
             Set<MultiDepot> depots = rm.getObjectsAt(this, MultiDepot.class);   //Get Depots at current location
             if(depots.iterator().hasNext()){
                 System.out.println("There was a depot, ");
-                deliverParcel(timeLapse, getPDPModel().getContents(this).iterator().next());    //Drop off the parcel on that location
+                deliverParcel(timeLapse, (MultiParcel) getPDPModel().getContents(this).iterator().next());    //Drop off the parcel on that location
             }
             currentIntention.popPath();
             //If at next waypoint, resend exploration ants, and pop the location we got to

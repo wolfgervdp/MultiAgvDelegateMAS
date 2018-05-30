@@ -30,6 +30,9 @@ public class MultiParcelGradientField extends MultiParcel implements FieldEmitte
     public void setUnregisteredAGVStartLocation(Point garageLocation) {
         this.unregisteredAGVStartLocation.add(garageLocation);
     }
+    public void removeUnregisteredAGVStartLocation(int index) {
+        this.unregisteredAGVStartLocation.remove(index);
+    }
 
     @Override
     public void setModel(GradientModel model) { }
