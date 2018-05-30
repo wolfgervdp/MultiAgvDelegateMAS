@@ -49,8 +49,17 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
     MultiAGVGradientField(VehicleDTO pDto, SimulatorAPI sim) {
         super(pDto.getStartPosition(), pDto.getCapacity(), sim);
         this.sim = sim;
+        garageLocation.add(pDto.getStartPosition());
+
     }
 
+    public ArrayList<Point> getUnregisteredAGVStartLocation() {
+        return unregisteredAGVStartLocation;
+    }
+
+    public void setUnregisteredAGVStartLocation(Point garageLocation) {
+        this.unregisteredAGVStartLocation.add(garageLocation);
+    }
     protected void movingWithAvoidCollisionWithGradientField(Parcel delivery, TimeLapse time, RoadModel rm) {
 
         Point p = verifyNotNull(gradientModel).getTargetFor(this);
@@ -164,6 +173,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
                 if (rm.equalPosition(closest, this)
                         && pm.getTimeWindowPolicy().canPickup(closest.getPickupTimeWindow(),
                         time.getTime(), closest.getPickupDuration())) {
+                    closest.setUnregisteredAGVStartLocation(this.garageLocation.get(0));
                     pickUp(closest, time);
                 } else {
                     ParcelmovingWithAvoidCollisionWithGradientField(closest, time, rm);
@@ -213,6 +223,14 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
     @Override
     protected MultiAggregateAGV createVehicle(Point location, double capacity) {
         return (new MultiGradientModelAggregateAGV(location, (int) capacity, this.sim));
+    }
+
+    @Override
+    protected MultiAggregateAGV createVehicle(Point location, double capacity, MultiParcel parcelToPickup) {
+        MultiGradientModelAggregateAGV newBigVehicle=new MultiGradientModelAggregateAGV(location, (int) capacity, this.sim) ;
+        newBigVehicle.setUnregisteredAGVStartLocation(( parcelToPickup).getUnregisteredAGVStartLocation());
+        return (new MultiGradientModelAggregateAGV(location, (int) capacity, this.sim));
+
     }
 
     @Override

@@ -12,6 +12,7 @@ import project.MultiAggregateAGV;
 import project.MultiParcel;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,12 +24,24 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
     private float strenght = -20;
     private GradientModel gradientModel;
     private Point storedPoint = null;
+    private ArrayList<Point> unregisteredAGVStartLocation = new ArrayList<Point>();
+    private ArrayList<Point> garageLocation = new ArrayList<Point>();
 
 
     public MultiGradientModelAggregateAGV(Point startPosition, int capacity, SimulatorAPI sim) {
         super(startPosition, capacity, sim);
     }
 
+    public ArrayList<Point> getUnregisteredAGVStartLocation() {
+        return unregisteredAGVStartLocation;
+    }
+
+    public void setUnregisteredAGVStartLocation(Point garageLocation) {
+        this.unregisteredAGVStartLocation.add(garageLocation);
+    }
+    public void setUnregisteredAGVStartLocation(ArrayList<Point> garageLocation) {
+        this.unregisteredAGVStartLocation=garageLocation;
+    }
     @Override
     protected void updateImpl(TimeLapse time) {
 
@@ -158,5 +171,10 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
         MultiAGVGradientField agv = new MultiAGVGradientField(location, 1, sim);
         //agv.setGarageLocation();
         return agv;
+    }
+
+    @Override
+    protected MultiAggregateAGV createVehicle(Point location, double capacity, MultiParcel parcelToPickup) {
+        return null;
     }
 }

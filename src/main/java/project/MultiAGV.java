@@ -8,6 +8,7 @@ import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import project.gradientfield.MultiGradientModelAggregateAGV;
 
 public abstract class MultiAGV extends Vehicle {
 
@@ -113,11 +114,8 @@ public abstract class MultiAGV extends Vehicle {
      */
 
     protected abstract void semiUnregister();
-<<<<<<< HEAD
     protected abstract MultiAGV createVehicle(Point location, MultiParcel parcel);
-=======
-    protected abstract MultiAggregateAGV createVehicle(Point location, double capacity);
->>>>>>> b2922d991fb7bf88b2df3f9be0a6940d0de93b6a
+
 
     public void startCarrying() {
         isWaiting = false;

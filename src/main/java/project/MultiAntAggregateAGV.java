@@ -116,6 +116,11 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
         return new MultiAntAGV(location, 1, sim);
     }
 
+    @Override
+    protected MultiAggregateAGV createVehicle(Point location, double capacity, MultiParcel parcelToPickup) {
+        return null;
+    }
+
     private boolean atNextGoal(){
         return currentIntention == null ? false: getRoadModel().getPosition(this).equals(currentIntention.peekNextGoalLocation());
     }

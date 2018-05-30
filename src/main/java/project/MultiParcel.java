@@ -9,6 +9,7 @@ import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
+import com.github.rinde.rinsim.geom.Point;
 import project.antsystems.AntAgent;
 import project.antsystems.SignAnt;
 
@@ -20,6 +21,9 @@ public class MultiParcel extends Parcel {
 
     private int weight = 2; //The amount of AGV which is needed.
     protected ArrayList<MultiAGV> carryers = new ArrayList<>();
+
+    private ArrayList<Point> unregisteredAGVStartLocation = new ArrayList<Point>();
+
     public int availableAGVs = 0;
 
     public void incrementWaitingAgvs() {
@@ -48,6 +52,14 @@ public class MultiParcel extends Parcel {
         super(parcelDto);
         this.weight = weight;
         System.out.println(parcelDto.getPickupDuration());
+    }
+
+    public ArrayList<Point> getUnregisteredAGVStartLocation() {
+        return unregisteredAGVStartLocation;
+    }
+
+    public void setUnregisteredAGVStartLocation(Point garageLocation) {
+        this.unregisteredAGVStartLocation.add(garageLocation);
     }
 
 //    private boolean pickUp() {
