@@ -82,7 +82,6 @@ public class AntAgentRenderer extends CanvasRenderer.AbstractCanvasRenderer{
                 gc.drawLine(x, y, ox, oy);
                 gc.setLineWidth(1);
 
-
             }
            // synchronized (trucks) {
               //  for (final AntVisualiser t : trucks) {

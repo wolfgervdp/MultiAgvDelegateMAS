@@ -8,7 +8,7 @@ import com.github.rinde.rinsim.geom.Point;
 
 import project.MultiParcel;
 
-public abstract class MultiDepotGradientField extends Depot implements FieldEmitter  {
+public class MultiDepotGradientField extends Depot implements FieldEmitter  {
 
 	static final float AVAILABLE_STRENGTH =0.0f;
 	private final Point pos;

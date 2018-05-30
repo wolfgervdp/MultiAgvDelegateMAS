@@ -31,9 +31,9 @@ public class AntAgentRenderer extends CanvasRenderer.AbstractCanvasRenderer{
 
 
 
-        static final double DIAMETER_MUL = 10d;
-        static final RGB GREEN = new RGB(0, 255, 0);
-        static final RGB RED = new RGB(255, 0, 0);
+    static final double DIAMETER_MUL = 10d;
+    static final RGB GREEN = new RGB(0, 255, 0);
+    static final RGB RED = new RGB(255, 0, 0);
 
     RoadModel roadModel;
 

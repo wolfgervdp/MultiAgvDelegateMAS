@@ -12,14 +12,14 @@ import project.antsystems.Explorable;
 import project.antsystems.SignAnt;
 
 // currently has no function
-class MultiDepot extends Depot implements TickListener, Explorable {
+public class MultiDepot extends Depot implements TickListener, Explorable {
 
     private static final long SETSIGN_FREQ = 40000;
 
     private SimulatorAPI sim;
     private long timeAtLastExploration;
 
-    MultiDepot(Point position, double capacity, SimulatorAPI sim) {
+    public MultiDepot(Point position, double capacity, SimulatorAPI sim) {
         super(position);
         setCapacity(capacity);
         this.sim = sim;

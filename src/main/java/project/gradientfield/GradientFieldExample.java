@@ -294,8 +294,6 @@ public final class GradientFieldExample implements ModelReceiver {
 				}		
 			}
 
-			//			Random rd = new Random();
-			//			int randomDepot=rd.nextInt(4);
 			b.addEvent(AddParcelEvent.create(Parcel.builder(MIN_POINT_1, P1_DELIVERY)
 					.neededCapacity(2)
 					.orderAnnounceTime(M1)

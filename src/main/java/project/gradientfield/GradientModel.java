@@ -38,7 +38,6 @@ import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 
-import com.github.rinde.rinsim.examples.pdptw.gradientfield.*;
 import com.github.rinde.rinsim.geom.Point;
 import com.google.auto.value.AutoValue;
 

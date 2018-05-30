@@ -1,4 +1,4 @@
-package project;
+package project.masagents;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
@@ -6,6 +6,7 @@ import com.github.rinde.rinsim.core.model.pdp.ParcelDTO;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
+import project.MultiParcel;
 import project.antsystems.Explorable;
 import project.antsystems.SignAnt;
 import project.visualisers.ExplorationAntVisualiser;

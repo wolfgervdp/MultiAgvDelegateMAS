@@ -5,13 +5,12 @@ import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
-import project.InfrastructureAgent;
+import project.masagents.InfrastructureAgent;
 import project.helperclasses.DeepCopy;
 import project.visualisers.IntentionAntVisualiser;
 
 import java.util.ArrayDeque;
 
-import java.util.Iterator;
 import java.util.Queue;
 
 public class IntentionAnt extends PathAntAgent {

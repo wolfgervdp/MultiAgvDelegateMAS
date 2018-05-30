@@ -1,19 +1,20 @@
-package project;
+package project.masagents;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
-import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import project.MultiAggregateAGV;
+import project.MultiParcel;
 import project.antsystems.*;
+import project.MultiDepot;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.BiPredicate;
 
-public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
+public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
 
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
     static final int EXPLORATION_FREQ = 20000; //In ms
@@ -24,7 +25,7 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
     private boolean isWaitingForExplorationAnts = false;
     private int numOfExplAntsReportedBack = 0;
     private long timeAtLastExploration = 0;
-
+    private Point deliveryLocation;
 
     public MultiAntAggregateAGV(Point startPosition, int capacity, SimulatorAPI sim) {
         super(startPosition, capacity, sim);
@@ -46,15 +47,10 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
 
         //If we got to the parcel or depot, pick up/deliver and set next goal
         if (atParcelOrDepot() && getPDPModel().getVehicleState(this) == PDPModel.VehicleState.IDLE) {
-            Set<MultiParcel> parcels = rm.getObjectsAt(this, MultiParcel.class);    //Get Parcels at current locations
             Set<MultiDepot> depots = rm.getObjectsAt(this, MultiDepot.class);   //Get Depots at current location
-            if(parcels.iterator().hasNext()){
-                System.out.println("There was a parcel");
-                pickUp(parcels.iterator().next(), timeLapse);    //Pick random parcel on that location
-            }
             if(depots.iterator().hasNext()){
                 System.out.println("There was a depot, ");
-                //deliverParcel(timeLapse);    //Drop off the parcel on that location
+                deliverParcel(timeLapse, getPDPModel().getContents(this).iterator().next());    //Drop off the parcel on that location
             }
             currentIntention.popPath();
             //If at next waypoint, resend exploration ants, and pop the location we got to
@@ -107,7 +103,7 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
     }
 
     @Override
-    protected MultiAggregateAGV createVehicle(Point location, double capacity) {
+    protected MultiAggregateAGV createVehicle(Point location, MultiParcel parcel) {
         return null;
     }
 
@@ -128,13 +124,9 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
 
         for(int i = 0; i < NUMBER_OF_EXPL_ANTS; i++){
             GenericExplorationAnt ant = new GenericExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, MultiDepot.class);
-            ant.setCondition(new BiPredicate<Explorable, GenericExplorationAnt>() {
-                @Override
-                public boolean test(Explorable explorable, GenericExplorationAnt genericExplorationAnt) {
-                  //  currentPosition.equals(lastParcel.getDeliveryLocation());
-                  //  ((MultiDepot) explorable).
-                    return true;
-                }
+            ant.setCondition(explorable -> {
+                getRoadModel().getPosition(explorable).equals(deliveryLocation);
+                return true;
             });
             sim.register(ant);
         }
@@ -162,5 +154,9 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
         if(numOfExplAntsReportedBack >= WAIT_FOR_EXPL_ANTS){
             isWaitingForExplorationAnts = false;
         }
+    }
+
+    public void setDeliveryLocation(Point deliveryLocation) {
+        this.deliveryLocation = deliveryLocation;
     }
 }

@@ -1,4 +1,4 @@
-package project;
+package project.masagents;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
@@ -6,15 +6,18 @@ import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import project.MultiAGV;
+import project.MultiAggregateAGV;
+import project.MultiDepot;
+import project.MultiParcel;
 import project.antsystems.ExplorationAnt;
 import project.antsystems.GenericExplorationAnt;
 import project.antsystems.IntentionAnt;
-import project.visualisers.GoalVisualiser;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public class MultiAntAGV extends MultiAGV implements AntAGV{
+public class MultiAntAGV extends MultiAGV implements AntAGV {
 
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
     static final int EXPLORATION_FREQ = 20000; //In ms
@@ -56,8 +59,10 @@ public class MultiAntAGV extends MultiAGV implements AntAGV{
     }
 
     @Override
-    protected MultiAggregateAGV createVehicle(Point location, double capacity) {
-        return new MultiAntAggregateAGV(location, (int) capacity, sim);
+    protected MultiAggregateAGV createVehicle(Point location, MultiParcel parcel) {
+        MultiAntAggregateAGV agv =  new MultiAntAggregateAGV(location, (int) parcel.getNeededCapacity(), sim);
+        agv.setDeliveryLocation(parcel.getDeliveryLocation());
+        return agv;
     }
 
     @Override
