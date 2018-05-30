@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.github.rinde.rinsim.geom.Graph;
+import project.masagents.InfrastructureAgent;
 
 import java.util.List;
 

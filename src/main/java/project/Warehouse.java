@@ -30,6 +30,10 @@ import com.google.common.collect.Table;
 import project.gradientfield.MultiAGVGradientField;
 import project.gradientfield.MultiDepotGradientField;
 import project.gradientfield.MultiParcelGradientField;
+import project.masagents.EvaporationAgent;
+import project.masagents.InfrastructureAgent;
+import project.masagents.MultiAntAGV;
+import project.masagents.MultiAntParcel;
 import project.visualisers.AntAgentRenderer;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.graphics.RGB;
@@ -100,8 +104,8 @@ public final class Warehouse {
                 .with(RouteRenderer.builder())
                 .with(PDPModelRenderer.builder())
                 .with(AGVRenderer.builder().withDifferentColorsForVehicles())
-                .withSimulatorEndTime(1000 * 60 * 100)
-                .withSpeedUp(TEST_SPEED_UP);
+                .withSimulatorEndTime(1000 * 60 * 100);
+                //.withSpeedUp(TEST_SPEED_UP);
 
         List<InfrastructureAgent> infrastructureAgents = new ArrayList<>();
 
@@ -203,7 +207,7 @@ public final class Warehouse {
         for (int i = 0; i < 4; i++) {
             sim.register(new MultiDepot(possibleDepot.get(i), sim));
         }
-        for (int i = 0; i < 16; i++) {   //max84
+        for (int i = 0; i < 1; i++) {   //max84
             Random rp = new Random();
             rp.setSeed(RANDOM_SEED);
             int randomParcel = rp.nextInt(6 * 14 - i - 0);
@@ -220,16 +224,16 @@ public final class Warehouse {
                 }
             }
             int randomCapacity = rp.nextInt((4));
-            sim.register(new MultiParcel(Parcel.builder(MIN_POINT_1, P1_DELIVERY)
+            sim.register(new MultiAntParcel(Parcel.builder(MIN_POINT_1, P1_DELIVERY)
                     .neededCapacity(2)
                     .orderAnnounceTime(M1)
                     .pickupTimeWindow(TimeWindow.create(M1_P1, M1_P2))
                     .deliveryTimeWindow(TimeWindow.create(M1_D1, M1_D2))
-                    .buildDTO()));
+                    .buildDTO(), sim));
         }
 
 
-        for (int i = 0; i < 10; i++) {   //max48
+        for (int i = 0; i <2; i++) {   //max48
             Random r = new Random();
             r.setSeed(RANDOM_SEED);
             int random = r.nextInt((2 * 13) - i - 0);

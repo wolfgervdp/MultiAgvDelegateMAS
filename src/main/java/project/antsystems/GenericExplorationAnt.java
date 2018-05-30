@@ -10,10 +10,12 @@ import com.github.rinde.rinsim.util.TimeWindow;
 import com.google.common.base.Predicate;
 import org.jetbrains.annotations.Nullable;
 import project.*;
+import project.masagents.AntAGV;
+import project.masagents.InfrastructureAgent;
+import project.masagents.MultiAntParcel;
 
 import javax.measure.unit.SI;
 import java.util.*;
-import java.util.function.BiPredicate;
 
 public class GenericExplorationAnt extends PathAntAgent{
 
@@ -73,36 +75,23 @@ public class GenericExplorationAnt extends PathAntAgent{
         //System.out.println("Antid: " + antId);
         //System.out.println("Ticking in ExplorationAnt. Current path: " + this);
 
-       /*
-        if(lastParcel == null){
-            MultiAntParcel parcel = getParcelAtCurrentLocation();
-            if (parcel != null) {
-                //System.out.println("At parcel location!!!--------------");
-                pushQueue();
-                visitedParcels.add(currentPosition);
-            }
-        }else{*/
-            Explorable object = getExplorableAtLocation();
-            //explorablePredicate.apply(object)
-            if (object != null
-            && (explorablePredicate == null || explorablePredicate.apply(object))
-                    /*&& currentPosition.equals(lastParcel.getDeliveryLocation())*/) {
-                pushQueue();
-                addUrgencyHeuristic(object.getHeuristicAddition());
-            }
-
-      //  }
-
-
+        Explorable object = getExplorableAtLocation();
+        //explorablePredicate.apply(object)
+        if (object != null
+                && (explorablePredicate == null || explorablePredicate.apply(object))
+            /*&& currentPosition.equals(lastParcel.getDeliveryLocation())*/) {
+            pushQueue();
+            addUrgencyHeuristic(object.getHeuristicAddition());
+        }
 
         //If goal found, report back to masterAgent
         if (hasFinishedPath()) {
             //System.out.println("Ant finished path, reporting back");
-           // masterAgent.reportBack(this); Todo!!
+            masterAgent.reportBack(this);
             destroySelf();
             return;
         }
-        if (isMaxPathLength()  || tickCounter >= MAX_NUMBER_TICKS) {
+        if (isMaxPathLength() || tickCounter >= MAX_NUMBER_TICKS) {
             //System.out.println("Unregistered ant with id=" + antId);
             destroySelf();
             return;
@@ -156,16 +145,6 @@ public class GenericExplorationAnt extends PathAntAgent{
         return path != null && path.size() > PATH_PARCEL_NUMBER;
     }
 
-    @Nullable
-    private MultiAntParcel getParcelAtCurrentLocation() {
-        for (MultiAntParcel parcel : this.roadModel.getObjectsOfType(MultiAntParcel.class)) {
-            if (parcel.getPickupLocation().equals(currentPosition)) {
-                //System.out.println("Found parcel!")
-                return parcel;
-            }
-        }
-        return null;
-    }
 
     @Nullable
     private Explorable getExplorableAtLocation() {

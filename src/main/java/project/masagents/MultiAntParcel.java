@@ -1,4 +1,4 @@
-package project;
+package project.masagents;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
@@ -6,14 +6,17 @@ import com.github.rinde.rinsim.core.model.pdp.ParcelDTO;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
+import project.MultiParcel;
 import project.antsystems.Explorable;
 import project.antsystems.SignAnt;
 import project.visualisers.ExplorationAntVisualiser;
 
 public class MultiAntParcel extends MultiParcel implements TickListener, Explorable {
+
     private static final long SETSIGN_FREQ = 40000;
     private SimulatorAPI sim;
     private long timeAtLastExploration;
+    private int waitingAGVs = 0;
 
     public MultiAntParcel(ParcelDTO parcelDto, SimulatorAPI sim) {
         super(parcelDto);
@@ -34,8 +37,17 @@ public class MultiAntParcel extends MultiParcel implements TickListener, Explora
         }
     }
 
+    @Override
+    public String toString() {
+        return "MultiAntParcel";
+    }
+
+    public void increaseWaitingAGVs(){
+        waitingAGVs++;
+    }
+
     private void sendAnts() {
-        sim.register(new SignAnt(getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim));
+        sim.register(new SignAnt(getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, waitingAGVs));
     }
 
     @Override

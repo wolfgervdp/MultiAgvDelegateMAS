@@ -1,9 +1,7 @@
-package project;
+package project.masagents;
 
 import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
-import com.github.rinde.rinsim.geom.Connection;
-import com.github.rinde.rinsim.geom.Graph;
 
 import java.util.List;
 

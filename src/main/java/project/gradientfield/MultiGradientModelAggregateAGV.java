@@ -7,6 +7,7 @@ import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import org.apache.commons.math3.random.RandomGenerator;
+import project.MultiAGV;
 import project.MultiAggregateAGV;
 import project.MultiParcel;
 
@@ -166,12 +167,10 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
     }
 
     @Override
-    protected MultiAggregateAGV createVehicle(Point location, double capacity) {
-        return null;
-    }
-
-    @Override
-    protected MultiAggregateAGV createVehicle(Point location, double capacity, MultiParcel parcelToPickup) {
-        return null;
+    protected MultiAGV createVehicle(Point location, MultiParcel parcel) {
+        MultiAGVGradientField agv = new MultiAGVGradientField(location, 1, sim);
+		newAGVRoadUser.setGarageLocation((unregisteredAGVStartLocation.get(0)));
+        unregisteredAGVStartLocation.remove(0);
+        return agv;
     }
 }

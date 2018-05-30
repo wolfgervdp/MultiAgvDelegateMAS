@@ -1,24 +1,26 @@
-package project;
+package project.masagents;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
-import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
-import com.google.common.base.Predicate;
-import project.antsystems.*;
+import project.MultiAGV;
+import project.MultiAggregateAGV;
+import project.MultiDepot;
+import project.MultiParcel;
+import project.antsystems.ExplorationAnt;
+import project.antsystems.GenericExplorationAnt;
+import project.antsystems.IntentionAnt;
 
-import javax.annotation.Nullable;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.BiPredicate;
 
-public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
+public class MultiAntAGV extends MultiAGV implements AntAGV {
 
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
-    static final int EXPLORATION_FREQ = 20000; //In ms
+    static final int EXPLORATION_FREQ = 2000; //In ms
     static final int NUMBER_OF_EXPL_ANTS = 3;
     static final int WAIT_FOR_EXPL_ANTS = 1;
 
@@ -26,14 +28,45 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
     private boolean isWaitingForExplorationAnts = false;
     private int numOfExplAntsReportedBack = 0;
     private long timeAtLastExploration = 0;
-    private Point placeToDeliver;
 
-    public MultiAntAggregateAGV(Point startPosition, int capacity, SimulatorAPI sim) {
+    public MultiAntAGV(Point startPosition, int capacity, SimulatorAPI sim) {
         super(startPosition, capacity, sim);
     }
 
     @Override
-    protected void updateImpl(TimeLapse timeLapse) {
+    public String toString() {
+        if(currentIntention != null)
+            return "MultiAGV " + id + ", h=" + currentIntention.getTotalHeuristicValue();
+        else return "MultiAGV " + id;
+    }
+
+    @Override
+    protected void unregister() {
+        getRoadModel().unregister(this);
+        sim.unregister(this);
+        getPDPModel().unregister(this);
+    }
+
+    @Override
+    protected void register() {
+        sim.register(this);
+    }
+
+    @Override
+    protected void semiUnregister() {
+        getRoadModel().unregister(this);
+        getPDPModel().unregister(this);
+    }
+
+    @Override
+    protected MultiAGV createVehicle(Point location, MultiParcel parcel) {
+        MultiAntAggregateAGV agv =  new MultiAntAggregateAGV(location, (int) parcel.getNeededCapacity(), sim);
+        agv.setDeliveryLocation(parcel.getDeliveryLocation());
+        return agv;
+    }
+
+    @Override
+    protected void update(TimeLapse timeLapse) {
 
         //If we don't know what to do (=no intention), send out exploration ants with a certain frequency, and don't do anything else
         if(currentIntention == null){
@@ -48,11 +81,14 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
 
         //If we got to the parcel or depot, pick up/deliver and set next goal
         if (atParcelOrDepot() && getPDPModel().getVehicleState(this) == PDPModel.VehicleState.IDLE) {
-            Set<MultiParcel> parcels = rm.getObjectsAt(this, MultiParcel.class);    //Get Parcels at current locations
+            Set<MultiAntParcel> parcels = rm.getObjectsAt(this, MultiAntParcel.class);    //Get Parcels at current locations
             Set<MultiDepot> depots = rm.getObjectsAt(this, MultiDepot.class);   //Get Depots at current location
             if(parcels.iterator().hasNext()){
                 System.out.println("There was a parcel");
-                pickUp(parcels.iterator().next(), timeLapse);    //Pick random parcel on that location
+                MultiAntParcel parcel = parcels.iterator().next();
+                parcel.increaseWaitingAGVs();
+                pickUp(parcel, timeLapse);    //Pick random parcel on that location
+
             }
             if(depots.iterator().hasNext()){
                 System.out.println("There was a depot, ");
@@ -62,7 +98,6 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
             //If at next waypoint, resend exploration ants, and pop the location we got to
         }else if(atNextGoal()) {
 
-            countTime = timeLapse.getTime();
             sendExplorationAnts();
             System.out.println("at next goal");
             currentIntention.popGoalLocation();
@@ -90,34 +125,6 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
         }
     }
 
-    @Override
-    protected void unregister() {
-        getRoadModel().unregister(this);
-        sim.unregister(this);
-        getPDPModel().unregister(this);
-    }
-
-    @Override
-    protected void register() {
-        sim.register(this);
-    }
-
-    @Override
-    protected void semiUnregister() {
-        getRoadModel().unregister(this);
-        getPDPModel().unregister(this);
-    }
-
-    @Override
-    protected MultiAggregateAGV createVehicle(Point location, double capacity) {
-        return null;
-    }
-
-    @Override
-    protected MultiAggregateAGV createVehicle(Point location, double capacity, MultiParcel parcelToPickup) {
-        return null;
-    }
-
     private boolean atNextGoal(){
         return currentIntention == null ? false: getRoadModel().getPosition(this).equals(currentIntention.peekNextGoalLocation());
     }
@@ -133,19 +140,16 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
     public void sendExplorationAnts(){
         //System.out.println("Sending exploration ants. Starting at position " + getRoadModel().getPosition(this));
 
+        // isWaitingForExplorationAnts = true;
         for(int i = 0; i < NUMBER_OF_EXPL_ANTS; i++){
-            GenericExplorationAnt ant = new GenericExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, MultiDepot.class);
-            ant.setCondition(explorable -> {
-                getRoadModel().getPosition(explorable).equals(placeToDeliver);
-                return true;
-            });
+            GenericExplorationAnt ant = new GenericExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, MultiAntParcel.class);
             sim.register(ant);
         }
+        
     }
 
 
     public void reportBack(GenericExplorationAnt ant){
-        //Todo: Check whether the returned intention ant is a
         Point p = getRoadModel().getPosition(this);
         IntentionAnt tempIntentionAnt = new IntentionAnt(ant);
         tempIntentionAnt.trimPath(p);
@@ -166,4 +170,6 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
             isWaitingForExplorationAnts = false;
         }
     }
+
+
 }
