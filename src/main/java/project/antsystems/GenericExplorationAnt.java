@@ -33,7 +33,7 @@ public class GenericExplorationAnt extends PathAntAgent{
     int antId = 0;
 
     MultiParcel lastParcel;
-    BiPredicate<Explorable, GenericExplorationAnt> explorablePredicate;
+    Predicate<Explorable> explorablePredicate;
 
     public GenericExplorationAnt(AntAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim, Class<? extends Explorable> classToLookFor) {
         super(masterAgent, position, roadModel, sim);
@@ -43,6 +43,10 @@ public class GenericExplorationAnt extends PathAntAgent{
         initVisualisationQueue(position);
     }
 
+    public Point getCurrentPosition() {
+        return currentPosition;
+    }
+
     public GenericExplorationAnt(ExplorationAnt explorationAnt) {
         super(explorationAnt);
         antId = counter;
@@ -50,7 +54,7 @@ public class GenericExplorationAnt extends PathAntAgent{
         initVisualisationQueue(explorationAnt.currentPosition);
     }
 
-    public void setCondition( BiPredicate<Explorable, GenericExplorationAnt> predicate){
+    public void setCondition( Predicate<Explorable> predicate){
         explorablePredicate = predicate;
     }
 
@@ -61,6 +65,7 @@ public class GenericExplorationAnt extends PathAntAgent{
                 ", path=" + path +
                 '}';
     }
+
 
     @Override
     public void tick(TimeLapse timeLapse) {
@@ -80,7 +85,7 @@ public class GenericExplorationAnt extends PathAntAgent{
             Explorable object = getExplorableAtLocation();
             //explorablePredicate.apply(object)
             if (object != null
-            && (explorablePredicate == null || explorablePredicate.test(object, this))
+            && (explorablePredicate == null || explorablePredicate.apply(object))
                     /*&& currentPosition.equals(lastParcel.getDeliveryLocation())*/) {
                 pushQueue();
                 addUrgencyHeuristic(object.getHeuristicAddition());

@@ -2,6 +2,7 @@ package project.gradientfield;
 
 import static com.google.common.base.Verify.verifyNotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,42 +24,32 @@ import com.github.rinde.rinsim.geom.Point;
 import com.google.common.base.Predicate;
 
 import project.MultiAGV;
+import project.MultiAggregateAGV;
 import project.MultiParcel;
 
-public class MultiAGVGradientField extends MultiAGV implements FieldEmitter {
-    private SimulatorAPI sim;
+
+public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
+
+
     private RandomGenerator rng;
     private float strenght = -20;
-    private double packagesToDeliver = 0;
-    private boolean unregister;
-    private boolean bigVehcile;
-    private long timeOfLastSpawn = Integer.MAX_VALUE;
-    private int agvsLeftToSpawn = 0;
-    private Point agvSpawnPoint;
+    static final int DISTANCE_THRESHOLD_KM = 40;
+    @Nullable
+    private GradientModel gradientModel;
+    private Point storedPoint = null;
+    private ArrayList<Point> unregisteredAGVStartLocation = new ArrayList<Point>();
+    private ArrayList<Point> garageLocation = new ArrayList<Point>();
 
     public MultiAGVGradientField(Point startPosition, int capacity, SimulatorAPI sim) {
         super(startPosition, capacity, sim);
-        this.sim = sim;
         this.rng = sim.getRandomGenerator();
-    }
-
-    public MultiAGVGradientField(Point startPosition, int capacity, SimulatorAPI sim, boolean bigVehicle) {
-        super(startPosition, capacity);
-        this.bigVehcile = bigVehicle;
-        this.sim = sim;
-
+        garageLocation.add(startPosition);
     }
 
     MultiAGVGradientField(VehicleDTO pDto, SimulatorAPI sim) {
         super(pDto.getStartPosition(), pDto.getCapacity(), sim);
         this.sim = sim;
-
     }
-
-    static final int DISTANCE_THRESHOLD_KM = 40;
-    @Nullable
-    private GradientModel gradientModel;
-
 
     protected void movingWithAvoidCollisionWithGradientField(Parcel delivery, TimeLapse time, RoadModel rm) {
 
@@ -142,73 +133,19 @@ public class MultiAGVGradientField extends MultiAGV implements FieldEmitter {
 
     }
 
-    private Point storedPoint = null;
+    public ArrayList<Point> getGarageLocation() {
+        return garageLocation;
+    }
 
-    private void spawnNewAGV(TimeLapse time) {
-        RoadModel rm = getRoadModel();
-        MultiAGVGradientField newAGVRoadUser = (new MultiAGVGradientField(agvSpawnPoint, 1, this.sim));
-        //newAGVRoadUser.setStartPosition();
-        sim.register(newAGVRoadUser);
-
-        rm.moveTo(newAGVRoadUser, new Point(32, 32), time);
+    public void setGarageLocation(Point garageLocation) {
+        this.garageLocation.add(garageLocation);
     }
 
     @Override
-    protected void tickImpl(TimeLapse time) {
-
-        if (timeOfLastSpawn + 800000 <= time.getTime() && agvsLeftToSpawn > 0) {
-            spawnNewAGV(time);
-            timeOfLastSpawn = time.getTime();
-            agvsLeftToSpawn--;
-            return;
-        } else if(timeOfLastSpawn != Integer.MAX_VALUE) {
-            if (agvsLeftToSpawn == 0) {
-                sim.unregister(this);
-            }
-            return;
-        }
-
-
+    protected void update(TimeLapse time) {
         final RoadModel rm = getRoadModel();
         final PDPModel pm = getPDPModel();
-        if (unregister == true) {
-            rm.unregister(this);
-            pm.unregister(this);
-            gradientModel.unregister(this);
-            sim.unregister(this);
-            return;
-        }
-        if (this.bigVehcile == true) {
-            //  rm.register(this);
-            //    gradientModel.register(this);
-            this.bigVehcile = false;
-        }
         // Check if we can deliver nearby
-
-        final Parcel delivery = getDelivery(time, 40);
-
-
-        //		 If none of the above, let the gradient field guide us!
-
-        //System.out.println(p);
-        if (delivery != null) {
-            if (delivery.getDeliveryLocation().equals(getPosition())
-                    && pm.getVehicleState(this) == VehicleState.IDLE) {
-                pm.deliver(this, delivery, time);
-
-                rm.unregister(this);
-                pm.unregister(this);
-                gradientModel.unregister((this));
-                agvsLeftToSpawn = ((MultiParcel) delivery).availableAGVs + 1;
-                agvSpawnPoint = delivery.getDeliveryLocation();
-                timeOfLastSpawn = time.getTime();
-                return;
-            } else {
-                //rm.moveTo(this, delivery.getDeliveryLocation(), time);
-                movingWithAvoidCollisionWithGradientField(delivery, time, rm);
-            }
-            return;
-        }
 
         // Otherwise, Check if we can pickup nearby
         final MultiParcel closest = (MultiParcel) RoadModels.findClosestObject(
@@ -223,93 +160,59 @@ public class MultiAGVGradientField extends MultiAGV implements FieldEmitter {
         if (closest != null
                 && Point.distance(rm.getPosition(closest),
                 getPosition()) < DISTANCE_THRESHOLD_KM) {
-            if (rm.equalPosition(closest, this)
-                    && pm.getTimeWindowPolicy().canPickup(closest.getPickupTimeWindow(),
-                    time.getTime(), closest.getPickupDuration())) {
-                final double newSize = getPDPModel().getContentsSize(this)
-                        + closest.requirredCapacity();
-                if (newSize <= getCapacity()) {
-
-                    //closest.tryPickUp(this);
-                    if (this.getCapacity() != closest.getNeededCapacity()) {
-                        unregister = true;
-                        rm.unregister(this);
-                        sim.unregister(this);
-                        gradientModel.unregister(this);
-                        pm.unregister(this);
-                        MultiAGVGradientField newBigVehicle = (new MultiAGVGradientField(closest.getPickupLocation(), (int) closest.getNeededCapacity(), this.sim, true));
-                        sim.register(newBigVehicle);
-
- /*                       rm.register(newBigVehicle);
-                        pm.register(newBigVehicle);
-
-                        gradientModel.register((newBigVehicle));*/
-                        boolean test = newBigVehicle.isRegistered();
-
-                        rm.moveTo(newBigVehicle, new Point(8, 8), time);
-                        return;
-                    } else {
-                        pm.pickup(this, closest, time);
-                    }
+            if (closest != null) {
+                if (rm.equalPosition(closest, this)
+                        && pm.getTimeWindowPolicy().canPickup(closest.getPickupTimeWindow(),
+                        time.getTime(), closest.getPickupDuration())) {
+                    pickUp(closest, time);
                 } else {
-
-                    closest.waitingAGVs();
-                    unregister = true;
-                    return;
+                    ParcelmovingWithAvoidCollisionWithGradientField(closest, time, rm);
                 }
-            } else {
-                //rm.moveTo(this, rm.getPosition(closest), time);
-
-                ParcelmovingWithAvoidCollisionWithGradientField(closest, time, rm);
-
-                //rm.moveTo(this, rm.getPosition(closest), time);
             }
-            return;
-        }
-        //		if (rm.getObjectsOfType(Parcel.class).isEmpty()) {
-        //			rm.moveTo(this, getStartPosition(), time);
-        //			return;
-        //		}
-        //
 
-        if (rm.getObjectsOfType(Parcel.class).isEmpty() && verifyNotNull(pm).getContents(this).size() == 0) {
-            rm.moveTo(this, getStartPosition(), time);
-            //System.out.println(getStrenght());
+
             return;
         }
-//		if ((rm.getObjectsOfType(Parcel.class).isEmpty())) {
-//			//System.out.println(delivery);
-//			rm.moveTo(this, getStartPosition(), time);
-//			this.strenght=0;
-//			//rm.moveTo(this, p, time);
-//			return;
-//		}
+
+        if (rm.getObjectsOfType(Parcel.class).isEmpty() &&
+                verifyNotNull(pm).getContents(this).
+                        size() == 0) {
+            rm.moveTo(this, this.getGarageLocation().get(0), time);
+            return;
+        }
+
         //		 If none of the above, let the gradient field guide us!
         @Nullable
         Point p1 = verifyNotNull(gradientModel).getTargetFor(this);
         if (p1 != null) {
             rm.moveTo(this, p1, time);
         }
+
     }
 
-    @Nullable
-    Parcel getDelivery(TimeLapse time, int distance) {
-        Parcel target = null;
-        double closest = distance;
-        final PDPModel pm = getPDPModel();
-        for (final Parcel p : pm.getContents(this)) {
+    @Override
+    protected void unregister() {
+        getRoadModel().unregister(this);
+        sim.unregister(this);
+        gradientModel.unregister(this);
+        getPDPModel().unregister(this);
+    }
 
-            final double dist = Point.distance(getRoadModel().getPosition(this),
-                    p.getDeliveryLocation());
-            if (dist < closest
-                    && pm.getTimeWindowPolicy().canDeliver(p.getDeliveryTimeWindow(),
-                    time.getTime(), p.getPickupDuration())) {
-                closest = dist;
-                target = p;
-            }
-        }
+    @Override
+    protected void register() {
+        sim.register(this);
+    }
 
-        return target;
+    @Override
+    protected void semiUnregister() {
+        getRoadModel().unregister(this);
+        gradientModel.unregister(this);
+        getPDPModel().unregister(this);
+    }
+
+    @Override
+    protected MultiAggregateAGV createVehicle(Point location, double capacity) {
+        return (new MultiGradientModelAggregateAGV(location, (int) capacity, this.sim));
     }
 
     @Override
@@ -330,10 +233,9 @@ public class MultiAGVGradientField extends MultiAGV implements FieldEmitter {
     @Override
     public float getStrength() {
         return strenght;
-
     }
 
-    Map<Point, Float> getFields() {
+    public Map<Point, Float> getFields() {
         return verifyNotNull(gradientModel).getFields(this);
     }
 

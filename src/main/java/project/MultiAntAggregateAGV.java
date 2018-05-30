@@ -7,8 +7,10 @@ import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import com.google.common.base.Predicate;
 import project.antsystems.*;
 
+import javax.annotation.Nullable;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.BiPredicate;
@@ -24,7 +26,7 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
     private boolean isWaitingForExplorationAnts = false;
     private int numOfExplAntsReportedBack = 0;
     private long timeAtLastExploration = 0;
-
+    private Point placeToDeliver;
 
     public MultiAntAggregateAGV(Point startPosition, int capacity, SimulatorAPI sim) {
         super(startPosition, capacity, sim);
@@ -128,13 +130,9 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
 
         for(int i = 0; i < NUMBER_OF_EXPL_ANTS; i++){
             GenericExplorationAnt ant = new GenericExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, MultiDepot.class);
-            ant.setCondition(new BiPredicate<Explorable, GenericExplorationAnt>() {
-                @Override
-                public boolean test(Explorable explorable, GenericExplorationAnt genericExplorationAnt) {
-                  //  currentPosition.equals(lastParcel.getDeliveryLocation());
-                  //  ((MultiDepot) explorable).
-                    return true;
-                }
+            ant.setCondition(explorable -> {
+                getRoadModel().getPosition(explorable).equals(placeToDeliver);
+                return true;
             });
             sim.register(ant);
         }

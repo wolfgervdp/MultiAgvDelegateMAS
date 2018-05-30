@@ -1,21 +1,33 @@
+
+
 package project.gradientfield;
 
-final class AutoValue_GradientModel_Builder extends GradientModel.Builder {
-    private static final long serialVersionUID = 4464819196521333718L;
+import javax.annotation.Generated;
 
-    AutoValue_GradientModel_Builder() {
-    }
+@Generated("com.google.auto.value.processor.AutoValueProcessor")
+ final class AutoValue_GradientModel_Builder extends GradientModel.Builder {
 
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        } else {
-            return o instanceof GradientModel.Builder;
-        }
-    }
+  AutoValue_GradientModel_Builder(
+ ) {
+  }
 
-    public int hashCode() {
-        int h = 1;
-        return h;
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
     }
+    if (o instanceof GradientModel.Builder) {
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int h$ = 1;
+    return h$;
+  }
+
+  private static final long serialVersionUID = 4464819196521333718L;
+
 }

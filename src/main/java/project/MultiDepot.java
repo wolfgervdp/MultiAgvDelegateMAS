@@ -8,20 +8,24 @@ import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import project.antsystems.Explorable;
 import project.antsystems.SignAnt;
 
 // currently has no function
-class MultiDepot extends Depot implements TickListener {
+class MultiDepot extends Depot implements TickListener, Explorable {
 
     private static final long SETSIGN_FREQ = 40000;
 
     private SimulatorAPI sim;
     private long timeAtLastExploration;
 
-    MultiDepot(Point position, double capacity, SimulatorAPI sim) {
+    MultiDepot(Point position, SimulatorAPI sim) {
         super(position);
-        setCapacity(capacity);
         this.sim = sim;
+    }
+
+    public double getHeuristicAddition(){
+        return 0;
     }
 
     @Override

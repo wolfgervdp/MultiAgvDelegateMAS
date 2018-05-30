@@ -16,7 +16,6 @@ public class TimeOutVisualiser  extends Visualiser implements TickListener {
         super(position);
         this.simulator = simulator;
         this.timeOut = timeOut;
-        timeAtLastExploration = startTime;
     }
 
 

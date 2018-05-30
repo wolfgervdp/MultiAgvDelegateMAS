@@ -57,6 +57,7 @@ public class MultiAntAGV extends MultiAGV implements AntAGV{
 
     @Override
     protected MultiAggregateAGV createVehicle(Point location, double capacity) {
+        
         return new MultiAntAggregateAGV(location, (int) capacity, sim);
     }
 

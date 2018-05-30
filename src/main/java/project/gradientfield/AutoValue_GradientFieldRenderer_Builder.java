@@ -1,19 +1,31 @@
+
+
 package project.gradientfield;
- public final class AutoValue_GradientFieldRenderer_Builder extends GradientFieldRenderer.Builder {
 
-    public AutoValue_GradientFieldRenderer_Builder() {
-    }
+import javax.annotation.Generated;
 
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        } else {
-            return o instanceof GradientFieldRenderer.Builder;
-        }
-    }
+@Generated("com.google.auto.value.processor.AutoValueProcessor")
+ final class AutoValue_GradientFieldRenderer_Builder extends GradientFieldRenderer.Builder {
 
-    public int hashCode() {
-        int h = 1;
-        return h;
+  AutoValue_GradientFieldRenderer_Builder(
+ ) {
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
     }
+    if (o instanceof GradientFieldRenderer.Builder) {
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int h$ = 1;
+    return h$;
+  }
+
 }
