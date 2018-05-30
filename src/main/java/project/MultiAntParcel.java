@@ -6,9 +6,11 @@ import com.github.rinde.rinsim.core.model.pdp.ParcelDTO;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
+import project.antsystems.Explorable;
 import project.antsystems.SignAnt;
+import project.visualisers.ExplorationAntVisualiser;
 
-public class MultiAntParcel extends MultiParcel implements TickListener {
+public class MultiAntParcel extends MultiParcel implements TickListener, Explorable {
     private static final long SETSIGN_FREQ = 40000;
     private SimulatorAPI sim;
     private long timeAtLastExploration;
@@ -38,4 +40,9 @@ public class MultiAntParcel extends MultiParcel implements TickListener {
 
     @Override
     public void afterTick(TimeLapse timeLapse) { }
+
+    @Override
+    public double getHeuristicAddition() {
+        return (carryers.size() + 1) * (1 - getOrderAnnounceTime());
+    }
 }

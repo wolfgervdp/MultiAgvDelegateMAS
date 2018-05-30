@@ -37,6 +37,7 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
         if (delivery != null) {
             if (delivery.getDeliveryLocation().equals(getPosition())
                     && getPDPModel().getVehicleState(this) == PDPModel.VehicleState.IDLE) {
+
                 deliverParcel(time, delivery);
                 return;
             } else {
@@ -97,7 +98,6 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
             if (storedPoint != null) {
                 rm.moveTo(this, storedPoint, time);
                 //System.out.println("Too negative gradient value (deliver) " +fieldValue +" position: "+ this.getPosition());
-
             }
         } else {
             rm.moveTo(this, delivery.getDeliveryLocation(), time);
@@ -122,7 +122,7 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
         return strenght;
     }
 
-    Map<Point, Float> getFields() {
+    public Map<Point, Float> getFields() {
         return verifyNotNull(gradientModel).getFields(this);
     }
 
@@ -132,18 +132,25 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
         return 0;
     }
 
-
     @Override
     protected void unregister() {
+        getRoadModel().unregister(this);
+        sim.unregister(this);
+        gradientModel.unregister(this);
+        getPDPModel().unregister(this);
+    }
 
+    @Override
+    protected void register() {
+        sim.register(this);
     }
 
     @Override
     protected void semiUnregister() {
-
+        getRoadModel().unregister(this);
+        gradientModel.unregister(this);
+        getPDPModel().unregister(this);
     }
-
-
 
     @Override
     protected MultiAggregateAGV createVehicle(Point location, double capacity) {

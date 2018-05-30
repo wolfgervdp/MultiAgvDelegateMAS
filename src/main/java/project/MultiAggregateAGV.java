@@ -54,6 +54,7 @@ public abstract class MultiAggregateAGV extends MultiAGV{
     protected void deliverParcel(TimeLapse timeLapse, Parcel p) {
         getPDPModel().deliver(this, p, timeLapse);
         semiUnregister();
+        semiUnregister();
         startSpawning( (int) p.getNeededCapacity(), p.getDeliveryLocation() ,timeLapse.getTime());
     }
 

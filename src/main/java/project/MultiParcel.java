@@ -30,11 +30,9 @@ public class MultiParcel extends Parcel {
         this.availableAGVs = 0;
     }
 
-
     public double requiredCapacity() {
         return this.getNeededCapacity() - this.availableAGVs;
     }
-
 
     @Override
     public String toString() {
@@ -52,36 +50,31 @@ public class MultiParcel extends Parcel {
         System.out.println(parcelDto.getPickupDuration());
     }
 
-    private boolean pickUp() {
-        int totalStrengh = 0;
-        for (MultiAGV multiAGV : carryers) {
-            totalStrengh += multiAGV.getStrenght();
-        }
-        System.out.println("totalStrength " + totalStrengh);
-        return totalStrengh > weight;
-    }
-
-    public boolean tryPickUp(MultiAGV multiAGV) {
-        carryers.add(multiAGV);
-        if (pickUp()) {
-            for (MultiAGV carryer : carryers) {
-                carryer.startCarrying();
-            }
-            return true;
-        }
-        weight = weight - 1;
-        availableAGVs++;
-        getRoadModel().removeObject(multiAGV);
-
-        return false;
-    }
-
-
-
+//    private boolean pickUp() {
+//        int totalStrengh = 0;
+//        for (MultiAGV multiAGV : carryers) {
+//            totalStrengh += multiAGV.getStrenght();
+//        }
+//        System.out.println("totalStrength " + totalStrengh);
+//        return totalStrengh > weight;
+//    }
+//
+//    public boolean tryPickUp(MultiAGV multiAGV) {
+//        carryers.add(multiAGV);
+//        if (pickUp()) {
+//            for (MultiAGV carryer : carryers) {
+//                carryer.startCarrying();
+//            }
+//            return true;
+//        }
+//        weight = weight - 1;
+//        availableAGVs++;
+//        getRoadModel().removeObject(multiAGV);
+//
+//        return false;
+//    }
     @Override
     public void initRoadPDP(RoadModel pRoadModel, PDPModel pPdpModel) {}
-
-
 
 }
 

@@ -7,6 +7,7 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
+import project.AntAGV;
 import project.MultiAntAGV;
 import project.helperclasses.DeepCopy;
 import project.visualisers.ExplorationAntVisualiser;
@@ -26,7 +27,7 @@ public abstract class PathAntAgent  extends AntAgent {
     static final double URGENCY_COEFFICIENT = 0.5;
     static final double RESERVATION_COEFFICIENT = 0.5;
 
-    protected MultiAntAGV masterAgent;
+    protected AntAGV masterAgent;
     protected ArrayDeque<ArrayDeque<Point>> path;       //Inner queue is the queue until the first next goalnode, the outer queue is all the paths for the different parcels
     private double heuristicValue = 0;
 
@@ -44,7 +45,7 @@ public abstract class PathAntAgent  extends AntAgent {
     }
 
     //Normal constructor
-    public PathAntAgent(MultiAntAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
+    public PathAntAgent(AntAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
         super(position,roadModel,sim);
 
         this.masterAgent = masterAgent;

@@ -88,12 +88,12 @@ implements ModelReceiver {
 		return emitters;
 	}
 
-	List<MultiAGVGradientField> getMultiAGVGradientFieldEmitters() {
-		final List<MultiAGVGradientField> MultiAGVGradientFields = new ArrayList<MultiAGVGradientField>();
+	List<FieldContainer> getFieldContainerFieldEmitters() {
+		final List<FieldContainer> MultiAGVGradientFields = new ArrayList<FieldContainer>();
 
 		for (final FieldEmitter emitter : emitters) {
-			if (emitter instanceof MultiAGVGradientField) {
-				MultiAGVGradientFields.add((MultiAGVGradientField) emitter);
+			if (emitter instanceof FieldContainer) {
+				MultiAGVGradientFields.add((FieldContainer) emitter);
 			}
 		}
 

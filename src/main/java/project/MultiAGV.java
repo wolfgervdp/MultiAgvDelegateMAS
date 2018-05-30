@@ -78,17 +78,17 @@ public abstract class MultiAGV extends Vehicle {
                 + parcelToPickup.requiredCapacity();
         if (newSize <= getCapacity()) {
             //We are the last one, let's create an aggregate vehicle!
-            if (this.getCapacity() != parcelToPickup.getNeededCapacity()) {
+          //  if (this.getCapacity() != parcelToPickup.getNeededCapacity()) {
                 shouldUnregister = true;
                 unregister();
                 MultiAggregateAGV newBigVehicle = createVehicle(parcelToPickup.getPickupLocation(), parcelToPickup.getNeededCapacity());//(new MultiAGVGradientField(closest.getPickupLocation(), (int) closest.getNeededCapacity(), this.sim, true));
-                sim.register(newBigVehicle);
+                ///sim.register(newBigVehicle);
+                newBigVehicle.register();
                 pm.pickup(newBigVehicle, parcelToPickup, time);
-
                 return;
-            } else {
+           /* } else {
                 pm.pickup(this, parcelToPickup, time);
-            }
+            }*/
         } else {
 
             parcelToPickup.incrementWaitingAgvs();
@@ -106,6 +106,7 @@ public abstract class MultiAGV extends Vehicle {
         This method should unregister the AGVs from the whole simulator
      */
     protected abstract void unregister();
+    protected abstract void register();
     /*
         This method should unregister the AGV from all the models, but still keep it registerd in the simulator for ticks
      */

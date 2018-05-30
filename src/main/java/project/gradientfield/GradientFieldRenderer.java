@@ -48,10 +48,11 @@ class GradientFieldRenderer extends AbstractCanvasRenderer {
 	@Override
 	public void renderDynamic(GC gc, ViewPort vp, long time) {
 
-		final List<MultiAGVGradientField> trucks = gradientModel.getMultiAGVGradientFieldEmitters();
+
+		final List<FieldContainer> trucks = gradientModel.getFieldContainerFieldEmitters();
 
 		synchronized (trucks) {
-			for (final MultiAGVGradientField t : trucks) {
+			for (final FieldContainer t : trucks) {
 				final Point tp = t.getPosition();
 
 				final Map<Point, Float> fields = t.getFields();

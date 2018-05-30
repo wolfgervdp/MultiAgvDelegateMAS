@@ -7,13 +7,14 @@ import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import project.antsystems.ExplorationAnt;
+import project.antsystems.GenericExplorationAnt;
 import project.antsystems.IntentionAnt;
 import project.visualisers.GoalVisualiser;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public class MultiAntAGV extends MultiAGV{
+public class MultiAntAGV extends MultiAGV implements AntAGV{
 
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
     static final int EXPLORATION_FREQ = 20000; //In ms
@@ -41,6 +42,11 @@ public class MultiAntAGV extends MultiAGV{
         getRoadModel().unregister(this);
         sim.unregister(this);
         getPDPModel().unregister(this);
+    }
+
+    @Override
+    protected void register() {
+        sim.register(this);
     }
 
     @Override
@@ -135,7 +141,7 @@ public class MultiAntAGV extends MultiAGV{
     }
 
 
-    public void reportBack(ExplorationAnt ant){
+    public void reportBack(GenericExplorationAnt ant){
         Point p = getRoadModel().getPosition(this);
         IntentionAnt tempIntentionAnt = new IntentionAnt(ant);
         tempIntentionAnt.trimPath(p);

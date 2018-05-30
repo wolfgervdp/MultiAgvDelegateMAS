@@ -1,18 +1,19 @@
 package project;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
+import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
-import project.antsystems.ExplorationAnt;
-import project.antsystems.IntentionAnt;
+import project.antsystems.*;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.BiPredicate;
 
-public class MultiAntAggregateAGV  extends MultiAggregateAGV implements Reportable{
+public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV{
 
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
     static final int EXPLORATION_FREQ = 20000; //In ms
@@ -95,6 +96,11 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements Reportab
     }
 
     @Override
+    protected void register() {
+        sim.register(this);
+    }
+
+    @Override
     protected void semiUnregister() {
         getRoadModel().unregister(this);
         getPDPModel().unregister(this);
@@ -121,13 +127,21 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements Reportab
         //System.out.println("Sending exploration ants. Starting at position " + getRoadModel().getPosition(this));
 
         for(int i = 0; i < NUMBER_OF_EXPL_ANTS; i++){
-           // ExplorationAnt ant = new ExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim);
-            //sim.register(ant);
+            GenericExplorationAnt ant = new GenericExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, MultiDepot.class);
+            ant.setCondition(new BiPredicate<Explorable, GenericExplorationAnt>() {
+                @Override
+                public boolean test(Explorable explorable, GenericExplorationAnt genericExplorationAnt) {
+                  //  currentPosition.equals(lastParcel.getDeliveryLocation());
+                  //  ((MultiDepot) explorable).
+                    return true;
+                }
+            });
+            sim.register(ant);
         }
     }
 
 
-    public void reportBack(ExplorationAnt ant){
+    public void reportBack(GenericExplorationAnt ant){
         //Todo: Check whether the returned intention ant is a
         Point p = getRoadModel().getPosition(this);
         IntentionAnt tempIntentionAnt = new IntentionAnt(ant);

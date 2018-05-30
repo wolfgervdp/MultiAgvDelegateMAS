@@ -192,9 +192,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
         //		 If none of the above, let the gradient field guide us!
         @Nullable
         Point p1 = verifyNotNull(gradientModel).getTargetFor(this);
-        if (p1 != null)
-
-        {
+        if (p1 != null){
             rm.moveTo(this, p1, time);
         }
 
@@ -206,6 +204,11 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
         sim.unregister(this);
         gradientModel.unregister(this);
         getPDPModel().unregister(this);
+    }
+
+    @Override
+    protected void register() {
+        sim.register(this);
     }
 
     @Override
@@ -240,7 +243,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
         return strenght;
     }
 
-    Map<Point, Float> getFields() {
+    public Map<Point, Float> getFields() {
         return verifyNotNull(gradientModel).getFields(this);
     }
 

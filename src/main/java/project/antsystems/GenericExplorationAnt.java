@@ -1,25 +1,21 @@
 package project.antsystems;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
-import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
+import com.google.common.base.Predicate;
 import org.jetbrains.annotations.Nullable;
 import project.*;
 
 import javax.measure.unit.SI;
 import java.util.*;
+import java.util.function.BiPredicate;
 
-import static com.google.common.base.Preconditions.checkState;
-
-/*
-    Explores the map for a possible path going through Parcels. Adds new points at the back of the queue.
- */
-public class ExplorationAnt extends GenericExplorationAnt {
+public class GenericExplorationAnt extends PathAntAgent{
 
     static final int MAX_NR_ANT_SPLIT = 1;   //Number of ants this ant will create >extra<. High values for this parameter can result in really big performance drop
     static final int PATH_PARCEL_NUMBER = 1;    //Number of parcels to include in path
@@ -29,25 +25,33 @@ public class ExplorationAnt extends GenericExplorationAnt {
 
     int tickCounter = 0;
 
+    Class<? extends Explorable> classToLookFor;
+
     HashSet<Point> visitedParcels = new HashSet<>();
 
     static int counter = 0;
     int antId = 0;
 
     MultiParcel lastParcel;
+    BiPredicate<Explorable, GenericExplorationAnt> explorablePredicate;
 
-    public ExplorationAnt(AntAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
-        super(masterAgent, position, roadModel, sim, MultiAntParcel.class);
+    public GenericExplorationAnt(AntAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim, Class<? extends Explorable> classToLookFor) {
+        super(masterAgent, position, roadModel, sim);
         antId = counter;
         counter++;
+        this.classToLookFor = classToLookFor;
         initVisualisationQueue(position);
     }
 
-    public ExplorationAnt(ExplorationAnt explorationAnt) {
+    public GenericExplorationAnt(ExplorationAnt explorationAnt) {
         super(explorationAnt);
         antId = counter;
         counter++;
         initVisualisationQueue(explorationAnt.currentPosition);
+    }
+
+    public void setCondition( BiPredicate<Explorable, GenericExplorationAnt> predicate){
+        explorablePredicate = predicate;
     }
 
     @Override
@@ -64,29 +68,32 @@ public class ExplorationAnt extends GenericExplorationAnt {
         //System.out.println("Antid: " + antId);
         //System.out.println("Ticking in ExplorationAnt. Current path: " + this);
 
+       /*
         if(lastParcel == null){
             MultiAntParcel parcel = getParcelAtCurrentLocation();
             if (parcel != null) {
                 //System.out.println("At parcel location!!!--------------");
                 pushQueue();
                 visitedParcels.add(currentPosition);
-                lastParcel = parcel;
-                addUrgencyHeuristic(parcel.getUrgencyHeuristic(timeLapse.getTime()));
             }
-        }else{
-            Depot depot = getDepotAtCurrentLocation();
-            if (depot != null && currentPosition.equals(lastParcel.getDeliveryLocation())) {
-                //System.out.println("At parcel location!!!--------------");
+        }else{*/
+            Explorable object = getExplorableAtLocation();
+            //explorablePredicate.apply(object)
+            if (object != null
+            && (explorablePredicate == null || explorablePredicate.test(object, this))
+                    /*&& currentPosition.equals(lastParcel.getDeliveryLocation())*/) {
                 pushQueue();
-                lastParcel = null;
+                addUrgencyHeuristic(object.getHeuristicAddition());
             }
 
-        }
+      //  }
+
+
 
         //If goal found, report back to masterAgent
         if (hasFinishedPath()) {
             //System.out.println("Ant finished path, reporting back");
-            masterAgent.reportBack(this);
+           // masterAgent.reportBack(this); Todo!!
             destroySelf();
             return;
         }
@@ -156,11 +163,10 @@ public class ExplorationAnt extends GenericExplorationAnt {
     }
 
     @Nullable
-    private Depot getDepotAtCurrentLocation() {
-
+    private Explorable getExplorableAtLocation() {
         for (Map.Entry<RoadUser, Point> entry : this.roadModel.getObjectsAndPositions().entrySet()) {
-            if (entry.getKey() instanceof Depot && entry.getValue().equals(currentPosition)) {
-                return (Depot) entry.getKey();
+            if (entry.getKey().getClass().isAssignableFrom(classToLookFor) && entry.getValue().equals(currentPosition)) {
+                return (Explorable) entry.getKey();
             }
         }
         return null;
