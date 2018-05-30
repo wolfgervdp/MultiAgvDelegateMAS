@@ -8,45 +8,53 @@ import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.geom.Point;
 import project.MultiParcel;
 
-public class MultiParcelGradientField extends MultiParcel implements FieldEmitter{
+import java.util.ArrayList;
 
-	static final float AVAILABLE_STRENGTH =20.0f;
-	  private final Point pos;
+public class MultiParcelGradientField extends MultiParcel implements FieldEmitter {
 
-	  MultiParcelGradientField(ParcelDTO pDto) {
-	    super(pDto);
-	    pos = pDto.getPickupLocation();
-	    
-	  }
-
-	  @Override
-	  public void setModel(GradientModel model) {}
-
-	  @Override
-	  public Point getPosition() {
-	    return pos;
-	  }
-
-	  @Override
-	  public float getStrength() {
-	    if (!isInitialized()) {
-	      return 0f;
-	    }
-	    return getPDPModel().getParcelState(this) == ParcelState.AVAILABLE
-	      ? AVAILABLE_STRENGTH
-	      : 0.0f;
-	  }
-
-	@Override
-	public float getStrength(Point vehiclesPosition, Parcel parcel) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    static final float AVAILABLE_STRENGTH = 20.0f;
+    private final Point pos;
+    private ArrayList<Point> unregisteredAGVStartLocation = new ArrayList<Point>();
 
 
+    MultiParcelGradientField(ParcelDTO pDto) {
+        super(pDto);
+        pos = pDto.getPickupLocation();
 
+    }
 
+    public ArrayList<Point> getUnregisteredAGVStartLocation() {
+        return unregisteredAGVStartLocation;
+    }
 
+    public void setUnregisteredAGVStartLocation(Point garageLocation) {
+        this.unregisteredAGVStartLocation.add(garageLocation);
+    }
+
+    @Override
+    public void setModel(GradientModel model) {
+    }
+
+    @Override
+    public Point getPosition() {
+        return pos;
+    }
+
+    @Override
+    public float getStrength() {
+        if (!isInitialized()) {
+            return 0f;
+        }
+        return getPDPModel().getParcelState(this) == ParcelState.AVAILABLE
+                ? AVAILABLE_STRENGTH
+                : 0.0f;
+    }
+
+    @Override
+    public float getStrength(Point vehiclesPosition, Parcel parcel) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
 
 }

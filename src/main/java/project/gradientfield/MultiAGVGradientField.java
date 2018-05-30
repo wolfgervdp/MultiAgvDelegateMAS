@@ -2,6 +2,7 @@ package project.gradientfield;
 
 import static com.google.common.base.Verify.verifyNotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,16 +33,17 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
 
     private RandomGenerator rng;
     private float strenght = -20;
-
-
     static final int DISTANCE_THRESHOLD_KM = 40;
     @Nullable
     private GradientModel gradientModel;
     private Point storedPoint = null;
+    private ArrayList<Point> unregisteredAGVStartLocation = new ArrayList<Point>();
+    private ArrayList<Point> garageLocation = new ArrayList<Point>();
 
     public MultiAGVGradientField(Point startPosition, int capacity, SimulatorAPI sim) {
         super(startPosition, capacity, sim);
         this.rng = sim.getRandomGenerator();
+        garageLocation.add(startPosition);
     }
 
     MultiAGVGradientField(VehicleDTO pDto, SimulatorAPI sim) {
@@ -131,6 +133,14 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
 
     }
 
+    public ArrayList<Point> getGarageLocation() {
+        return garageLocation;
+    }
+
+    public void setGarageLocation(Point garageLocation) {
+        this.garageLocation.add(garageLocation);
+    }
+
     @Override
     protected void update(TimeLapse time) {
         final RoadModel rm = getRoadModel();
@@ -156,42 +166,25 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
                         time.getTime(), closest.getPickupDuration())) {
                     pickUp(closest, time);
                 } else {
-                    //rm.moveTo(this, rm.getPosition(closest), time);
-
                     ParcelmovingWithAvoidCollisionWithGradientField(closest, time, rm);
-
-                    //rm.moveTo(this, rm.getPosition(closest), time);
                 }
             }
 
 
             return;
         }
-        //		if (rm.getObjectsOfType(Parcel.class).isEmpty()) {
-        //			rm.moveTo(this, getStartPosition(), time);
-        //			return;
-        //		}
-        //
 
         if (rm.getObjectsOfType(Parcel.class).isEmpty() &&
                 verifyNotNull(pm).getContents(this).
-                        size() == 0){
-            rm.moveTo(this, getStartPosition(), time);
-            //System.out.println(getStrenght());
+                        size() == 0) {
+            rm.moveTo(this, this.getGarageLocation().get(0), time);
             return;
         }
 
-        //		if ((rm.getObjectsOfType(Parcel.class).isEmpty())) {
-//			//System.out.println(delivery);
-//			rm.moveTo(this, getStartPosition(), time);
-//			this.strenght=0;
-//			//rm.moveTo(this, p, time);
-//			return;
-//		}
         //		 If none of the above, let the gradient field guide us!
         @Nullable
         Point p1 = verifyNotNull(gradientModel).getTargetFor(this);
-        if (p1 != null){
+        if (p1 != null) {
             rm.moveTo(this, p1, time);
         }
 

@@ -42,9 +42,6 @@ import com.github.rinde.rinsim.geom.Point;
 import com.google.auto.value.AutoValue;
 
 
-import com.google.common.collect.ImmutableList;
-
-import project.gradientfield.GradientFieldExample.DepotHandler;
 
 /**
  * Model for gradient field implementation.
