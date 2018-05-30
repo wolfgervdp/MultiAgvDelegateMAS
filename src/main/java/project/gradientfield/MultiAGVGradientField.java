@@ -221,15 +221,10 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
     }
 
     @Override
-    protected MultiAggregateAGV createVehicle(Point location, double capacity) {
-        return (new MultiGradientModelAggregateAGV(location, (int) capacity, this.sim));
-    }
-
-    @Override
-    protected MultiAggregateAGV createVehicle(Point location, double capacity, MultiParcel parcelToPickup) {
-        MultiGradientModelAggregateAGV newBigVehicle=new MultiGradientModelAggregateAGV(location, (int) capacity, this.sim) ;
+    protected MultiAggregateAGV createVehicle(Point location, MultiParcel parcelToPickup) {
+        MultiGradientModelAggregateAGV newBigVehicle=new MultiGradientModelAggregateAGV(location, (int) parcelToPickup.getNeededCapacity(), this.sim) ;
         newBigVehicle.setUnregisteredAGVStartLocation(( parcelToPickup).getUnregisteredAGVStartLocation());
-        return (new MultiGradientModelAggregateAGV(location, (int) capacity, this.sim));
+        return (new MultiGradientModelAggregateAGV(location, (int) parcelToPickup.getNeededCapacity(), this.sim));
 
     }
 

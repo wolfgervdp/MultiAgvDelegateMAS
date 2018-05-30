@@ -23,8 +23,6 @@ public abstract class MultiAGV extends Vehicle {
 
     private boolean shouldUnregister = false;
 
-    long countTime = 0;
-
     public MultiAGV(Point startPosition, int capacity, SimulatorAPI sim) {
         super(VehicleDTO.builder()
                 .capacity(capacity)

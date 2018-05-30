@@ -8,9 +8,9 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 import org.jetbrains.annotations.Nullable;
-import project.InfrastructureAgent;
 import project.MultiAGV;
 import project.helperclasses.DeepCopy;
+import project.masagents.InfrastructureAgent;
 import project.visualisers.ExplorationAntVisualiser;
 
 import java.util.ArrayDeque;

@@ -12,7 +12,7 @@ import project.antsystems.Explorable;
 import project.antsystems.SignAnt;
 
 // currently has no function
-class MultiDepot extends Depot implements TickListener, Explorable {
+public class MultiDepot extends Depot implements TickListener, Explorable {
 
     private static final long SETSIGN_FREQ = 40000;
 
@@ -45,7 +45,7 @@ class MultiDepot extends Depot implements TickListener, Explorable {
     }
 
     private void sendAnts(){
-        sim.register(new SignAnt(getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, waitingAGVs));
+        sim.register(new SignAnt(getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, 0));
     }
 
     @Override

@@ -172,9 +172,4 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
         //agv.setGarageLocation();
         return agv;
     }
-
-    @Override
-    protected MultiAggregateAGV createVehicle(Point location, double capacity, MultiParcel parcelToPickup) {
-        return null;
-    }
 }
