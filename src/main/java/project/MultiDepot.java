@@ -12,7 +12,7 @@ import project.antsystems.Explorable;
 import project.antsystems.SignAnt;
 
 // currently has no function
-public class MultiDepot extends Depot implements TickListener, Explorable {
+class MultiDepot extends Depot implements TickListener, Explorable {
 
     private static final long SETSIGN_FREQ = 40000;
 

@@ -22,7 +22,7 @@ public abstract class MultiAGV extends Vehicle {
 
     private boolean shouldUnregister = false;
 
-    protected long countTime = 0;
+    long countTime = 0;
 
     public MultiAGV(Point startPosition, int capacity, SimulatorAPI sim) {
         super(VehicleDTO.builder()
@@ -113,7 +113,11 @@ public abstract class MultiAGV extends Vehicle {
      */
 
     protected abstract void semiUnregister();
+<<<<<<< HEAD
     protected abstract MultiAGV createVehicle(Point location, MultiParcel parcel);
+=======
+    protected abstract MultiAggregateAGV createVehicle(Point location, double capacity);
+>>>>>>> b2922d991fb7bf88b2df3f9be0a6940d0de93b6a
 
     public void startCarrying() {
         isWaiting = false;
