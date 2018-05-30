@@ -8,6 +8,7 @@ import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import project.gradientfield.MultiGradientModelAggregateAGV;
 
 public abstract class MultiAGV extends Vehicle {
 
@@ -81,7 +82,7 @@ public abstract class MultiAGV extends Vehicle {
           //  if (this.getCapacity() != parcelToPickup.getNeededCapacity()) {
                 shouldUnregister = true;
                 unregister();
-                MultiAggregateAGV newBigVehicle = createVehicle(parcelToPickup.getPickupLocation(), parcelToPickup.getNeededCapacity());//(new MultiAGVGradientField(closest.getPickupLocation(), (int) closest.getNeededCapacity(), this.sim, true));
+                MultiAggregateAGV newBigVehicle = createVehicle(parcelToPickup.getPickupLocation(), parcelToPickup.getNeededCapacity(), parcelToPickup);//(new MultiAGVGradientField(closest.getPickupLocation(), (int) closest.getNeededCapacity(), this.sim, true));
                 ///sim.register(newBigVehicle);
                 newBigVehicle.register();
                 pm.pickup(newBigVehicle, parcelToPickup, time);
@@ -113,6 +114,9 @@ public abstract class MultiAGV extends Vehicle {
 
     protected abstract void semiUnregister();
     protected abstract MultiAggregateAGV createVehicle(Point location, double capacity);
+    protected abstract MultiAggregateAGV createVehicle(Point location, double capacity, MultiParcel parcelToPickup) ;
+
+
 
     public void startCarrying() {
         isWaiting = false;
