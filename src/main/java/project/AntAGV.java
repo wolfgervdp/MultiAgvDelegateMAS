@@ -1,4 +1,4 @@
-package project.masagents;
+package project;
 
 import com.github.rinde.rinsim.core.model.road.MovingRoadUser;
 import com.github.rinde.rinsim.core.model.road.RoadUser;

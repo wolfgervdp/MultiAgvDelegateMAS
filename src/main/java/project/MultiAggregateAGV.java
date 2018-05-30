@@ -58,5 +58,4 @@ public abstract class MultiAggregateAGV extends MultiAGV{
         startSpawning( (int) p.getNeededCapacity(), p.getDeliveryLocation() ,timeLapse.getTime());
     }
 
-
 }

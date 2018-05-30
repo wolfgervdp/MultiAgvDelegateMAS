@@ -153,7 +153,7 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
     }
 
     @Override
-    protected MultiAggregateAGV createVehicle(Point location, MultiParcel parcel) {
+    protected MultiAggregateAGV createVehicle(Point location, double capacity) {
         return null;
     }
 }

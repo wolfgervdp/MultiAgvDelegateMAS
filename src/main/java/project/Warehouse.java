@@ -7,6 +7,7 @@ package project;
 
 import com.github.rinde.rinsim.core.Simulator;
 import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
+import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
@@ -26,7 +27,9 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
-import project.masagents.*;
+import project.gradientfield.MultiAGVGradientField;
+import project.gradientfield.MultiDepotGradientField;
+import project.gradientfield.MultiParcelGradientField;
 import project.visualisers.AntAgentRenderer;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.graphics.RGB;

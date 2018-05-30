@@ -22,7 +22,7 @@ public abstract class MultiAGV extends Vehicle {
 
     private boolean shouldUnregister = false;
 
-    protected long countTime = 0;
+    long countTime = 0;
 
     public MultiAGV(Point startPosition, int capacity, SimulatorAPI sim) {
         super(VehicleDTO.builder()
@@ -79,14 +79,13 @@ public abstract class MultiAGV extends Vehicle {
         if (newSize <= getCapacity()) {
             //We are the last one, let's create an aggregate vehicle!
           //  if (this.getCapacity() != parcelToPickup.getNeededCapacity()) {
-            shouldUnregister = true;
-            unregister();
-
-            MultiAggregateAGV newBigVehicle = createVehicle(parcelToPickup.getPickupLocation(), parcelToPickup);//(new MultiAGVGradientField(closest.getPickupLocation(), (int) closest.getNeededCapacity(), this.sim, true));
-        ///sim.register(newBigVehicle);
-            newBigVehicle.register();
-            pm.pickup(newBigVehicle, parcelToPickup, time);
-            return;
+                shouldUnregister = true;
+                unregister();
+                MultiAggregateAGV newBigVehicle = createVehicle(parcelToPickup.getPickupLocation(), parcelToPickup.getNeededCapacity());//(new MultiAGVGradientField(closest.getPickupLocation(), (int) closest.getNeededCapacity(), this.sim, true));
+                ///sim.register(newBigVehicle);
+                newBigVehicle.register();
+                pm.pickup(newBigVehicle, parcelToPickup, time);
+                return;
            /* } else {
                 pm.pickup(this, parcelToPickup, time);
             }*/
@@ -113,7 +112,7 @@ public abstract class MultiAGV extends Vehicle {
      */
 
     protected abstract void semiUnregister();
-    protected abstract MultiAggregateAGV createVehicle(Point location, MultiParcel parcel);
+    protected abstract MultiAggregateAGV createVehicle(Point location, double capacity);
 
     public void startCarrying() {
         isWaiting = false;
