@@ -9,7 +9,9 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 import org.jetbrains.annotations.Nullable;
-import project.*;
+import project.InfrastructureAgent;
+import project.MultiAGV;
+import project.MultiParcel;
 
 import javax.measure.unit.SI;
 import java.util.*;
@@ -19,10 +21,10 @@ import static com.google.common.base.Preconditions.checkState;
 /*
     Explores the map for a possible path going through Parcels. Adds new points at the back of the queue.
  */
-public class ExplorationAnt extends GenericExplorationAnt {
+public class ExplorationAnt extends PathAntAgent {
 
     static final int MAX_NR_ANT_SPLIT = 1;   //Number of ants this ant will create >extra<. High values for this parameter can result in really big performance drop
-    static final int PATH_PARCEL_NUMBER = 1;    //Number of parcels to include in path
+    static final int PATH_PARCEL_NUMBER = 3;    //Number of parcels to include in path
     static final int MAX_PATH_LENGTH = 40;
     static final int MAX_NUMBER_TICKS = 50;
     static final int ANT_SLOWDOWN = 1;
@@ -34,10 +36,10 @@ public class ExplorationAnt extends GenericExplorationAnt {
     static int counter = 0;
     int antId = 0;
 
-    MultiParcel lastParcel;
+    boolean lastWasParcel = false;
 
-    public ExplorationAnt(AntAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
-        super(masterAgent, position, roadModel, sim, MultiAntParcel.class);
+    public ExplorationAnt(MultiAGV masterAgent, Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
+        super(masterAgent, position, roadModel, sim);
         antId = counter;
         counter++;
         initVisualisationQueue(position);
@@ -64,21 +66,21 @@ public class ExplorationAnt extends GenericExplorationAnt {
         //System.out.println("Antid: " + antId);
         //System.out.println("Ticking in ExplorationAnt. Current path: " + this);
 
-        if(lastParcel == null){
-            MultiAntParcel parcel = getParcelAtCurrentLocation();
+        if(!lastWasParcel){
+            MultiParcel parcel = getParcelAtCurrentLocation();
             if (parcel != null) {
                 //System.out.println("At parcel location!!!--------------");
                 pushQueue();
                 visitedParcels.add(currentPosition);
-                lastParcel = parcel;
+                lastWasParcel = true;
                 addUrgencyHeuristic(parcel.getUrgencyHeuristic(timeLapse.getTime()));
             }
         }else{
             Depot depot = getDepotAtCurrentLocation();
-            if (depot != null && currentPosition.equals(lastParcel.getDeliveryLocation())) {
+            if (depot != null) {
                 //System.out.println("At parcel location!!!--------------");
                 pushQueue();
-                lastParcel = null;
+                lastWasParcel = false;
             }
 
         }
@@ -145,8 +147,8 @@ public class ExplorationAnt extends GenericExplorationAnt {
     }
 
     @Nullable
-    private MultiAntParcel getParcelAtCurrentLocation() {
-        for (MultiAntParcel parcel : this.roadModel.getObjectsOfType(MultiAntParcel.class)) {
+    private MultiParcel getParcelAtCurrentLocation() {
+        for (MultiParcel parcel : this.roadModel.getObjectsOfType(MultiParcel.class)) {
             if (parcel.getPickupLocation().equals(currentPosition)) {
                 //System.out.println("Found parcel!")
                 return parcel;

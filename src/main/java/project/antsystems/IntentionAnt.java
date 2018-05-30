@@ -21,7 +21,7 @@ public class IntentionAnt extends PathAntAgent {
     private long timeAtLastExploration;
 
     //Create intention ant from exploration ant, with same path
-    public IntentionAnt(GenericExplorationAnt ant) {
+    public IntentionAnt(ExplorationAnt ant) {
        // super(ant.masterAgent, ant.currentPosition, ant.roadModel, ant.sim);
         super(ant);
         this.path = new ArrayDeque<>(ant.path);

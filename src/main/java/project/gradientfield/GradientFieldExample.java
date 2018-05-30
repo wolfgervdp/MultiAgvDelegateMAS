@@ -225,7 +225,7 @@ public final class GradientFieldExample implements ModelReceiver {
 			@Override
 			public void handleTimedEvent(AddParcelEvent event, SimulatorAPI sim) {
 				// all parcels are accepted by default
-				sim.register(new MultiParcelGradientField(event.getParcelDTO()));
+				sim.register(new MultiParcelGradientField(event.getParcelDTO(), sim));
 			}
 		}
 	}
@@ -303,8 +303,7 @@ public final class GradientFieldExample implements ModelReceiver {
 					.deliveryTimeWindow(TimeWindow.create(M1_D1, M1_D2))
 					.buildDTO()));			
 		}
-
-		for (int i = 0; i < 4;i++) {//max48
+		for (int i = 0; i < 2;i++) {//max48
 			Random r = new Random();
             r.setSeed(RANDOM_SEED);
             int random=r.nextInt((2*13)-i-0);

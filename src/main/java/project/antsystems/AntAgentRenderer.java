@@ -13,6 +13,10 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
 
+import project.gradientfield.AutoValue_GradientFieldRenderer_Builder;
+import project.gradientfield.GradientModel;
+import project.gradientfield.MultiAGVGradientField;
+
 import java.util.*;
 
 import java.util.List;

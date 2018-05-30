@@ -18,7 +18,6 @@ package project.gradientfield;
 import static com.google.common.base.Verify.verifyNotNull;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,12 +87,12 @@ implements ModelReceiver {
 		return emitters;
 	}
 
-	List<FieldContainer> getFieldContainerFieldEmitters() {
-		final List<FieldContainer> MultiAGVGradientFields = new ArrayList<FieldContainer>();
+	List<MultiAGVGradientField> getMultiAGVGradientFieldEmitters() {
+		final List<MultiAGVGradientField> MultiAGVGradientFields = new ArrayList<MultiAGVGradientField>();
 
 		for (final FieldEmitter emitter : emitters) {
-			if (emitter instanceof FieldContainer) {
-				MultiAGVGradientFields.add((FieldContainer) emitter);
+			if (emitter instanceof MultiAGVGradientField) {
+				MultiAGVGradientFields.add((MultiAGVGradientField) emitter);
 			}
 		}
 
@@ -101,7 +100,7 @@ implements ModelReceiver {
 	}
 
 	@Nullable
-	Point getTargetFor(FieldContainer element) {
+	Point getTargetFor(MultiAGVGradientField element) {
 		float maxField = Float.NEGATIVE_INFINITY;
 		Point maxFieldPoint = null;
 		//by me
@@ -134,13 +133,14 @@ implements ModelReceiver {
 		return maxFieldPoint;
 	}
 
-	float getField(Point in, FieldContainer multiAGVGradientField) {
+	float getField(Point in, MultiAGVGradientField MultiAGVGradientField) {
 		float field = 0.0f;
 		if(field!=field)
 		{
 			System.out.println("First NAN check "+ field);	
 		}
 		//		System.out.println("start");
+
 		int count=0;
 		for (final FieldEmitter emitter : emitters) {
 			//System.out.println("Count:"+ count+"Dont give up, just debug!!");	
@@ -149,7 +149,7 @@ implements ModelReceiver {
 			if((Point.distance(emitter.getPosition(), in)!=0))
 			{
 				if (emitter instanceof MultiDepotGradientField) {
-					for (final Parcel p : verifyNotNull(pdpModel).getContents(multiAGVGradientField)) {
+					for (final Parcel p : verifyNotNull(pdpModel).getContents(MultiAGVGradientField)) {
 						emitterStrenght = (float) (emitter.getStrength(emitter.getPosition(), p) / (Point.distance(emitter.getPosition(), in)));
 						//System.out.println("count: "+count1+" Strength: "+emitterStrenght);
 					}
@@ -186,7 +186,7 @@ implements ModelReceiver {
 		{
 			System.out.println("This is not a number");
 		}
-		for (final Parcel p : verifyNotNull(pdpModel).getContents(multiAGVGradientField)) {
+		for (final Parcel p : verifyNotNull(pdpModel).getContents(MultiAGVGradientField)) {
 			float parcelStrenght=0;
 			//System.out.println("continue!"+ "in"+in);
 
@@ -229,18 +229,18 @@ implements ModelReceiver {
 		return false;
 	}
 
-	Map<Point, Float> getFields(FieldContainer multiAGVGradientField) {
+	Map<Point, Float> getFields(MultiAGVGradientField MultiAGVGradientField) {
 		final Map<Point, Float> fields = new HashMap<Point, Float>();
 
 		for (int i = 0; i < X.length; i++) {
-			final Point p = new Point(multiAGVGradientField.getPosition().x + X[i],
-					multiAGVGradientField.getPosition().y + Y[i]);
+			final Point p = new Point(MultiAGVGradientField.getPosition().x + X[i],
+					MultiAGVGradientField.getPosition().y + Y[i]);
 
 			if (p.x < minX || p.x > maxX || p.y < minY || p.y > maxY) {
 				continue;
 			}
 
-			fields.put(new Point(X[i], Y[i]), getField(p, multiAGVGradientField));
+			fields.put(new Point(X[i], Y[i]), getField(p, MultiAGVGradientField));
 		}
 		float avg = 0;
 		for (final Float f : fields.values()) {
