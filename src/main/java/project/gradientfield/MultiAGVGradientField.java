@@ -32,7 +32,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
 
 
     private RandomGenerator rng;
-    private float strenght = -20;
+    private float strenght = -40;
     static final int DISTANCE_THRESHOLD_KM = 40;
     @Nullable
     private GradientModel gradientModel;
@@ -60,6 +60,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
     public void setUnregisteredAGVStartLocation(Point garageLocation) {
         this.unregisteredAGVStartLocation.add(garageLocation);
     }
+
     protected void movingWithAvoidCollisionWithGradientField(Parcel delivery, TimeLapse time, RoadModel rm) {
 
         Point p = verifyNotNull(gradientModel).getTargetFor(this);
@@ -119,21 +120,25 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
 
             fieldValue = verifyNotNull(gradientModel).getField(Point.add(nextPoint, difference), this);
             //System.out.println("FieldValue: "+fieldValue);
-            float ownFieldValue = verifyNotNull(gradientModel).getField(thisPoint, this);
             //System.out.println("field value without ownfield "+ ((strenght/4)-ownFieldValue));
         }
 
+        float ownFieldValue = verifyNotNull(gradientModel).getField(thisPoint, this);
 
         if (fieldValue < (strenght / 2)) {
-            if (fieldValue < (strenght / 4)) {
+           // if (fieldValue < (strenght / 4)) {
 
 
                 if (storedPoint != null) {
                     rm.moveTo(this, storedPoint, time);
                 }
-            }
+//            }else {
+//                rm.moveTo(this,thisPoint,time);
+          /// }
             //System.out.println("Too negative gradient value (cloesests)");
         } else {
+            //System.out.println("Moving to closests "+fieldValue+" own "+ownFieldValue +" name"+ this.toString());
+
             rm.moveTo(this, rm.getPosition(closest), time);
 //			System.out.println("Moving to closests");
 
@@ -147,7 +152,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
     }
 
     public void setGarageLocation(Point garageLocation) {
-        this.garageLocation.add(0,garageLocation);
+        this.garageLocation.add(0, garageLocation);
     }
 
     @Override
@@ -202,9 +207,9 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
 
     @Override
     protected void unregister() {
-        getRoadModel().unregister(this);
         sim.unregister(this);
         gradientModel.unregister(this);
+        getRoadModel().unregister(this);
         getPDPModel().unregister(this);
     }
 
@@ -218,13 +223,19 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
         getRoadModel().unregister(this);
         gradientModel.unregister(this);
         getPDPModel().unregister(this);
+        System.out.println("unregister semi MultiAGVGRADIENTFEIDL");
     }
 
     @Override
     protected MultiAggregateAGV createVehicle(Point location, MultiParcel parcelToPickup) {
-        MultiGradientModelAggregateAGV newBigVehicle=new MultiGradientModelAggregateAGV(location, (int) parcelToPickup.getNeededCapacity(), this.sim) ;
-        newBigVehicle.setUnregisteredAGVStartLocation(( parcelToPickup).getUnregisteredAGVStartLocation());
+        MultiGradientModelAggregateAGV newBigVehicle = new MultiGradientModelAggregateAGV(location, (int) parcelToPickup.getNeededCapacity(), this.sim);
+        newBigVehicle.setUnregisteredAGVStartLocation((parcelToPickup).getUnregisteredAGVStartLocation());
         return (new MultiGradientModelAggregateAGV(location, (int) parcelToPickup.getNeededCapacity(), this.sim));
+
+    }
+
+    @Override
+    protected void afterUpdate(TimeLapse timeLapse) {
 
     }
 
@@ -235,11 +246,22 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
 
     @Override
     public Point getPosition() {
-        return getRoadModel().getPosition(this);
+        Point position = null;
+        try {
+            position = getRoadModel().getPosition(this);
+        } catch (Exception e) {
+            System.out.println("");
+        }
+        return position;
     }
 
     public Point getRoundedPosition() {
-        Point position = new Point(Math.round(getRoadModel().getPosition(this).x / 4) * 4, Math.round(getRoadModel().getPosition(this).y / 4) * 4);
+        Point position = null;
+        try {
+            position = new Point(Math.round(getRoadModel().getPosition(this).x / 4) * 4, Math.round(getRoadModel().getPosition(this).y / 4) * 4);
+        } catch (Exception e) {
+            System.out.println("");
+        }
         return position;
     }
 
@@ -254,7 +276,6 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
 
     @Override
     public float getStrength(Point vehiclesPosition, Parcel parcel) {
-        // TODO Auto-generated method stub
         return 0;
     }
 

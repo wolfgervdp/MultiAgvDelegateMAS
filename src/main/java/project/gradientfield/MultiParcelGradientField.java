@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class MultiParcelGradientField extends MultiParcel implements FieldEmitter {
 
-    static final float AVAILABLE_STRENGTH = 20.0f;
+    static final float AVAILABLE_STRENGTH = 20;
     private final Point pos;
     private ArrayList<Point> unregisteredAGVStartLocation = new ArrayList<Point>();
 
@@ -48,7 +48,7 @@ public class MultiParcelGradientField extends MultiParcel implements FieldEmitte
             return 0f;
         }
         return getPDPModel().getParcelState(this) == ParcelState.AVAILABLE
-                ? AVAILABLE_STRENGTH
+                ? AVAILABLE_STRENGTH*(unregisteredAGVStartLocation.size()+1)
                 : 0.0f;
     }
 

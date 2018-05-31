@@ -108,6 +108,8 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
         return new MultiAntAGV(location, 1, sim);
     }
 
+
+
     private boolean atNextGoal(){
         return currentIntention == null ? false: getRoadModel().getPosition(this).equals(currentIntention.peekNextGoalLocation());
     }

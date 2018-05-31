@@ -99,7 +99,8 @@ public final class Warehouse {
                                 InfrastructureAgent.class, new RGB(255, 255, 255))
                         .withColorAssociation(ExplorationAntVisualiser.class, new RGB(0, 0, 255))
                         .withColorAssociation(IntentionAntVisualiser.class, new RGB(0, 255, 255))
-                        .withColorAssociation(GoalVisualiser.class, new RGB(12, 55, 255)))
+                        .withColorAssociation(GoalVisualiser.class, new RGB(12, 55, 255))
+                )
                 //.with(TaxiRenderer.builder(Language.ENGLISH))
                 .with(RouteRenderer.builder())
                 .with(PDPModelRenderer.builder())
@@ -117,7 +118,7 @@ public final class Warehouse {
                                 .withDistanceUnit(SI.METER)
                                 .withSpeedUnit(SI.METERS_PER_SECOND)
                                 .withVehicleLength(VEHICLE_LENGTH)
-                )
+                        )
                 .addModel(DefaultPDPModel.builder())
                 .addModel(view)
                 .build();

@@ -182,7 +182,7 @@ implements ModelReceiver {
 		{
 			System.out.println("This is not a number");
 		}
-		for (final Parcel p : verifyNotNull(pdpModel).getContents(multiAGVGradientField)) {
+		/*for (final Parcel p : verifyNotNull(pdpModel).getContents(multiAGVGradientField)) {
 			float parcelStrenght=0;
 			//System.out.println("continue!"+ "in"+in);
 
@@ -200,7 +200,7 @@ implements ModelReceiver {
 
 			//System.out.println(((MultiParcelGradientField)p).getStrength()+"parcel"+field);
 
-		}
+		}*/
 		if(field!=field)
 		{
 			System.out.println("This is not a number");	
@@ -229,8 +229,8 @@ implements ModelReceiver {
 		final Map<Point, Float> fields = new HashMap<Point, Float>();
 
 		for (int i = 0; i < X.length; i++) {
-			final Point p = new Point(multiAGVGradientField.getPosition().x + X[i],
-					multiAGVGradientField.getPosition().y + Y[i]);
+			final Point p = verifyNotNull(new Point(multiAGVGradientField.getPosition().x + X[i],
+					multiAGVGradientField.getPosition().y + Y[i]));
 
 			if (p.x < minX || p.x > maxX || p.y < minY || p.y > maxY) {
 				continue;

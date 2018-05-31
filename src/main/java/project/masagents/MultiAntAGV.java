@@ -66,6 +66,11 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
     }
 
     @Override
+    protected void afterUpdate(TimeLapse timeLapse) {
+
+    }
+
+    @Override
     protected void update(TimeLapse timeLapse) {
 
         //If we don't know what to do (=no intention), send out exploration ants with a certain frequency, and don't do anything else

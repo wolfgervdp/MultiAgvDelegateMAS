@@ -53,6 +53,7 @@ import java.util.Random;
 public final class GradientFieldExample implements ModelReceiver {
 	static final long RANDOM_SEED = 123L;
 	private static final double VEHICLE_SPEED_KMH = 100 ;
+	private static final int SPEED_UP = 30 ;
 
 	private static Point MIN_POINT_1 = new Point(0, 32);
 	private static Point P1_DELIVERY = new Point(64, 32);
@@ -100,6 +101,7 @@ public final class GradientFieldExample implements ModelReceiver {
 				.with(PDPModelRenderer.builder().withDestinationLines())
 				.with(AGVRenderer.builder().withDifferentColorsForVehicles())
 				.withSimulatorEndTime((long)END_OF_SIMULATION)
+				.withSpeedUp(SPEED_UP)
 				;
 
 
@@ -112,6 +114,7 @@ public final class GradientFieldExample implements ModelReceiver {
 								.withSpeedUnit(SI.METERS_PER_SECOND)
 								.withVehicleLength(2))
 				.addModel(GradientModel.builder())
+
 				.addModel(DefaultPDPModel.builder().withTimeWindowPolicy(TimeWindowPolicies.TARDY_ALLOWED))
 				.addModel(view)
 				.build();
@@ -171,7 +174,7 @@ public final class GradientFieldExample implements ModelReceiver {
 		for (int i = 0; i < 4; i++)        {
 			sim.register(new MultiDepotGradientField(possibleDepot.get(i)));
 		}
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 7; i++)
 		{   //max84
 			Random rp = new Random();
 			rp.setSeed(RANDOM_SEED);
@@ -188,7 +191,7 @@ public final class GradientFieldExample implements ModelReceiver {
 					P1_DELIVERY = possibleDepot.get(iCount);
 				}
 			}
-			int randomCapacity = rp.nextInt((4));
+			int randomCapacity = rp.nextInt((3))+1;
 			sim.register( new MultiParcelGradientField(Parcel.builder(MIN_POINT_1, P1_DELIVERY)
 					.neededCapacity(2)
 					.orderAnnounceTime(M1)
@@ -198,7 +201,7 @@ public final class GradientFieldExample implements ModelReceiver {
 		}
 
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i <8; i++)
 		{   //max48
 			Random r = new Random();
 			r.setSeed(RANDOM_SEED);
