@@ -6,9 +6,15 @@ import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.Vehicle;
 import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
+import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import com.google.common.base.VerifyException;
 import project.gradientfield.MultiGradientModelAggregateAGV;
+import project.masagents.MultiAntAGV;
+import project.masagents.MultiAntAggregateAGV;
+
+import java.util.Map;
 
 public abstract class MultiAGV extends Vehicle {
 
@@ -56,7 +62,6 @@ public abstract class MultiAGV extends Vehicle {
     }
 
     protected abstract void update(TimeLapse timeLapse);
-
     public int getStrenght() {
         return strenght;
     }
@@ -96,6 +101,27 @@ public abstract class MultiAGV extends Vehicle {
             return;
         }
 
+    }
+
+    protected boolean moveTo(Point p, TimeLapse timeLapse){
+       // if(!hasMovingRoadUser(p)){
+            try{
+                getRoadModel().moveTo(this, p, timeLapse);
+                return true;
+            }catch(VerifyException vexc){
+                //  currentIntention = null;
+                return false;
+            }
+       // }
+    }
+
+    private boolean hasMovingRoadUser(Point p){
+        for (Map.Entry<RoadUser, Point> entry : this.getRoadModel().getObjectsAndPositions().entrySet()) {
+            if ((entry.getKey() instanceof MultiAntAGV || entry.getKey() instanceof MultiAntAggregateAGV) && entry.getValue().equals(p)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 //    public void pickUp(){

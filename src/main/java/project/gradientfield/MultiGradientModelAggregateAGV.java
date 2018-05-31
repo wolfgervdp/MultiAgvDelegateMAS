@@ -169,7 +169,8 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
     @Override
     protected MultiAGV createVehicle(Point location, MultiParcel parcel) {
         MultiAGVGradientField agv = new MultiAGVGradientField(location, 1, sim);
-        //agv.setGarageLocation();
+        agv.setGarageLocation(parcel.getUnregisteredAGVStartLocation().get(0));
+        ((MultiParcelGradientField)parcel).removeUnregisteredAGVStartLocation(0);
         return agv;
     }
 }

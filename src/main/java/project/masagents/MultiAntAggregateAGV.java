@@ -52,8 +52,8 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
         if (atParcelOrDepot() && getPDPModel().getVehicleState(this) == PDPModel.VehicleState.IDLE) {
             Set<MultiDepot> depots = rm.getObjectsAt(this, MultiDepot.class);   //Get Depots at current location
             if(depots.iterator().hasNext()){
-                System.out.println("There was a depot");
-                deliverParcel(timeLapse, getPDPModel().getContents(this).iterator().next());    //Drop off the parcel on that location
+                System.out.println("There was a depot, ");
+                deliverParcel(timeLapse, (MultiParcel) getPDPModel().getContents(this).iterator().next());    //Drop off the parcel on that location
             }
             currentIntention.popPath();
             //If at next waypoint, resend exploration ants, and pop the location we got to
@@ -80,7 +80,7 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
                     return;
                 }
             }
-            rm.moveTo(this, p, timeLapse);
+            moveTo(p,timeLapse);
         }
     }
 

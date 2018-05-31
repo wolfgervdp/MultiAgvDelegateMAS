@@ -22,6 +22,8 @@ import static com.google.common.base.Preconditions.checkState;
 /*
     Explores the map for a possible path going through Parcels. Adds new points at the back of the queue.
  */
+
+@Deprecated
 public class ExplorationAnt extends GenericExplorationAnt {
 
     static final int MAX_NR_ANT_SPLIT = 1;   //Number of ants this ant will create >extra<. High values for this parameter can result in really big performance drop

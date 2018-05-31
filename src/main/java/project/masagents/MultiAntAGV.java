@@ -1,26 +1,17 @@
 package project.masagents;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
-import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
-import com.github.rinde.rinsim.core.model.road.MovingRoadUser;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
-import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
-import com.google.common.base.Predicate;
-import com.google.common.base.VerifyException;
 import project.MultiAGV;
-import project.MultiAggregateAGV;
 import project.MultiDepot;
 import project.MultiParcel;
-import project.antsystems.ExplorationAnt;
 import project.antsystems.GenericExplorationAnt;
 import project.antsystems.IntentionAnt;
 
-import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -35,6 +26,8 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
     private boolean isWaitingForExplorationAnts = false;
     private int numOfExplAntsReportedBack = 0;
     private long timeAtLastExploration = 0;
+
+    private Point lastLocation;
 
     public MultiAntAGV(Point startPosition, int capacity, SimulatorAPI sim) {
         super(startPosition, capacity, sim);
@@ -107,7 +100,7 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
 
             sendExplorationAnts();
             System.out.println("at next goal");
-            currentIntention.popGoalLocation();
+            popPath();
             //Point p = currentIntention.peekNextGoalLocation();
             //sim.register(new GoalVisualiser(p, sim, timeLapse.getStartTime(), 100000));
         }
@@ -118,7 +111,7 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
             //If no next goal left, pop path for finding next parcel
             while(p == null){
                 try {
-                    currentIntention.popPath();
+                    popPath();
                     p = currentIntention.peekNextGoalLocation();
 
                 }catch(NoSuchElementException e){
@@ -129,34 +122,28 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
                 }
             }
 
-            if(!hasMovingRoadUser(p)){
-                try{
-                    rm.moveTo(this, p, timeLapse);
-                }catch(VerifyException vexc){
-                  //  currentIntention = null;
+          if(!moveTo(p,timeLapse)){
+                if(lastLocation == null){
+                    System.out.println();
                 }
-
-            }
+                moveTo(lastLocation, timeLapse);
+          }
 
         }
     }
 
-    private boolean hasMovingRoadUser(Point p){
-        for (Map.Entry<RoadUser, Point> entry : this.getRoadModel().getObjectsAndPositions().entrySet()) {
-            if ((entry.getKey() instanceof MultiAntAGV || entry.getKey() instanceof MultiAntAggregateAGV) && entry.getValue().equals(p)) {
-                return true;
-            }
-        }
-        return false;
+    private void popPath(){
+        lastLocation = currentIntention.peekNextGoalLocation();
+        currentIntention.popPath();
     }
 
     private boolean atNextGoal(){
-        return currentIntention == null ? false: getRoadModel().getPosition(this).equals(currentIntention.peekNextGoalLocation());
+        return currentIntention != null && getRoadModel().getPosition(this).equals(currentIntention.peekNextGoalLocation());
     }
 
     private boolean atParcelOrDepot() {
         //System.out.println("peekNextParcelLocation: " + currentIntention.peekNextParcelLocation());
-        boolean b = currentIntention == null ? false : getRoadModel().getPosition(this).equals(currentIntention.peekNextParcelLocation());
+        boolean b = currentIntention != null && getRoadModel().getPosition(this).equals(currentIntention.peekNextParcelLocation());
         if(b) System.out.println("At parcel!!");
         return b;
     }

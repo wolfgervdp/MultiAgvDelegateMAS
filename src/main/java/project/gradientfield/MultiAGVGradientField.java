@@ -43,7 +43,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
     public MultiAGVGradientField(Point startPosition, int capacity, SimulatorAPI sim) {
         super(startPosition, capacity, sim);
         this.rng = sim.getRandomGenerator();
-        garageLocation.add(startPosition);
+        //garageLocation.add(startPosition);
     }
 
     MultiAGVGradientField(VehicleDTO pDto, SimulatorAPI sim) {
@@ -147,7 +147,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
     }
 
     public void setGarageLocation(Point garageLocation) {
-        this.garageLocation.add(garageLocation);
+        this.garageLocation.add(0,garageLocation);
     }
 
     @Override
