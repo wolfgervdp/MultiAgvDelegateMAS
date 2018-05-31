@@ -80,7 +80,8 @@ public abstract class PathAntAgent  extends AntAgent {
     }
 
     protected double queryGlobalHeuristicValue(Point p, TimeWindow tw) {
-        //InfrastructureAgent data = (InfrastructureAgent) roadModel.getGraph().getConnection(currentPosition, p).data().get();
+        //InfrastructureAgent agent = getInfrastructureAgentAt(p);
+        //        return (agent.getLocalHeuristicValue()+100)/agent.getReservationValue(tw, masterAgent.getId());
         return 10000/getInfrastructureAgentAt(p).getReservationValue(tw, masterAgent.getId());
     }
 

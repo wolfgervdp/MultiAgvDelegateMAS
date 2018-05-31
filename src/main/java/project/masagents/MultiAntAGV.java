@@ -1,11 +1,16 @@
 package project.masagents;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
+import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
+import com.github.rinde.rinsim.core.model.road.MovingRoadUser;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
+import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import com.google.common.base.Predicate;
+import com.google.common.base.VerifyException;
 import project.MultiAGV;
 import project.MultiAggregateAGV;
 import project.MultiDepot;
@@ -14,13 +19,15 @@ import project.antsystems.ExplorationAnt;
 import project.antsystems.GenericExplorationAnt;
 import project.antsystems.IntentionAnt;
 
+import javax.annotation.Nullable;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class MultiAntAGV extends MultiAGV implements AntAGV {
 
     static final float RECONSIDERATION_TRESHOLD = 1.3f;
-    static final int EXPLORATION_FREQ = 2000; //In ms
+    static final int EXPLORATION_FREQ = 20000; //In ms
     static final int NUMBER_OF_EXPL_ANTS = 3;
     static final int WAIT_FOR_EXPL_ANTS = 1;
 
@@ -121,8 +128,26 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
                     return;
                 }
             }
-            rm.moveTo(this, p, timeLapse);
+
+            if(!hasMovingRoadUser(p)){
+                try{
+                    rm.moveTo(this, p, timeLapse);
+                }catch(VerifyException vexc){
+                  //  currentIntention = null;
+                }
+
+            }
+
         }
+    }
+
+    private boolean hasMovingRoadUser(Point p){
+        for (Map.Entry<RoadUser, Point> entry : this.getRoadModel().getObjectsAndPositions().entrySet()) {
+            if ((entry.getKey() instanceof MultiAntAGV || entry.getKey() instanceof MultiAntAggregateAGV) && entry.getValue().equals(p)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean atNextGoal(){
@@ -139,13 +164,12 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
 
     public void sendExplorationAnts(){
         //System.out.println("Sending exploration ants. Starting at position " + getRoadModel().getPosition(this));
-
         // isWaitingForExplorationAnts = true;
         for(int i = 0; i < NUMBER_OF_EXPL_ANTS; i++){
             GenericExplorationAnt ant = new GenericExplorationAnt(this, getRoadModel().getPosition(this), (GraphRoadModel) getRoadModel(), sim, MultiAntParcel.class);
             sim.register(ant);
         }
-        
+
     }
 
 

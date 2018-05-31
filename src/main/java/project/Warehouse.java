@@ -70,13 +70,12 @@ public final class Warehouse {
     private static final long M1_D1 = 1 * 60 * 1000L;
     private static final long M1_D2 = 10 * 60 * 1000L;
 
-    private static final int END_OF_SIMULATION = 10 * 60 * 60 * 1000;
+    private static final int END_OF_SIMULATION = 50 * 60 * 60 * 1000;
 
 
     private static final long M60 = 1 * 60 * 1000L;
 
-    private Warehouse() {
-    }
+    private Warehouse() { }
 
     public static void main(String[] args) {
         run(false);
@@ -104,7 +103,7 @@ public final class Warehouse {
                 .with(RouteRenderer.builder())
                 .with(PDPModelRenderer.builder())
                 .with(AGVRenderer.builder().withDifferentColorsForVehicles())
-                .withSimulatorEndTime(1000 * 60 * 100);
+                .withSimulatorEndTime(END_OF_SIMULATION);
                 //.withSpeedUp(TEST_SPEED_UP);
 
         List<InfrastructureAgent> infrastructureAgents = new ArrayList<>();
@@ -207,7 +206,7 @@ public final class Warehouse {
         for (int i = 0; i < 4; i++) {
             sim.register(new MultiDepot(possibleDepot.get(i), sim));
         }
-        for (int i = 0; i < 1; i++) {   //max84
+        for (int i = 0; i < 4; i++) {   //max84
             Random rp = new Random();
             rp.setSeed(RANDOM_SEED);
             int randomParcel = rp.nextInt(6 * 14 - i - 0);
@@ -233,7 +232,7 @@ public final class Warehouse {
         }
 
 
-        for (int i = 0; i <2; i++) {   //max48
+        for (int i = 0; i < 10; i++) {   //max48
             Random r = new Random();
             r.setSeed(RANDOM_SEED);
             int random = r.nextInt((2 * 13) - i - 0);
@@ -241,6 +240,9 @@ public final class Warehouse {
             possibleVehicles.remove(random);
             sim.register(new MultiAntAGV((MIN_POINT_1), 1, sim));
         }
+//        for (int i = 0; i < 10; i++) {   //max48
+//            sim.register(new MultiAntAGV((new Point(8,(i*4)+8)), 1, sim));
+//        }
     }
 
     static void TestWithOnePackageAtTheBeginning(ArrayList<Point> possibleDepot, ArrayList<Point> possibleParcels, ArrayList<Point> possibleVehicles, Simulator sim) {

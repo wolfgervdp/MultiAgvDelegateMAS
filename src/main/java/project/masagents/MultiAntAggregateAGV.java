@@ -52,7 +52,7 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
         if (atParcelOrDepot() && getPDPModel().getVehicleState(this) == PDPModel.VehicleState.IDLE) {
             Set<MultiDepot> depots = rm.getObjectsAt(this, MultiDepot.class);   //Get Depots at current location
             if(depots.iterator().hasNext()){
-                System.out.println("There was a depot, ");
+                System.out.println("There was a depot");
                 deliverParcel(timeLapse, getPDPModel().getContents(this).iterator().next());    //Drop off the parcel on that location
             }
             currentIntention.popPath();
@@ -73,7 +73,6 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
                 try {
                     currentIntention.popPath();
                     p = currentIntention.peekNextGoalLocation();
-
                 }catch(NoSuchElementException e){
                     // If there is nothing left in this intention, then do nothing,
                     // set currentIntention to null to start sending exploration ants and return

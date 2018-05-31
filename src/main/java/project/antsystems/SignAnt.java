@@ -34,7 +34,7 @@ public class SignAnt extends AntAgent {
         Collection<Point> points = inverseGraph.getOutgoingConnections(currentPosition);//((CollisionGraphRoadModelImpl)this.roadModel).getGraph().getOutgoingConnections(currentPosition);
         currentPosition = pickNextPoint(points);
 
-        getInfrastructureAgentAt(currentPosition).updateSignPheromone(SIGN_PHEROMONE_DOSE*Math.pow(SIGN_PHEROMONE_DROPOFF,numberOfPheromonesLeft));
+        getInfrastructureAgentAt(currentPosition).updateSignPheromone((numberOfWaitingAGVs+1)*SIGN_PHEROMONE_DOSE*Math.pow(SIGN_PHEROMONE_DROPOFF,numberOfPheromonesLeft));
 
         numberOfPheromonesLeft++;
         if(numberOfPheromonesLeft>= NUM_PHEROMONES_TO_LEAVE){

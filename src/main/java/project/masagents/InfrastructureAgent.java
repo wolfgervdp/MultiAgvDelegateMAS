@@ -45,7 +45,7 @@ public class InfrastructureAgent implements RoadUser, TickListener {
 
     @Override
     public String toString() {
-        return "" + /* (int) position.x + "," + (int) position.y + " " + */ (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5), -1)/* + (int) signPheromone */;
+        return "" + /* (int) position.x + "," + (int) position.y + " " +  (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5), -1) +*/ (int) signPheromone ;
     }
 
     public void updateReservationPheromone(TimeWindow tw, double value, int owner) {
@@ -66,7 +66,7 @@ public class InfrastructureAgent implements RoadUser, TickListener {
     }
 
     public double getLocalHeuristicValue(){
-        return signCoefficient*(signPheromone)+1;
+        return signCoefficient*(signPheromone)+1 ;
     }
 
     public void evaporate() {
