@@ -28,6 +28,7 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
     private int numOfExplAntsReportedBack = 0;
     private long timeAtLastExploration = 0;
 
+    private Point randomLocation = null;
     private Point lastLocation;
 
     public MultiAntAGV(Point startPosition, int capacity, SimulatorAPI sim) {
@@ -67,8 +68,10 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
     }
 
     @Override
-    protected void afterUpdate(TimeLapse timeLapse) {
+    protected void afterUpdate(TimeLapse timeLapse) {}
 
+    public void setRandomLocation(Point randomLocation){
+        this.randomLocation = randomLocation;
     }
 
     private InfrastructureAgent getInfrastructureAgentAt(Point position){
@@ -80,12 +83,11 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
         return null;
     }
 
-
     @Override
     protected void update(TimeLapse timeLapse) {
 
         //If we don't know what to do (=no intention), send out exploration ants with a certain frequency, and don't do anything else
-        if(currentIntention == null){
+        if(currentIntention == null && randomLocation == null){
             if(timeAtLastExploration + EXPLORATION_FREQ <= timeLapse.getTime()){
                 sendExplorationAnts();
                 timeAtLastExploration = timeLapse.getTime();
@@ -94,6 +96,14 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
             getInfrastructureAgentAt(getPosition()).updateReservationPheromone(TimeWindow.create(timeLapse.getTime(), timeLapse.getTime()+40000), 5, id);
             rm.moveTo(this,getPosition(), timeLapse);
 
+            return;
+        }
+        if(randomLocation != null) {
+            if(getRoadModel().getPosition(this).equals(randomLocation)) {
+                randomLocation = null;
+            }else{
+                getRoadModel().moveTo(this,  getRoadModel().getRandomPosition(sim.getRandomGenerator()), timeLapse);
+            }
             return;
         }
 
@@ -146,7 +156,6 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
           if(!moveTo(p,timeLapse)){
                 if(lastLocation != null) moveTo(lastLocation, timeLapse);
           }
-
         }
     }
 

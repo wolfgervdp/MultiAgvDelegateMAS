@@ -114,7 +114,7 @@ public final class Warehouse {
         Simulator sim = Simulator.builder()
                 .addModel(
                         RoadModelBuilders.dynamicGraph(
-                                WarehouseDesignWithAnts.GraphCreator.createSimpleGraph(1, infrastructureAgents))
+                                WarehouseDesignWithAnts.GraphCreator.createSimpleGraph(3, infrastructureAgents))
                                 .withCollisionAvoidance()
                                 .withDistanceUnit(SI.METER)
                                 .withSpeedUnit(SI.METERS_PER_SECOND)

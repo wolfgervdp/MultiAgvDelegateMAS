@@ -41,9 +41,12 @@ public class GenericExplorationAnt extends PathAntAgent{
         super(masterAgent, position, roadModel, sim);
         antId = counter;
         counter++;
+        System.out.println(position);
         this.classToLookFor = classToLookFor;
-        initVisualisationQueue(position);
+
+        initVisualisationQueue(round(position));
     }
+
 
     public Point getCurrentPosition() {
         return currentPosition;

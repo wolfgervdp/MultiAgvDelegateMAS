@@ -7,11 +7,13 @@ import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.sun.org.apache.xpath.internal.operations.Mult;
+import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.internal.win32.POINT;
 import project.gradientfield.MultiAGVGradientField;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
 
 public abstract class MultiAggregateAGV extends MultiAGV {
@@ -39,10 +41,7 @@ public abstract class MultiAggregateAGV extends MultiAGV {
                     freeLocation=false;
                     break;
                 }
-
-
             }
-
             if (freeLocation == true){
                 spawnNewAGV(timeLapse);
                 timeOfLastSpawn = timeLapse.getTime();
@@ -65,6 +64,7 @@ public abstract class MultiAggregateAGV extends MultiAGV {
         RoadModel rm = getRoadModel();
         MultiAGV newAGV = createVehicle(agvSpawnPoint, deliveryParcel);
         sim.register(newAGV);
+
     }
 
     @Override

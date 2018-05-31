@@ -51,8 +51,6 @@ public abstract class MultiAGV extends Vehicle {
 
     @Override
     protected final void tickImpl(TimeLapse time) {
-        System.out.println(time.getTime());
-
         if (shouldUnregister) {
             unregister();
             return;

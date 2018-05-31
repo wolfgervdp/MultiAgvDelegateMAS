@@ -2,7 +2,6 @@ package project.masagents;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
-import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
@@ -11,13 +10,10 @@ import com.github.rinde.rinsim.util.TimeWindow;
 import project.MultiAGV;
 import project.MultiAggregateAGV;
 import project.MultiParcel;
-import com.google.common.base.Predicate;
 import project.antsystems.*;
 import project.MultiDepot;
 
-import javax.annotation.Nullable;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
 
@@ -44,6 +40,17 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
             }
         }
         return null;
+    }
+
+    static ArrayList<Point> createPossibleAGVLocations() {
+        int[] firstAndLastRow = {0, 9};
+        ArrayList<Point> possibleVehicles = new ArrayList<Point>();
+        for (int i : firstAndLastRow) {
+            for (int j = 2; j < 15; j++) {
+                possibleVehicles.add(new Point(4 * j, 4 * i));
+            }
+        }
+        return possibleVehicles;
     }
 
     @Override
@@ -118,7 +125,16 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
 
     @Override
     protected MultiAGV createVehicle(Point location, MultiParcel parcel) {
-        return new MultiAntAGV(location, 1, sim);
+        MultiAntAGV agv = new MultiAntAGV(location, 1, sim);
+        RoadModel rm = getRoadModel();
+
+        Random r = new Random();
+        r.setSeed(System.currentTimeMillis());
+        int random = r.nextInt((2 * 13));
+        List<Point> possibleVehicles = createPossibleAGVLocations();
+        agv.setRandomLocation(possibleVehicles.get(random));
+
+        return agv;
     }
 
     private boolean atNextGoal(){
