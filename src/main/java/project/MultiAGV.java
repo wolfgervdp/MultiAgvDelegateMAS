@@ -68,7 +68,7 @@ public abstract class MultiAGV extends Vehicle {
 
     @Override
     public String toString() {
-        return "MultiAGV " + id;
+        return "MultiAGV " + id+" class: "+ this.getClass();
     }
 
     public int getId() {
@@ -139,7 +139,13 @@ public abstract class MultiAGV extends Vehicle {
 
     protected abstract void semiUnregister();
     protected abstract MultiAGV createVehicle(Point location, MultiParcel parcel);
+    protected abstract  void afterUpdate(TimeLapse timeLapse);
 
+    @Override
+    public void afterTick(TimeLapse time) {
+        afterUpdate(time);
+
+    }
 
     public void startCarrying() {
         isWaiting = false;

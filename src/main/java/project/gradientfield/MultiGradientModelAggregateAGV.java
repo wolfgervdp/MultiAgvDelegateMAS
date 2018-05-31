@@ -21,7 +21,7 @@ import static com.google.common.base.Verify.verifyNotNull;
 public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implements FieldContainer{
 
     private RandomGenerator rng;
-    private float strenght = -20;
+    private float strenght = -600;
     private GradientModel gradientModel;
     private Point storedPoint = null;
     private ArrayList<Point> unregisteredAGVStartLocation = new ArrayList<Point>();
@@ -128,7 +128,13 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
 
     @Override
     public Point getPosition() {
-        return getRoadModel().getPosition(this);
+        Point position = null;
+        try {
+            position = getRoadModel().getPosition(this);
+        } catch (Exception e) {
+            System.out.println("");
+        }
+        return position;
     }
 
     @Override
@@ -137,7 +143,15 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
     }
 
     public Map<Point, Float> getFields() {
+        try {
+            return verifyNotNull(gradientModel).getFields(this);
+
+        }catch ( Exception e){
+            System.out.println();
+
+        }
         return verifyNotNull(gradientModel).getFields(this);
+
     }
 
     @Override
@@ -148,9 +162,10 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
 
     @Override
     protected void unregister() {
-        getRoadModel().unregister(this);
         sim.unregister(this);
         gradientModel.unregister(this);
+
+        getRoadModel().unregister(this);
         getPDPModel().unregister(this);
     }
 
@@ -161,9 +176,11 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
 
     @Override
     protected void semiUnregister() {
-        getRoadModel().unregister(this);
         gradientModel.unregister(this);
+        getRoadModel().unregister(this);
         getPDPModel().unregister(this);
+        System.out.println("unregister semi MultiAGVAGGREGATEGRADIENTFEIDL");
+
     }
 
     @Override
@@ -173,4 +190,6 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
         ((MultiParcelGradientField)parcel).removeUnregisteredAGVStartLocation(0);
         return agv;
     }
+
+
 }

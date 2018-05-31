@@ -31,18 +31,16 @@ public abstract class MultiAggregateAGV extends MultiAGV {
     protected final void update(TimeLapse timeLapse) {
 
         if (timeOfLastSpawn  <= timeLapse.getTime() && agvsLeftToSpawn > 0) {
-            boolean checkSpawningLocation;
             boolean freeLocation = true;
 
             Set<MultiAGV> vehicles = (getRoadModel().getObjectsOfType(MultiAGV.class));
             for (MultiAGV agv: vehicles) {
-                if (Point.distance(agv.getPosition(),agvSpawnPoint)>4) {
-                    freeLocation=true;
+                if (Point.distance(agv.getPosition(),agvSpawnPoint)<4) {
+                    freeLocation=false;
                     break;
                 }
-                else {
-                    freeLocation=false;
-                }
+
+
             }
 
             if (freeLocation == true){
@@ -66,8 +64,12 @@ public abstract class MultiAggregateAGV extends MultiAGV {
     private void spawnNewAGV(TimeLapse time) {
         RoadModel rm = getRoadModel();
         MultiAGV newAGV = createVehicle(agvSpawnPoint, deliveryParcel);
-
         sim.register(newAGV);
+    }
+
+    @Override
+    final protected void afterUpdate(TimeLapse timeLapse) {
+
     }
 
     protected void startSpawning(int numberOfAgvs, Point location, long currentTime, MultiParcel p){

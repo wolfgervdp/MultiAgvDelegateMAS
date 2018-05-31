@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.SimulatorAPI;
+import com.github.rinde.rinsim.core.model.road.RoadUser;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
@@ -32,79 +35,101 @@ import com.google.auto.value.AutoValue;
 
 class GradientFieldRenderer extends AbstractCanvasRenderer {
 
-	static final double DIAMETER_MUL = 10d;
-	static final RGB GREEN = new RGB(0, 255, 0);
-	static final RGB RED = new RGB(255, 0, 0);
+    static final double DIAMETER_MUL = 10d;
+    static final RGB GREEN = new RGB(0, 255, 0);
+    static final RGB RED = new RGB(255, 0, 0);
 
-	GradientModel gradientModel;
+    GradientModel gradientModel;
 
-	GradientFieldRenderer(GradientModel gm) {
-		gradientModel = gm;
-	}
+    GradientFieldRenderer(GradientModel gm) {
+        gradientModel = gm;
+    }
 
-	@Override
-	public void renderStatic(GC gc, ViewPort vp) {}
+    @Override
+    public void renderStatic(GC gc, ViewPort vp) {
+    }
 
-	@Override
-	public void renderDynamic(GC gc, ViewPort vp, long time) {
+    @Override
+    public void renderDynamic(GC gc, ViewPort vp, long time) {
 
 
-		final List<FieldContainer> trucks = gradientModel.getFieldContainerFieldEmitters();
+        final List<FieldContainer> trucks = gradientModel.getFieldContainerFieldEmitters();
+        synchronized (trucks) {
+            int count = 0;
+            for (final FieldContainer t : trucks) {
+                try {
+                    synchronized (t) {
+                        count++;
+                        if (!gradientModel.getFieldContainerFieldEmitters().contains(t)) {
+//                            System.out.println(count + " break" + trucks.size() + " " + trucks.toString());
+//                            System.out.println(count + " break" + trucks.size() + " " + t.toString() + " capacity " + t.getCapacity() + " pos " + t.getPosition());
+//                            System.out.println(count + " break" + trucks.size() + " " + gradientModel.getFieldContainerFieldEmitters().toString());
+                            break;
+                        }
+//                        System.out.println(count + " ;" + trucks.size() + " trucks " + trucks.toString());
+//                        System.out.println(count + " ;" + trucks.size() + " " + t.toString() + " capacity " + t.getCapacity() + " pos " + t.getPosition());
+//                        System.out.println(count + " ;" + trucks.size() + " recent " + gradientModel.getFieldContainerFieldEmitters().toString());
+                        //System.out.println(trucks.size()+" "+t.toString()+" capacity "+t.getCapacity() +" pos "+ t.getPosition());
+                        //System.out.println(trucks.size()+" "+gradientModel.getFieldContainerFieldEmitters().toString());
 
-		synchronized (trucks) {
-			for (final FieldContainer t : trucks) {
-				final Point tp = t.getPosition();
 
-				final Map<Point, Float> fields = t.getFields();
+                        final Point tp = t.getPosition();
+                        final Map<Point, Float> fields = t.getFields();
 
-				float max = Float.NEGATIVE_INFINITY;
-				float min = Float.POSITIVE_INFINITY;
+                        float max = Float.NEGATIVE_INFINITY;
+                        float min = Float.POSITIVE_INFINITY;
 
-				for (final Entry<Point, Float> p : fields.entrySet()) {
-					max = Math.max(max, p.getValue());
-					min = Math.min(min, p.getValue());
-				}
-				int dia;
-				RGB color = null;
-				for (final Entry<Point, Float> entry : fields.entrySet()) {
-					final Point p = entry.getKey();
-					final float field = entry.getValue();
-					//divide by to to get the drawing
+                        for (final Entry<Point, Float> p : fields.entrySet()) {
+                            max = Math.max(max, p.getValue());
+                            min = Math.min(min, p.getValue());
+                        }
+                        int dia;
+                        RGB color = null;
+                        for (final Entry<Point, Float> entry : fields.entrySet()) {
+                            final Point p = entry.getKey();
+                            final float field = entry.getValue();
+                            //divide by to to get the drawing
 
-					final int x = vp.toCoordX(tp.x + p.x/2);
-					final int y = vp.toCoordY(tp.y + p.y/2);
+                            final int x = vp.toCoordX(tp.x + p.x / 2);
+                            final int y = vp.toCoordY(tp.y + p.y / 2);
 
-					if (field < 0) {
-						dia = (int) ((int) (field / -min * DIAMETER_MUL));
-						color = RED;
-					} else {
-						dia = (int) ((int) (field / max * DIAMETER_MUL));
-						color = GREEN;
-					}
-					gc.setBackground(new Color(gc.getDevice(), color));
-					gc.fillOval(x, y, dia, dia);
+                            if (field < 0) {
+                                dia = (int) ((int) (field / -min * DIAMETER_MUL));
+                                color = RED;
+                            } else {
+                                dia = (int) ((int) (field / max * DIAMETER_MUL));
+                                color = GREEN;
+                            }
+                            gc.setBackground(new Color(gc.getDevice(), color));
+                            gc.fillOval(x, y, dia, dia);
 
-				}
-			}
-		}
-	}
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("Skipped GradientField drawing");
+                }
 
-	static Builder builder() {
-		return new AutoValue_GradientFieldRenderer_Builder();
-	}
 
-	@AutoValue
-	abstract static class Builder extends
-	AbstractModelBuilder<GradientFieldRenderer, Void> {
+            }
+        }
+    }
 
-		Builder() {
-			setDependencies(GradientModel.class);
-		}
+    static Builder builder() {
+        return new AutoValue_GradientFieldRenderer_Builder();
+    }
 
-		@Override
-		public GradientFieldRenderer build(DependencyProvider dependencyProvider) {
-			final GradientModel gm = dependencyProvider.get(GradientModel.class);
-			return new GradientFieldRenderer(gm);
-		}
-	}
+    @AutoValue
+    abstract static class Builder extends
+            AbstractModelBuilder<GradientFieldRenderer, Void> {
+
+        Builder() {
+            setDependencies(GradientModel.class);
+        }
+
+        @Override
+        public GradientFieldRenderer build(DependencyProvider dependencyProvider) {
+            final GradientModel gm = dependencyProvider.get(GradientModel.class);
+            return new GradientFieldRenderer(gm);
+        }
+    }
 }
