@@ -6,6 +6,7 @@ import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import com.github.rinde.rinsim.util.TimeWindow;
 import project.MultiAGV;
 import project.MultiDepot;
 import project.MultiParcel;
@@ -70,6 +71,16 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
 
     }
 
+    private InfrastructureAgent getInfrastructureAgentAt(Point position){
+        for(InfrastructureAgent infrastructureAgent: getRoadModel().getObjectsOfType(InfrastructureAgent.class)){
+            if(infrastructureAgent.getPosition().equals(position)){
+                return infrastructureAgent;
+            }
+        }
+        return null;
+    }
+
+
     @Override
     protected void update(TimeLapse timeLapse) {
 
@@ -79,10 +90,15 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
                 sendExplorationAnts();
                 timeAtLastExploration = timeLapse.getTime();
             }
+            RoadModel rm = getRoadModel();
+            getInfrastructureAgentAt(getPosition()).updateReservationPheromone(TimeWindow.create(timeLapse.getTime(), timeLapse.getTime()+40000), 5, id);
+            rm.moveTo(this,getPosition(), timeLapse);
+
             return;
         }
 
         RoadModel rm = getRoadModel();
+        Set<MultiAGV> objects = rm.getObjectsOfType(MultiAGV.class);
 
         //If we got to the parcel or depot, pick up/deliver and set next goal
         if (atParcelOrDepot() && getPDPModel().getVehicleState(this) == PDPModel.VehicleState.IDLE) {
@@ -128,10 +144,7 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
             }
 
           if(!moveTo(p,timeLapse)){
-                if(lastLocation == null){
-                    System.out.println();
-                }
-                moveTo(lastLocation, timeLapse);
+                if(lastLocation != null) moveTo(lastLocation, timeLapse);
           }
 
         }
@@ -172,7 +185,7 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
         //numberOfAntCounter--;
         if((currentIntention == null
                 || ant.getTotalHeuristicValue() > currentIntention.getTotalHeuristicValue() + Math.abs(currentIntention.getTotalHeuristicValue())*(RECONSIDERATION_TRESHOLD-1))
-                && getRoadModel().getShortestPathTo(this,tempIntentionAnt.peekNextGoalLocation()).size() <= 2){
+                && getRoadModel().getShortestPathTo(this,tempIntentionAnt.peekNextGoalLocation()).size() <= 2 && !tempIntentionAnt.getRedFlag()){
 
             if(currentIntention != null) {
                 sim.unregister(currentIntention);

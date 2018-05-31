@@ -45,7 +45,10 @@ public class InfrastructureAgent implements RoadUser, TickListener {
 
     @Override
     public String toString() {
-        return "" + /* (int) position.x + "," + (int) position.y + " " +  (long) this.getReservationValue(TimeWindow.create(currentTime,currentTime+5), -1) +*/ (int) signPheromone ;
+        try {
+            return "" + /* (int) position.x + "," + (int) position.y + " " +*/  (long) this.getReservationValue(TimeWindow.create(currentTime, currentTime + 5), -1) /*+ (int) signPheromone */;
+        }catch(ConcurrentModificationException exception){ }
+        return "";
     }
 
     public void updateReservationPheromone(TimeWindow tw, double value, int owner) {

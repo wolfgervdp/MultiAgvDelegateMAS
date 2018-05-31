@@ -36,6 +36,7 @@ public abstract class MultiAGV extends Vehicle {
                 .speed(SPEED)
                 .build());
         this.sim = sim;
+
         id = ++idCounter;
     }
 
@@ -50,6 +51,8 @@ public abstract class MultiAGV extends Vehicle {
 
     @Override
     protected final void tickImpl(TimeLapse time) {
+        System.out.println(time.getTime());
+
         if (shouldUnregister) {
             unregister();
             return;
@@ -105,13 +108,13 @@ public abstract class MultiAGV extends Vehicle {
 
     protected boolean moveTo(Point p, TimeLapse timeLapse){
        // if(!hasMovingRoadUser(p)){
-            try{
+//            try{
                 getRoadModel().moveTo(this, p, timeLapse);
                 return true;
-            }catch(VerifyException vexc){
-                //  currentIntention = null;
-                return false;
-            }
+//            }catch(VerifyException vexc){
+//                //  currentIntention = null;
+//                return false;
+//            }
        // }
     }
 

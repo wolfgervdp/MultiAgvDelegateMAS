@@ -7,7 +7,7 @@ import java.util.List;
 
 public class EvaporationAgent implements TickListener {
 
-    private static final long EVAPORATION_FREQ = 80000;
+    private static final long EVAPORATION_FREQ = 30000;
 
     List<InfrastructureAgent> infrastructureAgentList;
     private long timeAtLastExploration;

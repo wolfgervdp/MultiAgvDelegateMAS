@@ -16,6 +16,7 @@ import java.util.Queue;
 
 public class IntentionAnt extends PathAntAgent {
 
+    private static double MARGIN_PERC = 0.3;
     private static final long INTENTION_FREQ = 1000;
     Queue<Point> currentQueue;
     private long timeAtLastExploration;
@@ -49,7 +50,8 @@ public class IntentionAnt extends PathAntAgent {
             sim.register(iav);
             InfrastructureAgent a = getInfrastructureAgentAt(p);
             long deltaT = Math.round(a.getLength()/masterAgent.getSpeed());
-            TimeWindow tw = TimeWindow.create(timeOfArrivalBegin, timeOfArrivalBegin + deltaT);
+            long timeOfArrivalEnd = timeOfArrivalBegin + deltaT;
+            TimeWindow tw = TimeWindow.create(Math.max(0,timeOfArrivalBegin-(long)(timeOfArrivalBegin*MARGIN_PERC)),  timeOfArrivalEnd+ (long) (timeOfArrivalEnd*MARGIN_PERC));
             a.updateReservationPheromone(tw,increasingPheromone, masterAgent.getId());
             timeOfArrivalBegin += deltaT;
             //increasingPheromone *= 1.5;

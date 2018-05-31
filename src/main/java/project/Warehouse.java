@@ -13,6 +13,7 @@ import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 //import com.github.rinde.rinsim.core.model.road.NewRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders;
+import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.*;
 import com.github.rinde.rinsim.pdptw.common.RouteRenderer;
 import com.github.rinde.rinsim.scenario.Scenario;
@@ -94,6 +95,7 @@ public final class Warehouse {
                 .with(RoadUserRenderer.builder().withToStringLabel()
                         .withColorAssociation(MultiParcel.class, new RGB(0, 255, 0))
                         .withColorAssociation(MultiDepot.class, new RGB(255, 0, 0))
+                        .withColorAssociation(MultiAGV.class, new RGB(0,0,0))
                         .withColorAssociation(
                                 InfrastructureAgent.class, new RGB(255, 255, 255))
                         .withColorAssociation(ExplorationAntVisualiser.class, new RGB(0, 0, 255))
@@ -103,7 +105,7 @@ public final class Warehouse {
                 //.with(TaxiRenderer.builder(Language.ENGLISH))
                 .with(RouteRenderer.builder())
                 .with(PDPModelRenderer.builder())
-                .with(AGVRenderer.builder().withDifferentColorsForVehicles())
+                .with(AGVRenderer.builder().withDifferentColorsForVehicles().withVehicleCoordinates())
                 .withSimulatorEndTime(END_OF_SIMULATION);
                 //.withSpeedUp(TEST_SPEED_UP);
 

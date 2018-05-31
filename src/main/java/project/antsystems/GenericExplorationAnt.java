@@ -130,9 +130,13 @@ public class GenericExplorationAnt extends PathAntAgent{
         if (!path.isEmpty() && !path.getLast().isEmpty()) {
             //InfrastructureAgent agent = (InfrastructureAgent) roadModel.getGraph().getConnection(path.getLast().getLast(),p).data().get();
             InfrastructureAgent agent = getInfrastructureAgentAt(p);
-            long timeOfArrival = currentTime + Math.round(roadModel.getDistanceOfPath(makeFlat(path)).intValue(SI.METER) / masterAgent.getSpeed());
+            int distance = roadModel.getDistanceOfPath(makeFlat(path)).intValue(SI.MILLIMETER);
+            long timeOfArrival = currentTime + Math.round(distance / masterAgent.getSpeed());
             long timeOfCompletion = timeOfArrival + Math.round(agent.getLength() / masterAgent.getSpeed());
-
+            double reservationValue = getInfrastructureAgentAt(p).getReservationValue(TimeWindow.create(timeOfArrival, timeOfCompletion), masterAgent.getId());
+            if(reservationValue > 10){
+                redFlag = true;
+            }
             addReservationHeuristic(queryGlobalHeuristicValue(p, TimeWindow.create(timeOfArrival, timeOfCompletion)));
         }
         //Add it to the path

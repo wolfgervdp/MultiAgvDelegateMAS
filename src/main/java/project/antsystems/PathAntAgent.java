@@ -29,7 +29,7 @@ public abstract class PathAntAgent  extends AntAgent {
     protected AntAGV masterAgent;
     protected ArrayDeque<ArrayDeque<Point>> path;       //Inner queue is the queue until the first next goalnode, the outer queue is all the paths for the different parcels
     private double heuristicValue = 0;
-
+    protected boolean redFlag = false;
 
     Queue<ExplorationAntVisualiser> visualiserQueue = new ArrayDeque<>();
     int visualiserHistorySize = 50;
@@ -37,7 +37,7 @@ public abstract class PathAntAgent  extends AntAgent {
     //Copy constructor for PathAntAgent
     public PathAntAgent(PathAntAgent agent) {
         super(agent);
-
+        this.redFlag = agent.redFlag;
         this.masterAgent = agent.masterAgent;
         this.path = (ArrayDeque<ArrayDeque<Point>>) DeepCopy.copy(agent.path);
         this.heuristicValue = agent.heuristicValue;
@@ -99,6 +99,10 @@ public abstract class PathAntAgent  extends AntAgent {
                 retQ.addLast(p);
         }
         return retQ;
+    }
+
+    public boolean getRedFlag(){
+        return redFlag;
     }
 
     protected void visualiseAt(Point actualPoint, Point previousPoint){

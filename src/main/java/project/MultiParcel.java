@@ -45,13 +45,13 @@ public class MultiParcel extends Parcel {
 
     public MultiParcel(ParcelDTO parcelDto) {
         super(parcelDto);
-        System.out.println(parcelDto.getPickupDuration());
+        //System.out.println(parcelDto.getPickupDuration());
     }
 
     public MultiParcel(ParcelDTO parcelDto, int weight) {
         super(parcelDto);
         this.weight = weight;
-        System.out.println(parcelDto.getPickupDuration());
+       // System.out.println(parcelDto.getPickupDuration());
     }
 
     public ArrayList<Point> getUnregisteredAGVStartLocation() {

@@ -2,10 +2,12 @@ package project.masagents;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
+import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModelImpl;
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
+import com.github.rinde.rinsim.util.TimeWindow;
 import project.MultiAGV;
 import project.MultiAggregateAGV;
 import project.MultiParcel;
@@ -34,6 +36,16 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
         super(startPosition, capacity, sim);
     }
 
+
+    private InfrastructureAgent getInfrastructureAgentAt(Point position){
+        for(InfrastructureAgent infrastructureAgent: getRoadModel().getObjectsOfType(InfrastructureAgent.class)){
+            if(infrastructureAgent.getPosition().equals(position)){
+                return infrastructureAgent;
+            }
+        }
+        return null;
+    }
+
     @Override
     protected void updateImpl(TimeLapse timeLapse) {
 
@@ -43,11 +55,13 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
                 sendExplorationAnts();
                 timeAtLastExploration = timeLapse.getTime();
             }
+            RoadModel rm = getRoadModel();
+            getInfrastructureAgentAt(getPosition()).updateReservationPheromone(TimeWindow.create(timeLapse.getTime(), timeLapse.getTime()+40000), 5, id);
+            rm.moveTo(this,getPosition(), timeLapse);
             return;
         }
-
         RoadModel rm = getRoadModel();
-
+        Set<MultiAGV> objects = rm.getObjectsOfType(MultiAGV.class);
         //If we got to the parcel or depot, pick up/deliver and set next goal
         if (atParcelOrDepot() && getPDPModel().getVehicleState(this) == PDPModel.VehicleState.IDLE) {
             Set<MultiDepot> depots = rm.getObjectsAt(this, MultiDepot.class);   //Get Depots at current location
@@ -106,8 +120,6 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
     protected MultiAGV createVehicle(Point location, MultiParcel parcel) {
         return new MultiAntAGV(location, 1, sim);
     }
-
-
 
     private boolean atNextGoal(){
         return currentIntention == null ? false: getRoadModel().getPosition(this).equals(currentIntention.peekNextGoalLocation());
