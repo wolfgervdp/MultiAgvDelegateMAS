@@ -19,7 +19,7 @@ public class MultiDepot extends Depot implements TickListener, Explorable {
     private SimulatorAPI sim;
     private long timeAtLastExploration;
 
-    MultiDepot(Point position, SimulatorAPI sim) {
+    public MultiDepot(Point position, SimulatorAPI sim) {
         super(position);
         this.sim = sim;
     }

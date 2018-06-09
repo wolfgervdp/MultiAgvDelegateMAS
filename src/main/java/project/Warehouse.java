@@ -6,10 +6,14 @@
 package project;
 
 import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.model.Model;
 import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
+import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders;
+import com.github.rinde.rinsim.core.model.time.TickListener;
+import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.pdptw.common.RouteRenderer;
 import com.github.rinde.rinsim.scenario.Scenario;
@@ -22,6 +26,7 @@ import com.github.rinde.rinsim.ui.renderers.WarehouseRenderer;
 import com.github.rinde.rinsim.util.TimeWindow;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.graphics.RGB;
+import org.omg.CORBA.INTERNAL;
 import project.masagents.EvaporationAgent;
 import project.masagents.InfrastructureAgent;
 import project.masagents.MultiAntAGV;
@@ -32,20 +37,29 @@ import project.visualisers.GoalVisualiser;
 import project.visualisers.IntentionAntVisualiser;
 
 import javax.measure.unit.SI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 //import com.github.rinde.rinsim.core.model.road.NewRoadModel;
 
 public final class Warehouse {
 
+//
+//    private static final double VEHICLE_LENGTH = 2.0D;
+//    private static final int[] NUM_AGVS = {1,2,4,6,8,16};
+//    private static final int NUM_AVERAGE_RUNS = 5;
+//    private static final int[] NUM_PARCEL = {1,2,4,6,8,10};
 
     private static final double VEHICLE_LENGTH = 2.0D;
-    private static final int NUM_AGVS = 1;
+    private static final int[] NUM_AGVS = {1,2};
+    private static final int NUM_AVERAGE_RUNS = 2;
+    private static final int[] NUM_PARCEL = {1};
+
     private static final long TEST_END_TIME = 600000L;
     private static final int TEST_SPEED_UP = 1;
-    private static final int NUM_PARCEL = 20;
     private static final long SERVICE_DURATION = 0;
     private static final int MAX_CAPACITY = 1;
     private static final int DEPOT_CAPACITY = 100;
@@ -53,6 +67,7 @@ public final class Warehouse {
     private static final int MULTIAGV_CAPACITY = 1;
     static final long RANDOM_SEED = 123L;
     private static final double VEHICLE_SPEED_KMH = 100;
+    private static final long[] SEEDS = {100l, 80l, 90l, 110l,120l};
 
     private static Point MIN_POINT_1 = new Point(0, 32);
     private static Point P1_DELIVERY = new Point(64, 32);
@@ -63,7 +78,9 @@ public final class Warehouse {
     private static final long M1_D1 = 1 * 60 * 1000L;
     private static final long M1_D2 = 10 * 60 * 1000L;
 
-    private static final int END_OF_SIMULATION = 50 * 60 * 60 * 1000;
+    private static final int END_OF_SIMULATION = 24 * 60 * 60 * 1000;
+
+    private static View.Builder view;
 
 
     private static final long M60 = 1 * 60 * 1000L;
@@ -76,12 +93,8 @@ public final class Warehouse {
 
 
     public static void run(boolean testing) {
-        Builder viewBuilder = View.builder()
-                .with(PDPModelRenderer.builder().withDestinationLines())
-                .with(AGVRenderer.builder()
-                        .withDifferentColorsForVehicles());
 
-        View.Builder view = View.builder()
+        view = View.builder()
                 .with(WarehouseRenderer.builder().withOneWayStreetArrows().withNodeOccupancy())
                 .with(AntAgentRenderer.builder())
                 .with(RoadUserRenderer.builder().withToStringLabel()
@@ -94,15 +107,74 @@ public final class Warehouse {
                         .withColorAssociation(IntentionAntVisualiser.class, new RGB(0, 255, 255))
                         .withColorAssociation(GoalVisualiser.class, new RGB(12, 55, 255))
                 )
-                //.with(TaxiRenderer.builder(Language.ENGLISH))
                 .with(RouteRenderer.builder())
                 .with(PDPModelRenderer.builder())
                 .with(AGVRenderer.builder().withDifferentColorsForVehicles().withVehicleCoordinates())
+                .withSpeedUp(TEST_SPEED_UP)
                 .withSimulatorEndTime(END_OF_SIMULATION);
-                //.withSpeedUp(TEST_SPEED_UP);
 
+
+        ArrayList<ArrayList<Long>> results = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> deadlocks = new ArrayList<>();
+
+        for (int j =0; j<NUM_AGVS.length; j++)
+        {
+            ArrayList<Long> results_parcel = new ArrayList<>();
+            ArrayList<Integer> result_deadlock_parcel = new ArrayList<>();
+
+            for (int i =0; i<NUM_PARCEL.length; i++){
+
+
+                Long averagedTime=0l;
+                int numDeadlocks = 0;
+                for (int average_I =0; average_I<NUM_AVERAGE_RUNS; average_I++) {
+                    long currentTime = executeExperiment(NUM_AGVS[j],NUM_PARCEL[i],SEEDS[average_I]);
+                    if(currentTime != END_OF_SIMULATION){
+                        averagedTime=currentTime+averagedTime;
+                    }else{
+                        numDeadlocks++;
+                    }
+
+
+                }
+                averagedTime=averagedTime/(NUM_AVERAGE_RUNS - numDeadlocks);
+                results_parcel.add(averagedTime);
+                result_deadlock_parcel.add(numDeadlocks);
+            }
+            results.add(results_parcel);
+            deadlocks.add(result_deadlock_parcel);
+
+
+
+        }
+        PrintWriter writer = null;
+        PrintWriter writer_deadlock = null;
+        try {
+            writer = new PrintWriter("results", "UTF-8");
+            writer_deadlock = new PrintWriter("results_deadlock", "UTF-8");
+
+            for (ArrayList<Long> results_inner : results) {
+                for (Long l : results_inner) {
+                    writer.print(l + ";");
+                }
+                writer.println();
+            }
+            for (ArrayList<Integer> deadlocks_inner : deadlocks) {
+                for (Integer l : deadlocks_inner) {
+                    writer_deadlock.print(l + ";");
+                }
+                writer_deadlock.println();
+            }
+            writer.close();
+            writer_deadlock.close();
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    static long executeExperiment(int numAgvs, int numParcels, long seed){
         List<InfrastructureAgent> infrastructureAgents = new ArrayList<>();
-
         Simulator sim = Simulator.builder()
                 .addModel(
                         RoadModelBuilders.dynamicGraph(
@@ -111,50 +183,47 @@ public final class Warehouse {
                                 .withDistanceUnit(SI.METER)
                                 .withSpeedUnit(SI.METERS_PER_SECOND)
                                 .withVehicleLength(VEHICLE_LENGTH)
-                        )
+                )
                 .addModel(DefaultPDPModel.builder())
                 .addModel(view)
                 .build();
-        final RandomGenerator rng = sim.getRandomGenerator();
-
-        final RoadModel roadModel = sim.getModelProvider().getModel(
-                RoadModel.class);
 
         for (InfrastructureAgent agent : infrastructureAgents) {
             sim.register(agent);
         }
 
-/*		for(int i = 0; i < NUM_AGVS; ++i) {
-			//RoadUser user = new MultiAGV(sim.getRandomGenerator(), sim);
-			sim.register(new MultiAntAGV(roadModel.getRandomPosition(rng),
-					MULTIAGV_CAPACITY, sim));
-//			sim.register(new MultiAGV(new Point(8,8),
-//					MULTIAGV_CAPACITY, sim));
-		}*/
-
         sim.register(new EvaporationAgent(infrastructureAgents));
-
-
-/*	    for (int i = 0; i < NUM_DEPOTS; i++) {
-	        sim.register(new MultiDepot(roadModel.getRandomPosition(rng), sim));
-		}
-		for (int i = 0; i < NUM_PARCEL; i++) {
-
-			sim.register(new MultiAntParcel(
-					Parcel.builder(roadModel.getRandomPosition(rng),
-							roadModel.getRandomPosition(rng))
-							.serviceDuration(SERVICE_DURATION)
-							.neededCapacity(1 + rng.nextInt(MAX_CAPACITY))
-							.buildDTO(), sim));
-		}*/
 
         ArrayList<Point> possibleParcels = createPossibleParcelLocations();
         ArrayList<Point> possibleAGVs = createPossibleAGVLocations();
         ArrayList<Point> possibleDepot = createPossibleDepotLocations();
-        TestWithMultiplePackageAtTheBeginning(possibleDepot, possibleParcels, possibleAGVs, sim);
+        TestWithMultiplePackageAtTheBeginning(numAgvs,numParcels,seed,possibleDepot, possibleParcels, possibleAGVs, sim);
         //sim.register(new WarehouseUpdater(sim.getModelProvider().getModel(NewRoadModel.class)));
+        sim.register(new TickListener() {
+            @Override
+            public void tick(TimeLapse timeLapse) {
+                if(sim.getModelProvider().getModel(PDPModel.class).getParcels(PDPModel.ParcelState.DELIVERED).size() == numParcels){
+                    sim.stop();
+                }
+            }
 
-        sim.start();
+            @Override
+            public void afterTick(TimeLapse timeLapse) {
+
+            }
+        });
+        boolean succeeded = false;
+        while(!succeeded){
+            try {
+                sim.start();
+                succeeded = true;
+            }catch (Exception e){
+                System.out.println(e);
+            }
+        }
+
+
+        return sim.getCurrentTime();
     }
 
     static ArrayList<Point> createPossibleParcelLocations() {
@@ -196,14 +265,14 @@ public final class Warehouse {
         return possibleDepot;
     }
 
-    static void TestWithMultiplePackageAtTheBeginning(ArrayList<Point> possibleDepot, ArrayList<Point> possibleParcels, ArrayList<Point> possibleVehicles, Simulator sim) {
+    static void TestWithMultiplePackageAtTheBeginning(int numAgvs,int numParcels,long randomSeed,ArrayList<Point> possibleDepot, ArrayList<Point> possibleParcels, ArrayList<Point> possibleVehicles, Simulator sim) {
 
         for (int i = 0; i < 4; i++) {
             sim.register(new MultiDepot(possibleDepot.get(i), sim));
         }
-        for (int i = 0; i < 4; i++) {   //max84
+        for (int i = 0; i < numParcels; i++) {   //max84
             Random rp = new Random();
-            rp.setSeed(RANDOM_SEED);
+            rp.setSeed(randomSeed);
             int randomParcel = rp.nextInt(6 * 14 - i - 0);
             MIN_POINT_1 = possibleParcels.get(randomParcel);
             possibleParcels.remove(randomParcel);
@@ -219,7 +288,7 @@ public final class Warehouse {
             }
             int randomCapacity = rp.nextInt((4));
             sim.register(new MultiAntParcel(Parcel.builder(MIN_POINT_1, P1_DELIVERY)
-                    .neededCapacity(2)
+                    .neededCapacity(1)
                     .orderAnnounceTime(M1)
                     .pickupTimeWindow(TimeWindow.create(M1_P1, M1_P2))
                     .deliveryTimeWindow(TimeWindow.create(M1_D1, M1_D2))
@@ -227,9 +296,9 @@ public final class Warehouse {
         }
 
 
-        for (int i = 0; i < 10; i++) {   //max48
+        for (int i = 0; i < numAgvs; i++) {   //max48
             Random r = new Random();
-            r.setSeed(RANDOM_SEED);
+            r.setSeed(randomSeed);
             int random = r.nextInt((2 * 13) - i - 0);
             MIN_POINT_1 = possibleVehicles.get(random);
             possibleVehicles.remove(random);
