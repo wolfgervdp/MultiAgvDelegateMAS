@@ -27,6 +27,7 @@ import com.github.rinde.rinsim.util.TimeWindow;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.eclipse.swt.graphics.RGB;
 import org.omg.CORBA.INTERNAL;
+
 import project.masagents.EvaporationAgent;
 import project.masagents.InfrastructureAgent;
 import project.masagents.MultiAntAGV;
@@ -60,12 +61,13 @@ public final class Warehouse {
 
     private static final long TEST_END_TIME = 600000L;
     private static final int TEST_SPEED_UP = 1;
+
     private static final long SERVICE_DURATION = 0;
     private static final int MAX_CAPACITY = 1;
     private static final int DEPOT_CAPACITY = 100;
     private static final int NUM_DEPOTS = 4;
     private static final int MULTIAGV_CAPACITY = 1;
-    static final long RANDOM_SEED = 123L;
+    static final long RANDOM_SEED = 90L;
     private static final double VEHICLE_SPEED_KMH = 100;
     private static final long[] SEEDS = {100l, 80l, 90l, 110l,120l};
 
@@ -88,7 +90,13 @@ public final class Warehouse {
     private Warehouse() { }
 
     public static void main(String[] args) {
-        run(false);
+
+        if(args.length >= 1 && args[0].equals("gradientfield")){
+            GradientFieldExample.run(false);
+        }else{
+            run(false);
+        }
+
     }
 
 
@@ -112,6 +120,7 @@ public final class Warehouse {
                 .with(AGVRenderer.builder().withDifferentColorsForVehicles().withVehicleCoordinates())
                 .withSpeedUp(TEST_SPEED_UP)
                 .withSimulatorEndTime(END_OF_SIMULATION);
+
 
 
         ArrayList<ArrayList<Long>> results = new ArrayList<>();
@@ -271,6 +280,7 @@ public final class Warehouse {
             sim.register(new MultiDepot(possibleDepot.get(i), sim));
         }
         for (int i = 0; i < numParcels; i++) {   //max84
+
             Random rp = new Random();
             rp.setSeed(randomSeed);
             int randomParcel = rp.nextInt(6 * 14 - i - 0);
@@ -297,6 +307,7 @@ public final class Warehouse {
 
 
         for (int i = 0; i < numAgvs; i++) {   //max48
+
             Random r = new Random();
             r.setSeed(randomSeed);
             int random = r.nextInt((2 * 13) - i - 0);

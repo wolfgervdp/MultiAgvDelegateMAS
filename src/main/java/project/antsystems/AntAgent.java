@@ -24,7 +24,7 @@ public abstract class AntAgent implements TickListener{
     //Normal constructor
     public AntAgent(Point position, GraphRoadModel roadModel, SimulatorAPI sim) {
 
-        this.currentPosition = round(position);
+        this.currentPosition = position;
         this.roadModel = roadModel;
         this.sim = sim;
     }

@@ -98,14 +98,14 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
 
             return;
         }
-        if(randomLocation != null) {
-            if(getRoadModel().getPosition(this).equals(randomLocation)) {
-                randomLocation = null;
-            }else{
-                getRoadModel().moveTo(this,  getRoadModel().getRandomPosition(sim.getRandomGenerator()), timeLapse);
-            }
-            return;
-        }
+//        if(randomLocation != null) {
+//            if(getRoadModel().getPosition(this).equals(randomLocation)) {
+//                randomLocation = null;
+//            }else{
+//                getRoadModel().moveTo(this,  getRoadModel().getRandomPosition(sim.getRandomGenerator()), timeLapse);
+//            }
+//            return;
+//        }
 
         RoadModel rm = getRoadModel();
         Set<MultiAGV> objects = rm.getObjectsOfType(MultiAGV.class);
@@ -128,7 +128,6 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
             currentIntention.popPath();
             //If at next waypoint, resend exploration ants, and pop the location we got to
         }else if(atNextGoal()) {
-
             sendExplorationAnts();
             System.out.println("at next goal");
             popPath();
@@ -161,7 +160,7 @@ public class MultiAntAGV extends MultiAGV implements AntAGV {
 
     private void popPath(){
         lastLocation = currentIntention.peekNextGoalLocation();
-        currentIntention.popPath();
+        currentIntention.popGoalLocation();
     }
 
     private boolean atNextGoal(){

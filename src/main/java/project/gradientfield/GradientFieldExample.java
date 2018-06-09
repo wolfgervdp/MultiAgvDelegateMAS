@@ -58,6 +58,7 @@ import java.util.*;
  * @author Rinde van Lon
  */
 public final class GradientFieldExample implements ModelReceiver {
+ 
 	private static final double VEHICLE_LENGTH = 2.0D;
 	private static final int[] NUM_AGVS = {1,2,4,6,8,16};
 	private static final long TEST_END_TIME = 600000L;
@@ -71,6 +72,7 @@ public final class GradientFieldExample implements ModelReceiver {
 	static final long RANDOM_SEED = 123L;
 	private static final double VEHICLE_SPEED_KMH = 100;
 	private static final long[] SEEDS = {100l, 80l, 90l, 110l,120l};
+
 
 	private static Point MIN_POINT_1 = new Point(0, 32);
 	private static Point P1_DELIVERY = new Point(64, 32);
@@ -100,9 +102,9 @@ public final class GradientFieldExample implements ModelReceiver {
 	 *
 	 * @param args Ignored.
 	 */
-	public static void main(String[] args) {
-		run(false);
-	}
+//	public static void main(String[] args) {
+//		run(false);
+//	}
 
 	/**
 	 * Runs the example.
@@ -261,6 +263,7 @@ public final class GradientFieldExample implements ModelReceiver {
 
 
 		for (int i = 0; i < numAgvs; i++) {   //max48
+
 			Random r = new Random();
 			r.setSeed(randomSeed);
 			int random = r.nextInt((2 * 13) - i - 0);
