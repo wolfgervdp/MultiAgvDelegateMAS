@@ -9,15 +9,13 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 import org.jetbrains.annotations.Nullable;
-import project.*;
+import project.MultiParcel;
 import project.masagents.AntAGV;
 import project.masagents.InfrastructureAgent;
 import project.masagents.MultiAntParcel;
 
 import javax.measure.unit.SI;
 import java.util.*;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /*
     Explores the map for a possible path going through Parcels. Adds new points at the back of the queue.

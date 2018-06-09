@@ -1,12 +1,8 @@
 package project.gradientfield;
 
-import com.github.rinde.rinsim.core.model.pdp.ParcelDTO;
 import com.github.rinde.rinsim.core.model.pdp.Depot;
-import com.github.rinde.rinsim.core.model.pdp.PDPModel.ParcelState;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.geom.Point;
-
-import project.MultiParcel;
 
 public class MultiDepotGradientField extends Depot implements FieldEmitter  {
 

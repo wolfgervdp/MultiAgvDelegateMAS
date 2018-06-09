@@ -7,14 +7,10 @@ package project;
 
 import com.github.rinde.rinsim.core.Simulator;
 import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
-import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
-import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
-//import com.github.rinde.rinsim.core.model.road.NewRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModelBuilders;
-import com.github.rinde.rinsim.core.model.time.TimeLapse;
-import com.github.rinde.rinsim.geom.*;
+import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.pdptw.common.RouteRenderer;
 import com.github.rinde.rinsim.scenario.Scenario;
 import com.github.rinde.rinsim.ui.View;
@@ -24,27 +20,23 @@ import com.github.rinde.rinsim.ui.renderers.PDPModelRenderer;
 import com.github.rinde.rinsim.ui.renderers.RoadUserRenderer;
 import com.github.rinde.rinsim.ui.renderers.WarehouseRenderer;
 import com.github.rinde.rinsim.util.TimeWindow;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Table;
-
-import project.gradientfield.MultiAGVGradientField;
-import project.gradientfield.MultiDepotGradientField;
-import project.gradientfield.MultiParcelGradientField;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.eclipse.swt.graphics.RGB;
 import project.masagents.EvaporationAgent;
 import project.masagents.InfrastructureAgent;
 import project.masagents.MultiAntAGV;
 import project.masagents.MultiAntParcel;
 import project.visualisers.AntAgentRenderer;
-import org.apache.commons.math3.random.RandomGenerator;
-import org.eclipse.swt.graphics.RGB;
 import project.visualisers.ExplorationAntVisualiser;
 import project.visualisers.GoalVisualiser;
 import project.visualisers.IntentionAntVisualiser;
 
-import java.util.*;
-
 import javax.measure.unit.SI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+//import com.github.rinde.rinsim.core.model.road.NewRoadModel;
 
 public final class Warehouse {
 

@@ -9,9 +9,10 @@ import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 import project.MultiAGV;
 import project.MultiAggregateAGV;
-import project.MultiParcel;
-import project.antsystems.*;
 import project.MultiDepot;
+import project.MultiParcel;
+import project.antsystems.GenericExplorationAnt;
+import project.antsystems.IntentionAnt;
 
 import java.util.*;
 

@@ -10,7 +10,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
 
-import java.util.*;
+import java.util.Set;
 
 public class AntAgentRenderer extends CanvasRenderer.AbstractCanvasRenderer{
     /*

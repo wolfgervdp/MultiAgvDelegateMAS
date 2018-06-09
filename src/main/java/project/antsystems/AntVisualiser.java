@@ -1,19 +1,8 @@
 package project.antsystems;
 
-import com.github.rinde.rinsim.core.Simulator;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.geom.Point;
-import com.github.rinde.rinsim.ui.renderers.CanvasRenderer;
-import com.github.rinde.rinsim.ui.renderers.ViewPort;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.internal.win32.POINT;
-import project.gradientfield.MultiAGVGradientField;
-
-import java.util.List;
-import java.util.Map;
 
 public class AntVisualiser  implements RoadUser {
 

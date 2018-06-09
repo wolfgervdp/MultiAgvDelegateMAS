@@ -9,7 +9,6 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import project.MultiParcel;
 import project.antsystems.Explorable;
 import project.antsystems.SignAnt;
-import project.visualisers.ExplorationAntVisualiser;
 
 public class MultiAntParcel extends MultiParcel implements TickListener, Explorable {
 

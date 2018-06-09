@@ -1,31 +1,27 @@
 package project.gradientfield;
 
-import static com.google.common.base.Verify.verifyNotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-
-import org.apache.commons.math3.random.RandomGenerator;
-
 import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
+import com.github.rinde.rinsim.core.model.pdp.PDPModel.ParcelState;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.VehicleDTO;
-import com.github.rinde.rinsim.core.model.pdp.PDPModel.ParcelState;
-import com.github.rinde.rinsim.core.model.pdp.PDPModel.VehicleState;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModels;
 import com.github.rinde.rinsim.core.model.road.RoadUser;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.google.common.base.Predicate;
-
+import org.apache.commons.math3.random.RandomGenerator;
 import project.MultiAGV;
 import project.MultiAggregateAGV;
 import project.MultiParcel;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.base.Verify.verifyNotNull;
 
 
 public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
@@ -36,7 +32,9 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
     static final int DISTANCE_THRESHOLD_KM = 40;
     @Nullable
     private GradientModel gradientModel;
-    private Point storedPoint = null;
+    private List<Point> storedPoint = null;
+    private Point movePoint = null;
+
     private ArrayList<Point> unregisteredAGVStartLocation = new ArrayList<Point>();
     private ArrayList<Point> garageLocation = new ArrayList<Point>();
 
@@ -65,7 +63,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
 
         Point p = verifyNotNull(gradientModel).getTargetFor(this);
         if (p != null) {
-            storedPoint = p;
+            //storedPoint = p;
         }
 
         Point getPosition = this.getPosition();
@@ -89,7 +87,7 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
         //System.out.println("field value without ownfield"+ ((strenght/4)-ownFieldValue));
         if (fieldValue < (strenght / 2)) {
             if (storedPoint != null) {
-                rm.moveTo(this, storedPoint, time);
+                rm.moveTo(this, storedPoint.get(1), time);
                 //System.out.println("Too negative gradient value (deliver) " +fieldValue +" position: "+ this.getPosition());
 
             }
@@ -101,7 +99,8 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
     }
 
     protected void ParcelmovingWithAvoidCollisionWithGradientField(Parcel closest, TimeLapse time, RoadModel rm) {
-        Point p = verifyNotNull(gradientModel).getTargetFor(this);
+        List<Point> p = verifyNotNull(gradientModel).getTargetsFor(this);
+
         if (p != null) {
             storedPoint = p;
         }
@@ -123,18 +122,53 @@ public class MultiAGVGradientField extends MultiAGV implements FieldContainer {
             //System.out.println("field value without ownfield "+ ((strenght/4)-ownFieldValue));
         }
 
-        float ownFieldValue = verifyNotNull(gradientModel).getField(thisPoint, this);
+        if (fieldValue < (strenght / (2))) {
+            // if (fieldValue < (strenght / 4)) {
+            boolean correctPostion=true;
+            int count=0;
+            while (correctPostion)
+            {
+                if (storedPoint.get(0)!=this.getPosition()) {
+                    if (storedPoint.size()==1){
+                        movePoint=storedPoint.get(0);
+                        break;
 
-        if (fieldValue < (strenght / 2)) {
-           // if (fieldValue < (strenght / 4)) {
+                    }else{
+                        List<Point> ShortestPath;
+                        if(storedPoint.size()==count ) {
+                            correctPostion = false;
+                            break;
+                        }
+                        try {
+                            ShortestPath = rm.getShortestPathTo(storedPoint.get(count), this.getPosition());
+                        } catch (Exception e){
+                            System.out.println("vehicle" + this.getPosition());
+                            System.out.println("point" + storedPoint);
+                            ShortestPath = rm.getShortestPathTo(storedPoint.get(count), this.getPosition());
+                        }
+                        if (ShortestPath.size() < 5 ||storedPoint.size()==count ) {
+                            correctPostion = false;
+                            movePoint = ShortestPath.get(0);
+                            break;
+                        }
+                        count++;
+
+                    }
 
 
-                if (storedPoint != null) {
-                    rm.moveTo(this, storedPoint, time);
                 }
+                else{
+                    movePoint=this.getPosition();
+                    break;
+                }
+            }
+
+            if (movePoint != null) {
+                rm.moveTo(this, movePoint, time);
+            }
 //            }else {
 //                rm.moveTo(this,thisPoint,time);
-          /// }
+            /// }
             //System.out.println("Too negative gradient value (cloesests)");
         } else {
             //System.out.println("Moving to closests "+fieldValue+" own "+ownFieldValue +" name"+ this.toString());

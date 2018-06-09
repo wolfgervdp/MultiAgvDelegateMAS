@@ -38,8 +38,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import javax.measure.unit.SI;
 import java.util.ArrayList;
 import java.util.Random;
-//import project.gradientfield.testExample.ParcelHandler;
-//import project.gradientfield.testExample.VehicleHandler;
+
 
 /**
  * Example of a gradient field MAS for the Gendreau et al. (2006) dataset.
@@ -99,7 +98,7 @@ public final class GradientFieldExample implements ModelReceiver {
 				.with(GradientFieldRenderer.builder())
 				.with(RouteRenderer.builder())
 				.with(PDPModelRenderer.builder().withDestinationLines())
-				.with(AGVRenderer.builder().withDifferentColorsForVehicles())
+				.with(AGVRenderer.builder().withDifferentColorsForVehicles().withVehicleCoordinates())
 				.withSimulatorEndTime((long)END_OF_SIMULATION)
 				.withSpeedUp(SPEED_UP)
 				;
@@ -108,13 +107,13 @@ public final class GradientFieldExample implements ModelReceiver {
 		Simulator sim = Simulator.builder()
 				.addModel(
 						RoadModelBuilders.dynamicGraph(
-								WarehouseDesign.GraphCreator.createSimpleGraph(3))
+								WarehouseDesign.GraphCreator.createSimpleGraph(1))
 								.withCollisionAvoidance()
 								.withDistanceUnit(SI.METER)
 								.withSpeedUnit(SI.METERS_PER_SECOND)
-								.withVehicleLength(2))
+								.withVehicleLength(2)
+				)
 				.addModel(GradientModel.builder())
-
 				.addModel(DefaultPDPModel.builder().withTimeWindowPolicy(TimeWindowPolicies.TARDY_ALLOWED))
 				.addModel(view)
 				.build();
@@ -220,7 +219,7 @@ public final class GradientFieldExample implements ModelReceiver {
 		for (int i = 0; i < 4; i++)        {
 			sim.register(new MultiDepotGradientField(possibleDepot.get(i)));
 		}
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 10; i++)
 		{   //max84
 			Random rp = new Random();
 			rp.setSeed(RANDOM_SEED);
@@ -237,16 +236,19 @@ public final class GradientFieldExample implements ModelReceiver {
 					P1_DELIVERY = possibleDepot.get(iCount);
 				}
 			}
-			int randomOrderAnnouncement = rp.nextInt((int)(END_OF_SIMULATION*0.9));
-			int randomCapacity = rp.nextInt((4));
+
+			int randomOrderAnnouncement = (END_OF_SIMULATION/15);
+
+			int randomCapacity = rp.nextInt((3))+1
+					;
 			sim.register( new MultiParcelGradientField(Parcel.builder(MIN_POINT_1, P1_DELIVERY)
 					.neededCapacity(randomCapacity)
-					.orderAnnounceTime(randomOrderAnnouncement)
-					.pickupTimeWindow(TimeWindow.create(M1_P1+randomOrderAnnouncement, M1_P2+randomOrderAnnouncement))
-					.deliveryTimeWindow(TimeWindow.create(M1_D1+randomOrderAnnouncement, M1_D2+randomOrderAnnouncement))
+					.orderAnnounceTime(M1_P1)
+					.pickupTimeWindow(TimeWindow.create(M1_P1+randomOrderAnnouncement*i, M1_P2+randomOrderAnnouncement*i))
+					.deliveryTimeWindow(TimeWindow.create(M1_D1+randomOrderAnnouncement*i, M1_D2+randomOrderAnnouncement*i))
 					.buildDTO()));
 		}
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 6; i++)
 		{   //max48
 			Random r = new Random();
 			r.setSeed(RANDOM_SEED);

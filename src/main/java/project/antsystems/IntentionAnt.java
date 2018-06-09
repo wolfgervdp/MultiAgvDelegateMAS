@@ -10,8 +10,6 @@ import project.masagents.InfrastructureAgent;
 import project.visualisers.IntentionAntVisualiser;
 
 import java.util.ArrayDeque;
-
-import java.util.Iterator;
 import java.util.Queue;
 
 public class IntentionAnt extends PathAntAgent {

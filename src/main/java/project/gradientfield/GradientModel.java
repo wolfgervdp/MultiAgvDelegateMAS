@@ -15,31 +15,26 @@
  */
 package project.gradientfield;
 
-import static com.google.common.base.Verify.verifyNotNull;
-
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import javax.annotation.Nullable;
-
 import com.github.rinde.rinsim.core.model.DependencyProvider;
 import com.github.rinde.rinsim.core.model.Model.AbstractModel;
 import com.github.rinde.rinsim.core.model.ModelBuilder.AbstractModelBuilder;
 import com.github.rinde.rinsim.core.model.ModelProvider;
 import com.github.rinde.rinsim.core.model.ModelReceiver;
-import com.github.rinde.rinsim.core.model.pdp.Depot;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
-import com.github.rinde.rinsim.core.model.road.RoadModel;
-
 import com.github.rinde.rinsim.geom.Point;
 import com.google.auto.value.AutoValue;
+import com.sun.jna.PointerType;
+import javafx.util.Pair;
+
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Verify.verifyNotNull;
 
 
 
@@ -128,6 +123,43 @@ implements ModelReceiver {
 		}
 		maxFieldPoint=new Point(Math.round(maxFieldPoint.x/4)*4,Math.round(maxFieldPoint.y/4)*4 );
 		return maxFieldPoint;
+	}
+
+	@Nullable
+	List<Point> getTargetsFor(FieldContainer element) {
+		float maxField = Float.NEGATIVE_INFINITY;
+		Point maxFieldPoint = null;
+		//List<Float> fields = null;
+		ArrayList<Point> FieldPoints=new ArrayList<Point>();
+		ArrayList<Point> sortedFieldPoints=new ArrayList<Point>();;
+		ArrayList<Pair<Float,Point>> fieldsandFieldPoints=new ArrayList<Pair<Float,Point>>();
+		float[][] fields ={{1,1},{2,2},{3,3},{4,4}};
+		int count=0;
+		for (int i = 0; i < X.length; i=i+2) {
+
+			final Point p = new Point(
+					Math.round(element.getPosition().x/4)*4 + X[i],
+					Math.round(element.getPosition().y/4)*4 + Y[i]);
+			//System.out.println(p);
+			if (p.x < minX || p.x > maxX || p.y < minY || p.y > maxY) {
+				continue;
+			}
+			fields[count][0]=getField(p, element);
+			FieldPoints.add(new Point(Math.round(p.x/4)*4,Math.round(p.y/4)*4 ));
+			fieldsandFieldPoints.add(new Pair<>(getField(p, element),new Point(Math.round(p.x/4)*4,Math.round(p.y/4)*4 )));
+			count++;
+		}
+		// Using built-in sort function Arrays.sort
+		Collections.sort(fieldsandFieldPoints, new Comparator<Pair<Float, Point>>() {
+			@Override
+			public int compare(Pair<Float, Point> o1, Pair<Float, Point> o2) {
+				return -o1.getKey().compareTo(o2.getKey());			}
+		});
+		for(int i=0; i< FieldPoints.size();i++)
+		{
+			sortedFieldPoints.add(fieldsandFieldPoints.get(i).getValue());
+		}
+		return sortedFieldPoints;
 	}
 
 	float getField(Point in, FieldContainer multiAGVGradientField) {

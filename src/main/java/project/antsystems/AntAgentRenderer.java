@@ -3,32 +3,14 @@ package project.antsystems;
 import com.github.rinde.rinsim.core.model.DependencyProvider;
 import com.github.rinde.rinsim.core.model.ModelBuilder;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
-import com.github.rinde.rinsim.core.model.road.RoadUser;
-import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.ui.renderers.CanvasRenderer;
 import com.github.rinde.rinsim.ui.renderers.ViewPort;
 import com.google.auto.value.AutoValue;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
 
-import java.util.*;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.RGB;
-
-import com.github.rinde.rinsim.core.model.DependencyProvider;
-import com.github.rinde.rinsim.core.model.ModelBuilder.AbstractModelBuilder;
-import com.github.rinde.rinsim.geom.Point;
-import com.github.rinde.rinsim.ui.renderers.CanvasRenderer.AbstractCanvasRenderer;
-import com.github.rinde.rinsim.ui.renderers.ViewPort;
-import com.google.auto.value.AutoValue;
+import java.util.Set;
 
 public class AntAgentRenderer extends CanvasRenderer.AbstractCanvasRenderer{
     /*

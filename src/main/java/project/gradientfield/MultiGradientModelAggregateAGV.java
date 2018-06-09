@@ -23,7 +23,8 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
     private RandomGenerator rng;
     private float strenght = -600;
     private GradientModel gradientModel;
-    private Point storedPoint = null;
+    private List<Point> storedPoint = null;
+    private Point movePoint = null;
     private ArrayList<Point> unregisteredAGVStartLocation = new ArrayList<Point>();
     private ArrayList<Point> garageLocation = new ArrayList<Point>();
 
@@ -84,10 +85,12 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
 
     protected void movingWithAvoidCollisionWithGradientField(Parcel delivery, TimeLapse time, RoadModel rm) {
 
-        Point p = verifyNotNull(gradientModel).getTargetFor(this);
+        List<Point> p = verifyNotNull(gradientModel).getTargetsFor(this);
+
         if (p != null) {
             storedPoint = p;
         }
+        //S
 
         Point getPosition = this.getPosition();
         Point point = new Point(Math.round(this.getPosition().x / 4) * 4, Math.round(this.getPosition().y / 4) * 4);
@@ -108,11 +111,56 @@ public class MultiGradientModelAggregateAGV extends MultiAggregateAGV  implement
         }
         //System.out.println("now"+storedPoint+"car"+this.getPosition());
         //System.out.println("field value without ownfield"+ ((strenght/4)-ownFieldValue));
-        if (fieldValue < (strenght / 2)) {
-            if (storedPoint != null) {
-                rm.moveTo(this, storedPoint, time);
-                //System.out.println("Too negative gradient value (deliver) " +fieldValue +" position: "+ this.getPosition());
+        if (fieldValue < (strenght / (2))) {
+            // if (fieldValue < (strenght / 4)) {
+            boolean correctPostion=true;
+            int count=0;
+            while (correctPostion)
+            {
+                if (storedPoint.get(0)!=this.getPosition()) {
+                    if (storedPoint.size()==1){
+                        movePoint=storedPoint.get(0);
+                        break;
+
+                    }else{
+                        if(storedPoint.size()==count ) {
+                            correctPostion = false;
+                            break;
+                        }
+                        List<Point> ShortestPath;
+                        try {
+                            ShortestPath = rm.getShortestPathTo(storedPoint.get(count), this.getPosition());
+                        } catch (Exception e){
+                            System.out.println("vehicle" + this.getPosition());
+                            System.out.println("point" + storedPoint);
+                            System.out.println("count" + count);
+                            ShortestPath = rm.getShortestPathTo(storedPoint.get(count), this.getPosition());
+                        }
+                        if (ShortestPath.size() < 5 ||storedPoint.size()==count ) {
+                            correctPostion = false;
+                            movePoint = ShortestPath.get(0);
+                            break;
+                        }
+                        count++;
+
+                    }
+
+
+                }
+                else{
+                    movePoint=this.getPosition();
+                    break;
+                }
             }
+
+            if (movePoint != null) {
+                rm.moveTo(this, movePoint, time);
+            }
+//            }else {
+//                rm.moveTo(this,thisPoint,time);
+            /// }
+            //System.out.println("Too negative gradient value (cloesests)");
+
         } else {
             rm.moveTo(this, delivery.getDeliveryLocation(), time);
 //			System.out.println("Moving to deliver "+ fieldValue+" position: "+ this.getPosition());

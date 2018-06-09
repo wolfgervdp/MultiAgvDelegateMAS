@@ -1,10 +1,8 @@
 package project.antsystems;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
-
 import com.github.rinde.rinsim.core.model.road.GraphRoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
-
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 import project.helperclasses.DeepCopy;
@@ -13,8 +11,6 @@ import project.visualisers.ExplorationAntVisualiser;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /*
     PathAntAgent is a superclass of all ant based agents

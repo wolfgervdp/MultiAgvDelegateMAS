@@ -1,19 +1,11 @@
 package project;
 
 import com.github.rinde.rinsim.core.SimulatorAPI;
-import com.github.rinde.rinsim.core.model.pdp.Parcel;
-import com.github.rinde.rinsim.core.model.pdp.Vehicle;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
-import com.sun.org.apache.xpath.internal.operations.Mult;
-import org.apache.commons.math3.random.RandomGenerator;
-import org.eclipse.swt.internal.win32.POINT;
-import project.gradientfield.MultiAGVGradientField;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
 import java.util.Set;
 
 public abstract class MultiAggregateAGV extends MultiAGV {

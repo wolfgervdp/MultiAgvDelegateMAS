@@ -1,11 +1,6 @@
 package project.gradientfield;
 
-import com.github.rinde.rinsim.geom.Graph;
-import com.github.rinde.rinsim.geom.Graphs;
-import com.github.rinde.rinsim.geom.LengthData;
-import com.github.rinde.rinsim.geom.ListenableGraph;
-import com.github.rinde.rinsim.geom.Point;
-import com.github.rinde.rinsim.geom.TableGraph;
+import com.github.rinde.rinsim.geom.*;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;

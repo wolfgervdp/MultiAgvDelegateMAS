@@ -1,10 +1,7 @@
 package project;
 
-import com.github.rinde.rinsim.core.model.road.RoadModel;
-import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 

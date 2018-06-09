@@ -9,10 +9,9 @@ import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 import com.google.common.base.Predicate;
 import org.jetbrains.annotations.Nullable;
-import project.*;
+import project.MultiParcel;
 import project.masagents.AntAGV;
 import project.masagents.InfrastructureAgent;
-import project.masagents.MultiAntParcel;
 
 import javax.measure.unit.SI;
 import java.util.*;

@@ -1,11 +1,8 @@
 package project;
 
-import com.github.rinde.rinsim.core.SimulatorAPI;
 import com.github.rinde.rinsim.geom.*;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.reverse;
