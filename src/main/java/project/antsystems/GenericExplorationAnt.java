@@ -44,7 +44,7 @@ public class GenericExplorationAnt extends PathAntAgent{
         System.out.println(position);
         this.classToLookFor = classToLookFor;
 
-        initVisualisationQueue(round(position));
+        initVisualisationQueue(position);
     }
 
 

@@ -128,11 +128,11 @@ public class MultiAntAggregateAGV  extends MultiAggregateAGV implements AntAGV {
         MultiAntAGV agv = new MultiAntAGV(location, 1, sim);
         RoadModel rm = getRoadModel();
 
-        Random r = new Random();
-        r.setSeed(System.currentTimeMillis());
-        int random = r.nextInt((2 * 13));
-        List<Point> possibleVehicles = createPossibleAGVLocations();
-        agv.setRandomLocation(possibleVehicles.get(random));
+//        Random r = new Random();
+//        r.setSeed(System.currentTimeMillis());
+//        int random = r.nextInt((2 * 13));
+//        List<Point> possibleVehicles = createPossibleAGVLocations();
+//        agv.setRandomLocation(possibleVehicles.get(random));
 
         return agv;
     }

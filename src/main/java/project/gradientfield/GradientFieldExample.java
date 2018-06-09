@@ -51,9 +51,9 @@ import java.util.Random;
  * @author Rinde van Lon
  */
 public final class GradientFieldExample implements ModelReceiver {
-	static final long RANDOM_SEED = 123L;
+	static final long RANDOM_SEED = 90L;
 	private static final double VEHICLE_SPEED_KMH = 100 ;
-	private static final int SPEED_UP = 30 ;
+	private static final int SPEED_UP = 5 ;
 
 	private static Point MIN_POINT_1 = new Point(0, 32);
 	private static Point P1_DELIVERY = new Point(64, 32);
@@ -82,9 +82,9 @@ public final class GradientFieldExample implements ModelReceiver {
 	 *
 	 * @param args Ignored.
 	 */
-	public static void main(String[] args) {
-		run(false);
-	}
+//	public static void main(String[] args) {
+//		run(false);
+//	}
 
 	/**
 	 * Runs the example.
@@ -201,7 +201,7 @@ public final class GradientFieldExample implements ModelReceiver {
 		}
 
 
-		for (int i = 0; i <8; i++)
+		for (int i = 0; i <6; i++)
 		{   //max48
 			Random r = new Random();
 			r.setSeed(RANDOM_SEED);

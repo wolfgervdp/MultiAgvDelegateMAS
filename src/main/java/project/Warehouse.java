@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
+import project.gradientfield.GradientFieldExample;
 import project.gradientfield.MultiAGVGradientField;
 import project.gradientfield.MultiDepotGradientField;
 import project.gradientfield.MultiParcelGradientField;
@@ -52,14 +53,14 @@ public final class Warehouse {
     private static final double VEHICLE_LENGTH = 2.0D;
     private static final int NUM_AGVS = 1;
     private static final long TEST_END_TIME = 600000L;
-    private static final int TEST_SPEED_UP = 1;
+    private static final int TEST_SPEED_UP = 5;
     private static final int NUM_PARCEL = 20;
     private static final long SERVICE_DURATION = 0;
     private static final int MAX_CAPACITY = 1;
     private static final int DEPOT_CAPACITY = 100;
     private static final int NUM_DEPOTS = 4;
     private static final int MULTIAGV_CAPACITY = 1;
-    static final long RANDOM_SEED = 123L;
+    static final long RANDOM_SEED = 90L;
     private static final double VEHICLE_SPEED_KMH = 100;
 
     private static Point MIN_POINT_1 = new Point(0, 32);
@@ -79,7 +80,13 @@ public final class Warehouse {
     private Warehouse() { }
 
     public static void main(String[] args) {
-        run(false);
+
+        if(args.length >= 1 && args[0].equals("gradientfield")){
+            GradientFieldExample.run(false);
+        }else{
+            run(false);
+        }
+
     }
 
 
@@ -106,8 +113,8 @@ public final class Warehouse {
                 .with(RouteRenderer.builder())
                 .with(PDPModelRenderer.builder())
                 .with(AGVRenderer.builder().withDifferentColorsForVehicles().withVehicleCoordinates())
-                .withSimulatorEndTime(END_OF_SIMULATION);
-                //.withSpeedUp(TEST_SPEED_UP);
+                .withSimulatorEndTime(END_OF_SIMULATION)
+                .withSpeedUp(TEST_SPEED_UP);
 
         List<InfrastructureAgent> infrastructureAgents = new ArrayList<>();
 
@@ -209,7 +216,7 @@ public final class Warehouse {
         for (int i = 0; i < 4; i++) {
             sim.register(new MultiDepot(possibleDepot.get(i), sim));
         }
-        for (int i = 0; i < 4; i++) {   //max84
+        for (int i = 0; i < 7; i++) {   //max84
             Random rp = new Random();
             rp.setSeed(RANDOM_SEED);
             int randomParcel = rp.nextInt(6 * 14 - i - 0);
@@ -235,7 +242,7 @@ public final class Warehouse {
         }
 
 
-        for (int i = 0; i < 10; i++) {   //max48
+        for (int i = 0; i < 6; i++) {   //max48
             Random r = new Random();
             r.setSeed(RANDOM_SEED);
             int random = r.nextInt((2 * 13) - i - 0);
